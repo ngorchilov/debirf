@@ -5,42 +5,57 @@ METHOD=0
 
 cd /srv/debirf
 
-/usr/sbin/debootstrap --exclude=aptitude etch ./root/ http://ftp.debian.org/debian
+# start by fetching initramfs-tools because they'll be handy
+/usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch ./root/ http://ftp.debian.org/debian
 
-cd root
+echo debirf > root/etc/hostname
+cat >root/etc/kernel-img.conf <<EOF
+do_symlinks = yes
+do_bootloader = no
+do_initrd = yes
+EOF
 
-echo debirf > /etc/hostname
+mount -t proc proc root/proc
+mount -t sysfs sys root/sys
 
-# enter chroot ############################################
-chroot .
-apt-get update
-echo 'do_initrd = Yes' >> /etc/kernel-img.conf
-# another modification of /etc/kernel-img.conf to not do symlinks?
-apt-get install linux-image-2.6-486
-
-# remove locales?
-# find /usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec rm -rf '{}' \;
+# set $KERNEL_PACKAGE to the path to a kernel .deb if you have one
+# lying around:
+if [ "$KERNEL_PACKAGE" ]; then
+    KNAME=$(basename "$KERNEL_PACKAGE")
+    cp "$KERNEL_PACKAGE" "root/root/$KNAME"
+    chroot root dpkg --install "root/$KNAME"
+else
+    chroot root apt-get update
+    chroot root apt-get install linux-image-2.6-486
+fi
 
 # clean apt?
 if false ; then
-    apt-cache clean
-    rm /var/cache/apt/*.bin
-    rm -rf /var/lib/apt/lists/*
-    mkdir /var/lib/apt/lists/partial
+    chroot root apt-get clean
+    rm root/var/cache/apt/*.bin
+    rm -rf root/var/lib/apt/lists/*
+    mkdir root/var/lib/apt/lists/partial
 fi
 
-exit
-# exit chroot ############################################
+umount root/proc
+umount root/sys
 
-mv boot/vmlinuz-* ../
-mv boot/initrd.img-* ../
+mkdir -p extras/boot
+
+mv root/boot/vmlinuz-* extras/boot
+mv root/boot/initrd.img-* extras/boot
+
+# remove/backup locales:
+mkdir -p extras/usr/share/locale
+(cd root && find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec mv '{}' '../extras/{}' \; )
+
 
 # stupid simple method
 if [ "$METHOD" = 0 ] ; then
-> etc/mtab
-echo proc /proc proc defaults 0 0 >> etc/fstab
-ln -s sbin/init init
-find * | cpio -H newc --create  | gzip > ../debirf.cgz
+    > root/etc/mtab
+    echo proc /proc proc defaults 0 0 >> root/etc/fstab
+    ln -s sbin/init root/init
+    (cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
 fi
 
 
