@@ -1,0 +1,69 @@
+#!/bin/bash
+
+METHOD=0
+#http_proxy=http://proxy.lair.fifthhorseman.net:3128/
+
+cd /srv/debirf
+
+/usr/sbin/debootstrap --exclude=aptitude etch ./root/ http://ftp.debian.org/debian
+
+cd root
+
+echo debirf > /etc/hostname
+
+# enter chroot ############################################
+chroot .
+apt-get update
+echo 'do_initrd = Yes' >> /etc/kernel-img.conf
+# another modification of /etc/kernel-img.conf to not do symlinks?
+apt-get install linux-image-2.6-486
+
+# remove locales?
+# find /usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec rm -rf '{}' \;
+
+# clean apt?
+if false ; then
+    apt-cache clean
+    rm /var/cache/apt/*.bin
+    rm -rf /var/lib/apt/lists/*
+    mkdir /var/lib/apt/lists/partial
+fi
+
+exit
+# exit chroot ############################################
+
+mv boot/vmlinuz-* ../
+mv boot/initrd.img-* ../
+
+# stupid simple method
+if [ "$METHOD" = 0 ] ; then
+> etc/mtab
+echo proc /proc proc defaults 0 0 >> etc/fstab
+ln -s sbin/init init
+find * | cpio -H newc --create  | gzip > ../debirf.cgz
+fi
+
+
+# tweak initrd method
+if [ "$METHOD" = 1 ] ; then
+
+
+cat scripts/debirf <<EOF
+mountroot() {
+ rootmnt="/"
+}
+EOF
+
+cat > bin/run-init <<EOF
+#!/bin/sh
+if [ "$1" != "/" ] ; then
+  exec /usr/lib/klibc/bin/run-init "$@"
+else
+  MOUNT_POINT="$1"
+  INIT="$2"
+  shift 2
+  exec "$INIT" "$@"
+fi
+EOF
+
+fi
