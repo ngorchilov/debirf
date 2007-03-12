@@ -5,10 +5,14 @@ METHOD=0
 
 cd /srv/debirf
 
+# create debootstrap rot
 # start by fetching initramfs-tools because they'll be handy
 /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch ./root/ http://ftp.debian.org/debian
 
+# add system name
 echo debirf > root/etc/hostname
+
+# kernel install settings
 cat >root/etc/kernel-img.conf <<EOF
 # debirf: default kernel-img options:
 do_symlinks = yes
@@ -16,11 +20,13 @@ do_bootloader = no
 do_initrd = yes
 EOF
 
+# add serial terminal (plugin?)
 cat >>root/etc/inittab <<EOF
 # debirf: added serial console output:
 T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100
 EOF
 
+# add default interface configuration (plugin?)
 cat >>root/etc/network/interfaces <<EOF
 # debirf: some needed interfaces:
 auto lo
@@ -31,7 +37,7 @@ iface lo inet loopback
 iface dhcp inet dhcp
 EOF
 
-
+# mount sys, proc
 mount -t proc proc root/proc
 mount -t sysfs sys root/sys
 
@@ -54,39 +60,40 @@ if false ; then
     mkdir root/var/lib/apt/lists/partial
 fi
 
+# umount sys,proc
 umount root/proc
 umount root/sys
 
 mkdir -p extras/boot
 
-mv root/boot/vmlinuz-* extras/boot
-mv root/boot/initrd.img-* extras/boot
+# extract kernel, debian stock initrd
+mv root/boot/vmlinuz-* .
+mv root/boot/initrd.img-* extras/boot/
 
 # remove/backup locales:
 mkdir -p extras/usr/share/locale
 (cd root && find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec mv '{}' '../extras/{}' \; )
 
-
-# stupid simple method
+###### stupid simple method
 if [ "$METHOD" = 0 ] ; then
+    # clear mtab
     > root/etc/mtab
+    # add proc to fstab
     echo proc /proc proc defaults 0 0 >> root/etc/fstab
+    #ln sbin/init to /init
     ln -s sbin/init root/init
+    # create root image
     (cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
 fi
 
-
-# tweak initrd method
+###### tweak initrd method
 if [ "$METHOD" = 1 ] ; then
-
-
-cat scripts/debirf <<EOF
+    cat scripts/debirf <<EOF
 mountroot() {
  rootmnt="/"
 }
 EOF
-
-cat > bin/run-init <<EOF
+    cat > bin/run-init <<EOF
 #!/bin/sh
 if [ "$1" != "/" ] ; then
   exec /usr/lib/klibc/bin/run-init "$@"
@@ -97,5 +104,7 @@ else
   exec "$INIT" "$@"
 fi
 EOF
-
+    # create root image
+    cp extra/boot/initrd.img-* debirf.cgz
+    (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
 fi
