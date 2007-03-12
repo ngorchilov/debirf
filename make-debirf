@@ -6,6 +6,11 @@ METHOD=0
 
 cd "$DEBIRF_PATH"
 
+alert() {
+# send the alerts to stderr:
+    printf "$@" >&2
+}
+
 # create checkpoint directory.  stages:
 # 0: debootstrap creation
 # 1: root prep
@@ -19,7 +24,7 @@ mkdir -p .stage
 # exclude aptitude
 GET_ROOT='Y'
 if [ -f .stage/0 ] ; then
-    echo "a debootrap already seems to be in place at $DEBIRF_PATH/root."
+    alert "a debootrap already seems to be in place at $DEBIRF_PATH/root."
     read -p "write over? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/n/N}" = 'N' ] ; then
 	GET_ROOT='N'
@@ -59,6 +64,10 @@ iface lo inet loopback
 # if you have eth0, you can use this with "ifup eth0=dhcp"
 iface dhcp inet dhcp
 EOF
+
+# other things to do:
+# change root/etc/motd.tail
+# change udev/*persistent-net*
 
 > .stage/1
 
@@ -115,7 +124,7 @@ if [ "$METHOD" = 0 ] ; then
     #ln sbin/init to /init
     ln -s sbin/init root/init
     # create root image
-    echo "creating debirf initrd..."
+    alert "creating debirf initrd..."
     ( cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
 fi
 
@@ -138,7 +147,7 @@ else
 fi
 EOF
     # create root image
-    echo "creating debirf initrd..."
+    alert "creating debirf initrd..."
     cp extra/boot/"$INITRD" debirf.cgz
     (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
 fi
@@ -146,6 +155,6 @@ fi
 > .stage/4
 
 cp extras/boot/"$KERNEL" .
-echo "created the following debirf kernel and initramfs:"
-echo "$DEBIRF_PATH/$KERNEL"
-echo "$DEBIRF_PATH/debirf.cgz"
+alert "created the following debirf kernel and initramfs:"
+alert "$DEBIRF_PATH/$KERNEL"
+alert "$DEBIRF_PATH/debirf.cgz"
