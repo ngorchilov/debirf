@@ -1,14 +1,37 @@
 #!/bin/bash
 
+DEBIRF_PATH="/srv/debirf"
 METHOD=0
 #http_proxy=http://proxy.lair.fifthhorseman.net:3128/
 
-cd /srv/debirf
+cd "$DEBIRF_PATH"
 
-# create debootstrap rot
-# start by fetching initramfs-tools because they'll be handy
-/usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch ./root/ http://ftp.debian.org/debian
+# create checkpoint directory.  stages:
+# 0: debootstrap creation
+# 1: root prep
+# 2: install kernel and extract kernel/initrd
+# 3: prune
+# 4: initrd method
+mkdir -p .stage
 
+##### create debootstrap root
+# include initramfs-tools because they'll be handy
+# exclude aptitude
+GET_ROOT='Y'
+if [ -f .stage/0 ] ; then
+    echo "a debootrap already seems to be in place at $DEBIRF_PATH/root."
+    read -p "write over? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
+    if [ "${OK/n/N}" = 'N' ] ; then
+	GET_ROOT='N'
+    fi
+fi
+if [ "$GET_ROOT" = 'Y' ] ; then
+    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch ./root/ http://ftp.debian.org/debian
+fi
+
+> .stage/0
+
+##### prep root
 # add system name
 echo debirf > root/etc/hostname
 
@@ -37,10 +60,13 @@ iface lo inet loopback
 iface dhcp inet dhcp
 EOF
 
+> .stage/1
+
 # mount sys, proc
 mount -t proc proc root/proc
 mount -t sysfs sys root/sys
 
+##### install kernel
 # set $KERNEL_PACKAGE to the path to a kernel .deb if you have one
 # lying around:
 if [ "$KERNEL_PACKAGE" ]; then
@@ -51,7 +77,16 @@ else
     chroot root apt-get update
     chroot root apt-get install linux-image-2.6-486
 fi
+# extract kernel, debian stock initrd
+mkdir -p extras/boot
+KERNEL=$(ls -1 root/boot/ | grep 'vmlinuz')
+INITRD=$(ls -1 root/boot/ | grep 'initrd.img')
+[ -f root/boot/"$KERNEL" ] && mv root/boot/"$KERNEL" extras/boot/
+[ -f root/boot/"$INITRD" ] && mv root/boot/"$INITRD" extras/boot/
 
+> .stage/2
+
+##### prune
 # clean apt?
 if false ; then
     chroot root apt-get clean
@@ -60,21 +95,18 @@ if false ; then
     mkdir root/var/lib/apt/lists/partial
 fi
 
-# umount sys,proc
-umount root/proc
-umount root/sys
-
-mkdir -p extras/boot
-
-# extract kernel, debian stock initrd
-mv root/boot/vmlinuz-* .
-mv root/boot/initrd.img-* extras/boot/
-
 # remove/backup locales:
 mkdir -p extras/usr/share/locale
 (cd root && find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec mv '{}' '../extras/{}' \; )
 
-###### stupid simple method
+# umount sys,proc
+umount root/proc
+umount root/sys
+
+> .stage/3
+
+##### initrd method
+### stupid simple method
 if [ "$METHOD" = 0 ] ; then
     # clear mtab
     > root/etc/mtab
@@ -83,10 +115,11 @@ if [ "$METHOD" = 0 ] ; then
     #ln sbin/init to /init
     ln -s sbin/init root/init
     # create root image
-    (cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
+    echo "creating debirf initrd..."
+    ( cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
 fi
 
-###### tweak initrd method
+### tweak initrd method
 if [ "$METHOD" = 1 ] ; then
     cat scripts/debirf <<EOF
 mountroot() {
@@ -105,6 +138,14 @@ else
 fi
 EOF
     # create root image
-    cp extra/boot/initrd.img-* debirf.cgz
+    echo "creating debirf initrd..."
+    cp extra/boot/"$INITRD" debirf.cgz
     (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
 fi
+
+> .stage/4
+
+cp extras/boot/"$KERNEL" .
+echo "created the following debirf kernel and initramfs:"
+echo "$DEBIRF_PATH/$KERNEL"
+echo "$DEBIRF_PATH/debirf.cgz"
