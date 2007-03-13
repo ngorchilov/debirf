@@ -1,5 +1,7 @@
 #!/bin/sh
 
-# install extra packages with apt-get
+# remove/install extra packages with apt-get
 
-chroot "$DEBIRF_ROOT" apt-get install less moreutils
+chroot "$DEBIRF_ROOT" apt-get remove --purge aptitude
+
+chroot "$DEBIRF_ROOT" apt-get install less moreutils lvm2

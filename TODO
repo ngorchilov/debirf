@@ -1,0 +1,4 @@
+other potential plugins:
+- change root/etc/motd.tail
+- change udev/*persistent-net*
+

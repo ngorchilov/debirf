@@ -5,7 +5,7 @@
 INITTAB="$DEBIRF_ROOT/etc/inittab"
 TTY="ttyS0"
 
-if grep "$TTY" "$INITTAB" | grep -v "^[:space:]*#" ; then
+if grep "$TTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
     echo "inittab already has terminal on $TTY."
     exit 1
 fi

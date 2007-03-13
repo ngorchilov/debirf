@@ -48,10 +48,6 @@ mount -t sysfs sys root/sys
 chroot root apt-get update
 
 ##### plugins
-# other potential plugins:
-# change root/etc/motd.tail
-# change udev/*persistent-net*
-
 # run plugin scripts
 export DEBIRF_ROOT
 run-parts --verbose "$PLUGINS"
