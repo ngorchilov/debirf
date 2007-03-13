@@ -61,7 +61,7 @@ create_initrd_stupid_simple() {
     local KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
     # create root image
     msg "creating debirf initrd..."
-    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}".cgz
+    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$DEBIRF_INITRD"
 }
 
 ### tweak initrd method
@@ -85,7 +85,7 @@ EOF
     # create root image
     msg "creating debirf initrd..."
     cp extra/boot/"$INITRD" debirf.cgz
-    (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
+    (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$DEBIRF_INITRD"
 }
 
 
@@ -142,6 +142,7 @@ if ! awk '{ print $2 }' < "$DEBIRF_ROOT/etc/fstab" | grep -q '^/proc' ; then
     echo proc /proc proc defaults 0 0 >> "$DEBIRF_ROOT/etc/fstab"
 fi
 
+DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
 create_initrd_${DEBIRF_METHOD}
 
 # final output
@@ -149,4 +150,4 @@ if [ "$KERNEL" ] ; then
     ln -sf  "extras/boot/$KERNEL" vmlinuz
     msg "kernel: $DEBIRF_PATH/vmlinuz"
 fi
-msg "initrd: $DEBIRF_PATH/debirf.cgz"
+msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"
