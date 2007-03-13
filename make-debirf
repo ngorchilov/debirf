@@ -102,8 +102,7 @@ EOF
 
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
-    echo "directory $DEBIRF_ROOT already exists."
-    read -p "write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+    read -p "directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/y/Y}" = 'Y' ] ; then
 	msg "installing new root..."
 	create_debootstrap
