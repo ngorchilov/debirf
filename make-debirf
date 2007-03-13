@@ -5,14 +5,10 @@
 CMD=$(basename $0)
 CMD_PATH=$(dirname $0)
 
+# source debirf.conf
 source "$CMD_PATH/debirf.conf"
 
 cd "$DEBIRF_PATH"
-
-alert() {
-# send the alerts to stderr:
-    printf "$@" >&2
-}
 
 # create checkpoint directory.  stages:
 # 0: debootstrap creation
