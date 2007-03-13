@@ -10,17 +10,18 @@ source "$CMD_PATH/debirf.conf"
 
 if [ "$1" ]; then
     DEBIRF_KERNEL_PACKAGE="$1"
+    KERNEL="vmlinu*"$(dpkg -I "$DEBIRF_KERNEL_PACKAGE" | grep 'Package:' | awk '{ print $2 }' | sed -s s/'linux-image-'//)
 fi
 
 cd "$DEBIRF_PATH"
 
-# maybe fix locales?
+# set locale default
 export LC_CTYPE="C"
 export LANGUAGE="C"
 export LANG="C"
 
 msg() {
-    echo "  debirf: $@"
+    echo " debirf: $@"
 }
 
 export -f msg

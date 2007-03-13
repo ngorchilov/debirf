@@ -21,17 +21,12 @@ do_bootloader = no
 do_initrd = yes
 EOF
     
-    local CANDNAME=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $2 }' )
-    local CANDVERS=$(echo "$CANDNAME" | sed -s s/'linux-image-'// )
-    
     install_kernel_dpkg "$1"
     
     # extract kernel, debian stock initrd, and remove them from the fs:
     mkdir -p extras/boot
-    local KERNEL="$DEBIRF_ROOT/boot/vmlinu"*"$CANDVERS"
-    local INITRD="$DEBIRF_ROOT/boot/initrd"*"$CANDVERS"
-    [ -f "$KERNEL" ] && mv "$KERNEL" extras/boot/$(basename "$KERNEL")
-    [ -f "$INITRD" ] && mv "$INITRD" extras/boot/$(basename "$INITRD")
+    mv "$DEBIRF_ROOT"/boot/vmlinu* extras/boot/
+    mv "$DEBIRF_ROOT"/boot/initrd* extras/boot/
 }
 
 ##### install kernel
