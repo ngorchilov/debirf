@@ -2,6 +2,6 @@
 
 # remove/install extra packages with apt-get
 
-chroot "$DEBIRF_ROOT" apt-get remove --purge aptitude
+chroot "$DEBIRF_ROOT" apt-get --assume-yes remove --purge aptitude
 
-chroot "$DEBIRF_ROOT" apt-get install less moreutils lvm2
+chroot "$DEBIRF_ROOT" apt-get --assume-yes install less moreutils lvm2

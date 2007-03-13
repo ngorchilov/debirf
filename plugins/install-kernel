@@ -35,14 +35,5 @@ EOF
 }
 
 ##### install kernel
-if [ -r "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    read -p "install kernel ${DEBIRF_KERNEL_PACKAGE}? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
-else 
-    msg "WARNING: could not find the kernel package '${DEBIRF_KERNEL_PACKAGE}'"
-fi
-if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
-    msg "installing kernel..."
-    install_kernel "$DEBIRF_KERNEL_PACKAGE"
-else
-    msg "WARNING: things will not work properly without the proper kernel modules installed unless you've built a non-modular kernel."
-fi
+msg "installing kernel..."
+install_kernel "$DEBIRF_KERNEL_PACKAGE"
