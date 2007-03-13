@@ -18,14 +18,14 @@ create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root "$DEBIAN_MIRROR"
+    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root "$DEBIRF_MIRROR"
     
     > .stage/0
 }
 
 install_plugins() {
     export DEBIRF_ROOT
-    run-parts --verbose "$PLUGINS"
+    run-parts --verbose "$DEBIRF_PLUGINS"
     
     > .stage/1
 }
@@ -80,7 +80,7 @@ EOF
 }
 
 ### stupid simple method
-create_initrd_ss() {
+create_initrd_stupid_simple() {
     #ln sbin/init to /init
     ln -sf sbin/init root/init
     # create root image
@@ -90,7 +90,7 @@ create_initrd_ss() {
 }
 
 ### tweak initrd method
-create_initrd_ti() {
+create_initrd_tweak_initrd() {
     cat scripts/debirf <<EOF
 mountroot() {
  rootmnt="/"
@@ -187,11 +187,7 @@ echo proc /proc proc defaults 0 0 >> root/etc/fstab
     
 > .stage/3
 
-if [ "$METHOD" = 0 ] ; then
-    create_initrd_ss
-elif [ "$METHOD" = 1 ] ; then
-    create_initrd_ti
-fi
+create_initrd_${DEBIRF_METHOD}
 
 # final output
 if [ "$KERNEL" ] ; then
