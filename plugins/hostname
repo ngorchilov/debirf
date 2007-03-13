@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# add system name
+
+echo debirf > root/etc/hostname

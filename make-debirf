@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEBIRF_PATH="/srv/debirf"
+PLUGINS="~/cmrg/trunk/debirf/plugins"
 METHOD=0
 #http_proxy=http://proxy.lair.fifthhorseman.net:3128/
 
@@ -13,7 +14,7 @@ alert() {
 
 # create checkpoint directory.  stages:
 # 0: debootstrap creation
-# 1: root prep
+# 1: plugins
 # 2: install kernel and extract kernel/initrd
 # 3: prune
 # 4: initrd method
@@ -24,7 +25,7 @@ mkdir -p .stage
 # exclude aptitude
 GET_ROOT='Y'
 if [ -f .stage/0 ] ; then
-    alert "a debootrap already seems to be in place at $DEBIRF_PATH/root."
+    echo "a debootrap already seems to be in place at $DEBIRF_PATH/root."
     read -p "write over? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/n/N}" = 'N' ] ; then
 	GET_ROOT='N'
@@ -36,38 +37,13 @@ fi
 
 > .stage/0
 
-##### prep root
-# add system name
-echo debirf > root/etc/hostname
-
-# kernel install settings
-cat >root/etc/kernel-img.conf <<EOF
-# debirf: default kernel-img options:
-do_symlinks = yes
-do_bootloader = no
-do_initrd = yes
-EOF
-
-# add serial terminal (plugin?)
-cat >>root/etc/inittab <<EOF
-# debirf: added serial console output:
-T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100
-EOF
-
-# add default interface configuration (plugin?)
-cat >>root/etc/network/interfaces <<EOF
-# debirf: some needed interfaces:
-auto lo
-iface lo inet loopback
-
-# a default dynamic ethernet address.
-# if you have eth0, you can use this with "ifup eth0=dhcp"
-iface dhcp inet dhcp
-EOF
-
-# other things to do:
+##### plugins
+# other potential plugins:
 # change root/etc/motd.tail
 # change udev/*persistent-net*
+
+# run plugin scripts
+run-parts --verbose "$PLUGINS"
 
 > .stage/1
 
@@ -76,6 +52,14 @@ mount -t proc proc root/proc
 mount -t sysfs sys root/sys
 
 ##### install kernel
+# kernel install settings
+cat >root/etc/kernel-img.conf <<EOF
+# debirf: default kernel-img options:
+do_symlinks = yes
+do_bootloader = no
+do_initrd = yes
+EOF
+
 # set $KERNEL_PACKAGE to the path to a kernel .deb if you have one
 # lying around:
 if [ "$KERNEL_PACKAGE" ]; then
@@ -86,23 +70,23 @@ else
     chroot root apt-get update
     chroot root apt-get install linux-image-2.6-486
 fi
+
 # extract kernel, debian stock initrd
 mkdir -p extras/boot
 KERNEL=$(ls -1 root/boot/ | grep 'vmlinuz')
 INITRD=$(ls -1 root/boot/ | grep 'initrd.img')
 [ -f root/boot/"$KERNEL" ] && mv root/boot/"$KERNEL" extras/boot/
 [ -f root/boot/"$INITRD" ] && mv root/boot/"$INITRD" extras/boot/
+rm root/{vmlinuz,initrd.img}
 
 > .stage/2
 
 ##### prune
-# clean apt?
-if false ; then
-    chroot root apt-get clean
-    rm root/var/cache/apt/*.bin
-    rm -rf root/var/lib/apt/lists/*
-    mkdir root/var/lib/apt/lists/partial
-fi
+# clean apt
+chroot root apt-get clean
+rm root/var/cache/apt/*.bin
+rm -rf root/var/lib/apt/lists/*
+mkdir root/var/lib/apt/lists/partial
 
 # remove/backup locales:
 mkdir -p extras/usr/share/locale
@@ -112,19 +96,20 @@ mkdir -p extras/usr/share/locale
 umount root/proc
 umount root/sys
 
+# clear mtab
+> root/etc/mtab
+# add proc to fstab
+echo proc /proc proc defaults 0 0 >> root/etc/fstab
+    
 > .stage/3
 
 ##### initrd method
 ### stupid simple method
 if [ "$METHOD" = 0 ] ; then
-    # clear mtab
-    > root/etc/mtab
-    # add proc to fstab
-    echo proc /proc proc defaults 0 0 >> root/etc/fstab
     #ln sbin/init to /init
-    ln -s sbin/init root/init
+#    ln -s sbin/init root/init
     # create root image
-    alert "creating debirf initrd..."
+    echo "creating debirf initrd..."
     ( cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
 fi
 
@@ -147,7 +132,7 @@ else
 fi
 EOF
     # create root image
-    alert "creating debirf initrd..."
+    echo "creating debirf initrd..."
     cp extra/boot/"$INITRD" debirf.cgz
     (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
 fi
@@ -155,6 +140,6 @@ fi
 > .stage/4
 
 cp extras/boot/"$KERNEL" .
-alert "created the following debirf kernel and initramfs:"
-alert "$DEBIRF_PATH/$KERNEL"
-alert "$DEBIRF_PATH/debirf.cgz"
+echo "created the following debirf kernel and initramfs:"
+echo "$DEBIRF_PATH/$KERNEL"
+echo "$DEBIRF_PATH/debirf.cgz"

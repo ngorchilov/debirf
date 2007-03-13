@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# add default network interface configuration
+
+cat >>root/etc/network/interfaces <<EOF
+auto lo
+iface lo inet loopback
+
+# a default dynamic ethernet address.
+# if you have eth0, you can use this with "ifup eth0=dhcp"
+iface dhcp inet dhcp
+EOF
+
