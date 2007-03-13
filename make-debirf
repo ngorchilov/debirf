@@ -14,6 +14,28 @@ msg() {
     echo "  debirf: $@"
 }
 
+setup_debirf_info() {
+    DEBIRF_INFO_TARGET="${DEBIRF_ROOT}/etc/debirf/debirf.info"
+    mkdir -p $(dirname "$DEBIRF_INFO_TARGET")
+
+    export DEBIRF_INFO_TARGET
+
+    cat > "$DEBIRF_INFO_TARGET" <<EOF
+#!/bin/sh
+# this debirf initramfs was generated on $(hostname)
+# at $(date -R)
+
+EOF
+    debirf_info_comment() {
+	echo "$@" | sed 's|^\(.\)|\# \1|' >> "$DEBIRF_INFO_TARGET"
+    }
+    debirf_info_sh() {
+	echo "$@" >> "$DEBIRF_INFO_TARGET"
+    }
+    export -f debirf_write_info
+    export -f debirf_write_sh
+}
+
 create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
@@ -140,6 +162,8 @@ else
     msg "installing root..."
     create_debootstrap
 fi
+
+setup_debirf_info
 
 # mount sys, proc
 mount -t proc proc root/proc

@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+# debirf plugin to store the debirf build configuration information
+# inside the initramfs.
+
+debirf_info_comment 'the following config variables were set:'
+
+for var in ${!DEBIRF_*}; do
+    debirf_info_sh "${var}=${!var}"
+done
+
