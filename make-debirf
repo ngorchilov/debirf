@@ -24,7 +24,10 @@ create_debootstrap() {
 }
 
 install_plugins() {
-    export DEBIRF_ROOT
+    # export all the DEBIRF_* environment variables:
+    for var in ${!DEBIRF_*}; do
+	export $var
+    done
     run-parts --verbose "$DEBIRF_PLUGINS"
     
     > .stage/1
