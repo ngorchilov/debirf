@@ -32,7 +32,8 @@ if [ -f .stage/0 ] ; then
     fi
 fi
 if [ "$GET_ROOT" = 'Y' ] ; then
-    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch ./root/ http://ftp.debian.org/debian
+    mkdir -p root
+    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root http://ftp.debian.org/debian
 fi
 
 > .stage/0
@@ -41,6 +42,7 @@ fi
 # other potential plugins:
 # change root/etc/motd.tail
 # change udev/*persistent-net*
+# fix root's .bashrc to include $? in the command prompt.
 
 # run plugin scripts
 run-parts --verbose "$PLUGINS"

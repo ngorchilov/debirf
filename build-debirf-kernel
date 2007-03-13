@@ -1,0 +1,43 @@
+#!/bin/sh -e
+
+# build-debirf-kernel: script to build debianized linux kernel package with 
+#                      the inittmpfs patch from Kent Robotti
+
+# usage: build-debirf-kernel [N]
+#  N: package revision number (defaults to 1)
+
+# author: Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
+# copyright: 2007
+# license: this file is released under the GPL
+
+# this script does not require root privileges at all.
+
+BUILDDIR=${BUILDDIR:-~/src/linux}
+KVERS=$(uname -r | cut -f1 -d-)
+KAPPEND=$(uname -r | cut -f1 -d- --complement)
+PKGREV=${KVERS}-${1:-1}
+
+die() {
+    echo "$1" >&2
+    exit $2
+}
+
+# check for the proper packages:
+if (! dpkg -l "linux-source-$KVERS" kernel-package fakeroot linux-patch-inittmpfs >/dev/null ); then
+    die "Not continuing until you have the right packages installed." 1
+fi
+
+# create a build directory
+mkdir -p $BUILDDIR
+cd $BUILDDIR
+tar xjf "/usr/src/linux-source-$KVERS.tar.bz2"
+cd "linux-source-$KVERS"
+
+# copy in your current config file:
+cp "/boot/config-${KVERS}-${KAPPEND}" .config
+# pre-answer "y" to "Unpack the early userspace onto tmpfs":
+echo 'CONFIG_EARLYUSERSPACE_ON_TMPFS=y' >> .config
+make-kpkg --rootcmd fakeroot --initrd --append_to_version "-${KAPPEND}+inittmpfs" --revision "$PKGREV" --added_patches inittmpfs kernel_image
+
+# now you should have a .deb in
+# $BUILDDIR/linux-image-${KVERS}-${KAPPEND}_${PKGREV}_*.deb
