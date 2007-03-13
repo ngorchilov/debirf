@@ -18,6 +18,8 @@ msg() {
     echo "  debirf: $@"
 }
 
+export -f msg
+
 setup_debirf_info() {
     export DEBIRF_INFO_TARGET="${DEBIRF_ROOT}/etc/debirf/debirf.info"
     mkdir -p $(dirname "$DEBIRF_INFO_TARGET")
