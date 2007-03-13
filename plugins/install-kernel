@@ -32,10 +32,7 @@ EOF
     local INITRD="$DEBIRF_ROOT/boot/initrd"*"$CANDNAME"
     [ -f "$KERNEL" ] && mv "$KERNEL" extras/boot/$(basename "$KERNEL")
     [ -f "$INITRD" ] && mv "$INITRD" extras/boot/$(basename "$INITRD")
-    
-    > .stage/2
 }
-
 
 ##### install kernel
 if [ -r "$DEBIRF_KERNEL_PACKAGE" ] ; then
