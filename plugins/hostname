@@ -2,4 +2,4 @@
 
 # add system name
 
-echo debirf > "$DEBIRF_ROOT"/etc/hostname
+echo "$DEBIRF_LABEL" > "$DEBIRF_ROOT"/etc/hostname
