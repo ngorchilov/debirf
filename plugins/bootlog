@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# configure bootlog
+
+cat > "$DEBIRF_ROOT"/etc/default/bootlogd <<EOF
+# Run bootlogd at startup ?
+BOOTLOGD_ENABLE=Yes
+EOF

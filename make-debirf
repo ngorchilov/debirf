@@ -10,6 +10,113 @@ source "$CMD_PATH/debirf.conf"
 
 cd "$DEBIRF_PATH"
 
+msg() {
+    echo "  debirf: $@"
+}
+
+create_debootstrap() {
+    # include initramfs-tools because they'll be handy
+    # exclude aptitude
+    mkdir -p "$DEBIRF_ROOT"
+    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root "$DEBIAN_MIRROR"
+    
+    > .stage/0
+}
+
+install_plugins() {
+    export DEBIRF_ROOT
+    run-parts --verbose "$PLUGINS"
+    
+    > .stage/1
+}
+
+install_kernel_apt() {
+    chroot root apt-get install "$KERNEL_INST_CAND"
+}
+
+install_kernel_dpkg() {
+    local KNAME=$(basename "$KERNEL_PACKAGE")
+    cp "$KERNEL_PACKAGE" "root/root/$KNAME"
+    chroot root dpkg --install "root/$KNAME"
+    rm "root/root/$KNAME"
+}
+
+install_kernel() {
+    # kernel install settings
+    cat >root/etc/kernel-img.conf <<EOF
+# debirf: default kernel-img options:
+do_symlinks = yes
+do_bootloader = no
+do_initrd = yes
+EOF
+
+    local KERNEL_INST_CAND="$KERNEL_APT_DEFAULT"
+    local KERNEL_INSTALLED=$(COLUMNS=500 chroot root dpkg -l | grep linux-image | tr -s "[:blank:]" "|" | cut -d '|' -f 2)
+
+    # set $KERNEL_PACKAGE to the path to a kernel .deb:
+    if [ "$KERNEL_PACKAGE" ]; then
+	KERNEL_INST_CAND=$(dpkg -I "$KERNEL_PACKAGE" | grep 'Package:' | cut -d ' ' -f 3)
+    fi
+
+    if [ "$KERNEL_INST_CAND" != "$KERNEL_INSTALLED" ] ; then
+	chroot root apt-get remove "$KERNEL_INSTALLED"
+	if [ "$KERNEL_PACKAGE" ] ; then
+	    install_kernel_dpkg
+	else
+	    install_kernel_apt
+	fi
+    fi
+    
+    # extract kernel, debian stock initrd
+    mkdir -p extras/boot
+    KERNEL=$(ls -1 root/boot/ | grep 'vmlinuz')
+    INITRD=$(ls -1 root/boot/ | grep 'initrd.img')
+    [ -f root/boot/"$KERNEL" ] && mv root/boot/"$KERNEL" extras/boot/
+    [ -f root/boot/"$INITRD" ] && mv root/boot/"$INITRD" extras/boot/
+    [ -L root/vmlinuz ] && rm root/vmlinuz
+    [ -L root/initrd.img ] && rm root/initrd.img
+    
+    > .stage/2
+}
+
+### stupid simple method
+create_initrd_ss() {
+    #ln sbin/init to /init
+    ln -sf sbin/init root/init
+    # create root image
+    msg "creating debirf initrd..."
+    ( cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
+    > .stage/4
+}
+
+### tweak initrd method
+create_initrd_ti() {
+    cat scripts/debirf <<EOF
+mountroot() {
+ rootmnt="/"
+}
+EOF
+    cat > bin/run-init <<EOF
+#!/bin/sh
+if [ "$1" != "/" ] ; then
+  exec /usr/lib/klibc/bin/run-init "$@"
+else
+  MOUNT_POINT="$1"
+  INIT="$2"
+  shift 2
+  exec "$INIT" "$@"
+fi
+EOF
+    # create root image
+    msg "creating debirf initrd..."
+    cp extra/boot/"$INITRD" debirf.cgz
+    (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
+    > .stage/4
+}
+
+
+##### MAIN #####
+
 # create checkpoint directory.  stages:
 # 0: debootstrap creation
 # 1: plugins
@@ -19,22 +126,17 @@ cd "$DEBIRF_PATH"
 mkdir -p .stage
 
 ##### create debootstrap root
-mkdir -p "$DEBIRF_ROOT"
-# include initramfs-tools because they'll be handy
-# exclude aptitude
-GET_ROOT='Y'
 if [ -f .stage/0 ] ; then
-    echo "a debootrap already seems to be in place at $DEBIRF_PATH/root."
-    read -p "write over? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
-    if [ "${OK/n/N}" = 'N' ] ; then
-	GET_ROOT='N'
+    msg "it looks like a root already exists at $DEBIRF_PATH/root."
+    read -p "write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+    if [ "${OK/y/Y}" = 'Y' ] ; then
+	msg "installing new root..."
+	create_debootstrap
     fi
+else
+    msg "installing root..."
+    create_debootstrap
 fi
-if [ "$GET_ROOT" = 'Y' ] ; then
-    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root http://ftp.debian.org/debian
-fi
-
-> .stage/0
 
 # mount sys, proc
 mount -t proc proc root/proc
@@ -43,44 +145,27 @@ mount -t sysfs sys root/sys
 # update apt
 chroot root apt-get update
 
-##### plugins
-# run plugin scripts
-export DEBIRF_ROOT
-run-parts --verbose "$PLUGINS"
-
-> .stage/1
+##### install plugins
+msg "installing plugins..."
+install_plugins
 
 ##### install kernel
-# kernel install settings
-cat >root/etc/kernel-img.conf <<EOF
-# debirf: default kernel-img options:
-do_symlinks = yes
-do_bootloader = no
-do_initrd = yes
-EOF
-
-# set $KERNEL_PACKAGE to the path to a kernel .deb if you have one
-# lying around:
-if [ "$KERNEL_PACKAGE" ]; then
-    KNAME=$(basename "$KERNEL_PACKAGE")
-    cp "$KERNEL_PACKAGE" "root/root/$KNAME"
-    chroot root dpkg --install "root/$KNAME"
+if [ "$KERNEL_PACKAGE" ] ; then
+    read -p "install kernel $KERNEL_PACKAGE? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
     rm -f "root/root/$KNAME"
 else
-    chroot root apt-get install linux-image-2.6-486
+    read -p "install kernel $KERNEL_APT_DEFAULT? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
+fi
+if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
+    msg "installing kernel..."
+    install_kernel
+else
+    msg "WARNING: things will not work properly without the proper kernel modules installed."
 fi
 
-# extract kernel, debian stock initrd
-mkdir -p extras/boot
-KERNEL=$(ls -1 root/boot/ | grep 'vmlinuz')
-INITRD=$(ls -1 root/boot/ | grep 'initrd.img')
-[ -f root/boot/"$KERNEL" ] && mv root/boot/"$KERNEL" extras/boot/
-[ -f root/boot/"$INITRD" ] && mv root/boot/"$INITRD" extras/boot/
-rm root/{vmlinuz,initrd.img}
-
-> .stage/2
-
 ##### prune
+msg "pruning..."
+
 # clean apt
 chroot root apt-get clean
 rm root/var/cache/apt/*.bin
@@ -102,44 +187,15 @@ echo proc /proc proc defaults 0 0 >> root/etc/fstab
     
 > .stage/3
 
-##### initrd method
-### stupid simple method
 if [ "$METHOD" = 0 ] ; then
-    #ln sbin/init to /init
-#    ln -s sbin/init root/init
-    # create root image
-    echo "creating debirf initrd..."
-    ( cd root && find * | cpio -H newc --create  | gzip ) > debirf.cgz
+    create_initrd_ss
+elif [ "$METHOD" = 1 ] ; then
+    create_initrd_ti
 fi
-
-### tweak initrd method
-if [ "$METHOD" = 1 ] ; then
-    cat scripts/debirf <<EOF
-mountroot() {
- rootmnt="/"
-}
-EOF
-    cat > bin/run-init <<EOF
-#!/bin/sh
-if [ "$1" != "/" ] ; then
-  exec /usr/lib/klibc/bin/run-init "$@"
-else
-  MOUNT_POINT="$1"
-  INIT="$2"
-  shift 2
-  exec "$INIT" "$@"
-fi
-EOF
-    # create root image
-    echo "creating debirf initrd..."
-    cp extra/boot/"$INITRD" debirf.cgz
-    (cd root && find * | cpio -H newc --create  | gzip ) >> debirf.cgz
-fi
-
-> .stage/4
 
 # final output
-cp extras/boot/"$KERNEL" .
-echo "created the following debirf kernel and initramfs:"
-echo "$DEBIRF_PATH/$KERNEL"
-echo "$DEBIRF_PATH/debirf.cgz"
+if [ "$KERNEL" ] ; then
+    ln -sf  extras/boot/"$KERNEL" vmlinuz
+    msg "kernel: $DEBIRF_PATH/vmlinuz"
+fi
+msg "initrd: $DEBIRF_PATH/debirf.cgz"
