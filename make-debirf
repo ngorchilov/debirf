@@ -138,7 +138,7 @@ umount "$DEBIRF_ROOT/sys"
 # clear mtab
 > "$DEBIRF_ROOT/etc/mtab"
 # add proc to fstab
-if ! grep '/proc' root/etc/fstab | grep -q -v "^[:space:]*#" ; then
+if ! awk '{ print $2 }' < "$DEBIRF_ROOT/etc/fstab" | grep -q '^/proc' ; then
     echo proc /proc proc defaults 0 0 >> "$DEBIRF_ROOT/etc/fstab"
 fi
 
