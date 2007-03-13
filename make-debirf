@@ -8,7 +8,9 @@ CMD_PATH=$(dirname $0)
 # source debirf.conf
 source "$CMD_PATH/debirf.conf"
 
-DEBIRF_KERNEL_PACKAGE="$1"
+if [ "$1" ]; then
+    DEBIRF_KERNEL_PACKAGE="$1"
+fi
 
 cd "$DEBIRF_PATH"
 
@@ -55,39 +57,6 @@ install_plugins() {
     run-parts --verbose "$DEBIRF_PLUGINS"
     
     > .stage/1
-}
-
-install_kernel_dpkg() {
-    local KNAME=$(basename "$1")
-    cp "$1" "$DEBIRF_ROOT/root/$KNAME"
-    chroot "$DEBIRF_ROOT" dpkg --install "root/$KNAME"
-    # and clean up, just in case there were missing dependencies.
-    chroot "$DEBIRF_ROOT" apt-get -f install
-    rm "$DEBIRF_ROOT/root/$KNAME"
-}
-
-install_kernel() {
-    # kernel install settings
-    cat >"$DEBIRF_ROOT/etc/kernel-img.conf" <<EOF
-# debirf: default kernel-img options:
-do_symlinks = yes
-do_bootloader = no
-do_initrd = yes
-EOF
-    
-    local CANDNAME=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $2 }' )
-    local CANDVERS=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $3 }' )
-    
-    install_kernel_dpkg "$1"
-    
-    # extract kernel, debian stock initrd, and remove them from the fs:
-    mkdir -p extras/boot
-    local KERNEL="$DEBIRF_ROOT/boot/vmlinu"*"$CANDNAME"
-    local INITRD="$DEBIRF_ROOT/boot/initrd"*"$CANDNAME"
-    [ -f "$KERNEL" ] && mv "$KERNEL" extras/boot/$(basename "$KERNEL")
-    [ -f "$INITRD" ] && mv "$INITRD" extras/boot/$(basename "$INITRD")
-    
-    > .stage/2
 }
 
 ### stupid simple method
@@ -161,19 +130,6 @@ chroot "$DEBIRF_ROOT" apt-get update
 ##### install plugins
 msg "installing plugins..."
 install_plugins
-
-##### install kernel
-if [ -r "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    read -p "install kernel ${DEBIRF_KERNEL_PACKAGE}? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
-else 
-    msg "WARNING: could not find the kernel package '${DEBIRF_KERNEL_PACKAGE}'"
-fi
-if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
-    msg "installing kernel..."
-    install_kernel "$DEBIRF_KERNEL_PACKAGE"
-else
-    msg "WARNING: things will not work properly without the proper kernel modules installed unless you've built a non-modular kernel."
-fi
 
 ##### prune
 msg "pruning..."
