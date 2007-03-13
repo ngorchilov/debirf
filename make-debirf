@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# DEBIRF creation script
+# DEBIRF creation script.  You must pass a kernel .deb as the first argument.
 
 CMD=$(basename $0)
 CMD_PATH=$(dirname $0)
 
 # source debirf.conf
 source "$CMD_PATH/debirf.conf"
+
+DEBIRF_KERNEL_PACKAGE="$1"
 
 cd "$DEBIRF_PATH"
 
@@ -40,7 +42,7 @@ create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     
     > .stage/0
 }
@@ -56,9 +58,11 @@ install_plugins() {
 }
 
 install_kernel_dpkg() {
-    local KNAME=$(basename "$KERNEL_PACKAGE")
-    cp "$KERNEL_PACKAGE" "$DEBIRF_ROOT/root/$KNAME"
+    local KNAME=$(basename "$1")
+    cp "$1" "$DEBIRF_ROOT/root/$KNAME"
     chroot "$DEBIRF_ROOT" dpkg --install "root/$KNAME"
+    # and clean up, just in case there were missing dependencies.
+    chroot "$DEBIRF_ROOT" apt-get -f install
     rm "$DEBIRF_ROOT/root/$KNAME"
 }
 
@@ -70,34 +74,18 @@ do_symlinks = yes
 do_bootloader = no
 do_initrd = yes
 EOF
-
-    local KERNEL_INST_CAND="$KERNEL_APT_DEFAULT"
-    local KERNEL_INSTALLED=$(COLUMNS=500 chroot "$DEBIRF_ROOT" dpkg -l 'linux-image*' | grep '^ii' | awk '{print $2}')
-
-    # set $KERNEL_PACKAGE to the path to a kernel .deb:
-    if [ "$KERNEL_PACKAGE" ]; then
-	KERNEL_INST_CAND=$(dpkg -I "$KERNEL_PACKAGE" | grep 'Package:' | cut -d ' ' -f 3)
-    fi
-
-    if [ "$KERNEL_INST_CAND" != "$KERNEL_INSTALLED" ] ; then
-	if [ "$KERNEL_INSTALLED" ] ; then 
-	    chroot "$DEBIRF_ROOT" apt-get remove "$KERNEL_INSTALLED"
-	fi
-	if [ "$KERNEL_PACKAGE" ] ; then
-	    install_kernel_dpkg
-	else
-	    install_kernel_apt
-	fi
-    fi
     
-    # extract kernel, debian stock initrd
+    local CANDNAME=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $2 }' )
+    local CANDVERS=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $3 }' )
+    
+    install_kernel_dpkg "$1"
+    
+    # extract kernel, debian stock initrd, and remove them from the fs:
     mkdir -p extras/boot
-    KERNEL=$(ls -1 "$DEBIRF_ROOT/boot/" | grep 'vmlinuz')
-    INITRD=$(ls -1 "$DEBIRF_ROOT/boot/" | grep 'initrd.img')
-    [ -f "$DEBIRF_ROOT/boot/$KERNEL" ] && mv "$DEBIRF_ROOT/boot/$KERNEL" extras/boot/
-    [ -f "$DEBIRF_ROOT/boot/$INITRD" ] && mv "$DEBIRF_ROOT/boot/$INITRD" extras/boot/
-    [ -L "$DEBIRF_ROOT/vmlinuz" ] && rm "$DEBIRF_ROOT/vmlinuz"
-    [ -L "$DEBIRF_ROOT/initrd.img" ] && rm "$DEBIRF_ROOT/initrd.img"
+    local KERNEL="$DEBIRF_ROOT/boot/vmlinu"*"$CANDNAME"
+    local INITRD="$DEBIRF_ROOT/boot/initrd"*"$CANDNAME"
+    [ -f "$KERNEL" ] && mv "$KERNEL" extras/boot/$(basename "$KERNEL")
+    [ -f "$INITRD" ] && mv "$INITRD" extras/boot/$(basename "$INITRD")
     
     > .stage/2
 }
@@ -108,7 +96,7 @@ create_initrd_stupid_simple() {
     ln -sf sbin/init "$DEBIRF_ROOT/init"
     # create root image
     msg "creating debirf initrd..."
-    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > debirf.cgz
+    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${DEBIRF_".cgz
     > .stage/4
 }
 
@@ -175,16 +163,16 @@ msg "installing plugins..."
 install_plugins
 
 ##### install kernel
-if [ "$KERNEL_PACKAGE" ] ; then
-    read -p "install kernel $KERNEL_PACKAGE? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
-else
-    read -p "install kernel $KERNEL_APT_DEFAULT? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
+if [ -r "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    read -p "install kernel ${DEBIRF_KERNEL_PACKAGE}? [Y|n]: " -n 1 OK ; [ -z $OK ] || echo
+else 
+    msg "WARNING: could not find the kernel package '${DEBIRF_KERNEL_PACKAGE}'"
 fi
 if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
     msg "installing kernel..."
-    install_kernel
+    install_kernel "$DEBIRF_KERNEL_PACKAGE"
 else
-    msg "WARNING: things will not work properly without the proper kernel modules installed."
+    msg "WARNING: things will not work properly without the proper kernel modules installed unless you've built a non-modular kernel."
 fi
 
 ##### prune
