@@ -47,12 +47,20 @@ create_debootstrap() {
     /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
 }
 
-install_plugins() {
+run_plugins_install() {
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    run-parts --verbose "$DEBIRF_PLUGINS"
+    run-parts --verbose "$DEBIRF_PLUGINS/install"
+}
+
+run_plugins_prune() {
+    # export all the DEBIRF_* environment variables:
+    for var in ${!DEBIRF_*}; do
+	export $var
+    done
+    run-parts --verbose "$DEBIRF_PLUGINS/prune"
 }
 
 ### stupid simple method
@@ -60,7 +68,6 @@ create_initrd_stupid_simple() {
     #ln sbin/init to /init
     ln -sf sbin/init "$DEBIRF_ROOT/init"
     
-    local KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
     # create root image
     msg "creating debirf initrd..."
     ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$DEBIRF_INITRD"
@@ -93,7 +100,7 @@ EOF
 
 ##### MAIN #####
 
-##### create debootstrap root
+# create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "directory $DEBIRF_ROOT already exists."
     read -p "write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
@@ -115,23 +122,19 @@ mount -t sysfs sys "$DEBIRF_ROOT/sys"
 # update apt
 chroot "$DEBIRF_ROOT" apt-get update
 
-##### install plugins
-msg "installing plugins..."
-install_plugins
+# run plugins/install
+msg "running install plugins..."
+run_plugins_install
 
-##### prune
-msg "pruning..."
+# run plugins/prune
+msg "running prune plugins..."
+run_plugins_prune
 
 # clean apt
 chroot "$DEBIRF_ROOT" apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
 mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
-
-# remove/backup locales:
-mkdir -p extras/usr/share/locale
-# FIXME: this won't work if "extras" isn't a peer of "$DEBIRF_ROOT"
-(cd "$DEBIRF_ROOT" && find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec mv '{}' '../extras/{}' \; )
 
 # umount sys,proc
 umount "$DEBIRF_ROOT/proc"
@@ -144,6 +147,7 @@ if ! awk '{ print $2 }' < "$DEBIRF_ROOT/etc/fstab" | grep -q '^/proc' ; then
     echo proc /proc proc defaults 0 0 >> "$DEBIRF_ROOT/etc/fstab"
 fi
 
+KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
 create_initrd_${DEBIRF_METHOD}
 

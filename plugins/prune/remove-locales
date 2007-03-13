@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# remove locales
+
+mkdir -p extras/usr/share/locale
+# FIXME: this won't work if "extras" isn't a peer of "$DEBIRF_ROOT"
+cd "$DEBIRF_ROOT" 
+find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -exec rm '{}' \;
+
