@@ -22,7 +22,7 @@ do_initrd = yes
 EOF
     
     local CANDNAME=$(dpkg -I "$1" | grep '^ Package:' | awk '{ print $2 }' )
-    local CANDVERS=$($CANDNAME | sed -s s/'linux-image-'// )
+    local CANDVERS=$(echo $CANDNAME | sed -s s/'linux-image-'// )
     
     install_kernel_dpkg "$1"
     
