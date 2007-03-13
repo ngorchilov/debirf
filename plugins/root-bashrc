@@ -2,7 +2,7 @@
 
 # create default root .bashrc
 
-cat > root/.bashrc <<EOF
+cat > "$DEBIRF_ROOT"/root/.bashrc <<EOF
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
 export PS1='$? \h:\w\$ '

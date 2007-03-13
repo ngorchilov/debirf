@@ -2,7 +2,15 @@
 
 # add serial terminal
 
-cat >>root/etc/inittab <<EOF
+INITTAB="$DEBIRF_ROOT/etc/inittab"
+TTY="ttyS0"
+
+if grep "$TTY" "$INITTAB" | grep -v "^[:space:]*#" ; then
+    echo "inittab already has terminal on $TTY."
+    exit 1
+fi
+
+cat >> "$DEBIRF_ROOT"/etc/inittab <<EOF
 # debirf: added serial console output:
 T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100
 EOF

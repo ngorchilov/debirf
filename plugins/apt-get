@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# install extra packages with apt-get
+
+chroot "$DEBIRF_ROOT" apt-get install less moreutils

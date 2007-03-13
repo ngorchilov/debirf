@@ -1,9 +1,11 @@
 #!/bin/bash
 
-DEBIRF_PATH="/srv/debirf"
-PLUGINS="~/cmrg/trunk/debirf/plugins"
-METHOD=0
-#http_proxy=http://proxy.lair.fifthhorseman.net:3128/
+# DEBIRF creation script
+
+CMD=$(basename $0)
+CMD_PATH=$(dirname $0)
+
+source "$CMD_PATH/debirf.conf"
 
 cd "$DEBIRF_PATH"
 
@@ -21,6 +23,7 @@ alert() {
 mkdir -p .stage
 
 ##### create debootstrap root
+mkdir -p "$DEBIRF_ROOT"
 # include initramfs-tools because they'll be handy
 # exclude aptitude
 GET_ROOT='Y'
@@ -32,26 +35,28 @@ if [ -f .stage/0 ] ; then
     fi
 fi
 if [ "$GET_ROOT" = 'Y' ] ; then
-    mkdir -p root
     /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools etch root http://ftp.debian.org/debian
 fi
 
 > .stage/0
 
+# mount sys, proc
+mount -t proc proc root/proc
+mount -t sysfs sys root/sys
+
+# update apt
+chroot root apt-get update
+
 ##### plugins
 # other potential plugins:
 # change root/etc/motd.tail
 # change udev/*persistent-net*
-# fix root's .bashrc to include $? in the command prompt.
 
 # run plugin scripts
+export DEBIRF_ROOT
 run-parts --verbose "$PLUGINS"
 
 > .stage/1
-
-# mount sys, proc
-mount -t proc proc root/proc
-mount -t sysfs sys root/sys
 
 ##### install kernel
 # kernel install settings
@@ -69,7 +74,6 @@ if [ "$KERNEL_PACKAGE" ]; then
     cp "$KERNEL_PACKAGE" "root/root/$KNAME"
     chroot root dpkg --install "root/$KNAME"
 else
-    chroot root apt-get update
     chroot root apt-get install linux-image-2.6-486
 fi
 
@@ -141,6 +145,7 @@ fi
 
 > .stage/4
 
+# final output
 cp extras/boot/"$KERNEL" .
 echo "created the following debirf kernel and initramfs:"
 echo "$DEBIRF_PATH/$KERNEL"
