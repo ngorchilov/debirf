@@ -65,6 +65,7 @@ if [ "$KERNEL_PACKAGE" ]; then
     KNAME=$(basename "$KERNEL_PACKAGE")
     cp "$KERNEL_PACKAGE" "root/root/$KNAME"
     chroot root dpkg --install "root/$KNAME"
+    rm -f "root/root/$KNAME"
 else
     chroot root apt-get install linux-image-2.6-486
 fi
