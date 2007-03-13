@@ -57,9 +57,11 @@ install_plugins() {
 create_initrd_stupid_simple() {
     #ln sbin/init to /init
     ln -sf sbin/init "$DEBIRF_ROOT/init"
+    
+    local KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
     # create root image
     msg "creating debirf initrd..."
-    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${DEBIRF_".cgz
+    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}".cgz
 }
 
 ### tweak initrd method
