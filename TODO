@@ -1,4 +1,12 @@
+TODO:
+
+create an initial plugin directory that links to all/many of the default plugins
+   and gives the user a chance to add/remove what they want.
+
+should specify which plugins are considered essential, as opposed to just useful. 
+
 other potential plugins:
 - change root/etc/motd.tail
-- change udev/*persistent-net*
+- a "disk-rescue" plugin that adds all potentially useful disk tools
 
+possibly trim more packages
