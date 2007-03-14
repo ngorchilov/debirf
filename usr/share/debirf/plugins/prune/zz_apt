@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# debirf plugin to remove cached apt information not needed in the
+# initramfs:
+
+chroot "$DEBIRF_ROOT" apt-get clean
+rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
+rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
+mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"

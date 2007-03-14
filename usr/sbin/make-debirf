@@ -157,12 +157,6 @@ run_plugins_install
 msg "running prune plugins..."
 run_plugins_prune
 
-# clean apt
-chroot "$DEBIRF_ROOT" apt-get clean
-rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
-rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
-mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
-
 # umount sys,proc
 umount "$DEBIRF_ROOT/proc"
 umount "$DEBIRF_ROOT/sys"
