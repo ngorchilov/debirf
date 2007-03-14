@@ -24,9 +24,8 @@ EOF
     install_kernel_dpkg "$1"
     
     # extract kernel, debian stock initrd, and remove them from the fs:
-    mkdir -p extras/boot
-    mv "$DEBIRF_ROOT"/boot/vmlinu* extras/boot/
-    mv "$DEBIRF_ROOT"/boot/initrd* extras/boot/
+    mv "$DEBIRF_ROOT"/boot/vmlinu* .
+    mv "$DEBIRF_ROOT"/boot/initrd* .
 }
 
 ##### install kernel
