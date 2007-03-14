@@ -1,7 +1,10 @@
 #!/bin/sh
 
 # debirf plugin to install a kernel package, indicated by the
-# environment variable $DEBIRF_KERNEL_PACKAGE
+# expected environment variables:
+#  DEBIRF_PATH
+#  DEBIRF_ROOT
+#  DEBIRF_KERNEL_PACKAGE
 
 install_kernel_dpkg() {
     local KNAME=$(basename "$1")
@@ -23,9 +26,9 @@ EOF
     
     install_kernel_dpkg "$1"
     
-    # extract kernel, debian stock initrd, and remove them from the fs:
-    mv "$DEBIRF_ROOT"/boot/vmlinu* .
-    mv "$DEBIRF_ROOT"/boot/initrd* .
+    # extract kernel and debian stock initrd:
+    mv "$DEBIRF_ROOT"/boot/{vmlinu*,initrd*} "$DEBIRF_PATH"
+    rm "$DEBIRF_ROOT"/{vmlinuz,initrd.img}
 }
 
 ##### install kernel
