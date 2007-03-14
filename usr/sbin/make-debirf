@@ -5,25 +5,25 @@
 CMD=$(basename $0)
 CMD_PATH=$(dirname $0)
 
-# source debirf.conf
-source "$CMD_PATH/debirf.conf"
-
-if [ "$1" ]; then
-    DEBIRF_KERNEL_PACKAGE="$1"
-    KERNEL="vmlinu*"$(dpkg -I "$DEBIRF_KERNEL_PACKAGE" | grep 'Package:' | awk '{ print $2 }' | sed -s s/'linux-image-'//)
-fi
-
-cd "$DEBIRF_PATH"
+DEBIRF_CONF=${DEBIRF_CONF:-"/etc/debirf/debirf.conf"}
 
 # set locale default
 export LC_CTYPE="C"
 export LANGUAGE="C"
 export LANG="C"
 
+###############################################################
+### FUNCTIONS
+
+failure(){
+    echo "$1" >&2
+    exit ${2:-'1'}
+}
+export -f failure
+
 msg() {
     echo " debirf: $@"
 }
-
 export -f msg
 
 setup_debirf_info() {
@@ -103,12 +103,34 @@ EOF
     (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$DEBIRF_INITRD"
 }
 
+###############################################################
+### MAIN
 
-##### MAIN #####
+# some checks
+[ -f "$DEBIRF_CONF" ] || failure "$DEBIRF_CONF config file not found."
+source "$DEBIRF_CONF"
+
+# check specified kernel package exists, and determine kernel name
+if [ "$1" ]; then
+    DEBIRF_KERNEL_PACKAGE="$1"
+    [ -f "$DEBIRF_KERNEL_PACKAGE" ] || failure "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
+
+    KERNEL="vmlinu*"$(dpkg -I "$DEBIRF_KERNEL_PACKAGE" | grep 'Package:' | awk '{ print $2 }' | sed -s s/'linux-image-'//)
+fi
+
+# check plugin directory exists
+if [ ! -d "$DEBIRF_PLUGINS" ] ; then
+    read -p "Plugin directory $DEBIRF_PLUGINS not found.  Continue? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+    if [ "${OK/y/Y}" != 'Y' ] ; then
+	failure "aborting."
+    fi
+fi
+
+cd "$DEBIRF_PATH"
 
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
-    read -p "directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+    read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/y/Y}" = 'Y' ] ; then
 	msg "installing new root..."
 	create_debootstrap
