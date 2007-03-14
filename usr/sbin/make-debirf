@@ -2,10 +2,29 @@
 
 # DEBIRF creation script.  You must pass a kernel .deb as the first argument.
 
+###############################################################
+### VARIABLES
+
 CMD=$(basename $0)
-CMD_PATH=$(dirname $0)
 
 DEBIRF_CONF=${DEBIRF_CONF:-"/etc/debirf/debirf.conf"}
+[ -f "$DEBIRF_CONF" ] && source "$DEBIRF_CONF"
+
+### defaults
+# debirf label
+DEBIRF_LABEL=${DEBIRF_LABEL:-"debirf"}
+# where to build the debirf
+DEBIRF_PATH=${DEBIRF_PATH:-"/var/lib/debirf"}
+# the debirf root, used by plugins
+DEBIRF_ROOT=${DEBIRF_ROOT:-"$DEBIRF_PATH/root"}
+# the plugins directory
+DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"/usr/share/debirf/plugins"}
+# debirf boot method
+DEBIRF_METHOD=${DEBIRF_METHOD:-"stupid_simple"}
+# Debian mirror
+DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
+# what distribution should debirf be built from?
+DEBIRF_DISTRO=${DEBIRF_DISTRO:-"etch"}
 
 # set locale default
 export LC_CTYPE="C"
@@ -15,7 +34,19 @@ export LANG="C"
 ###############################################################
 ### FUNCTIONS
 
-failure(){
+usage() {
+cat <<EOF
+Usage: $CMD kernel-image
+
+Creat a debirf initramfs.
+
+Default config file: /etc/debirf/debirf.conf
+All config variables are bash shell variables.
+Specify alternate config file with "DEBIRF_CONF=".
+EOF
+}
+
+failure() {
     echo "$1" >&2
     exit ${2:-'1'}
 }
@@ -109,14 +140,13 @@ EOF
 ###############################################################
 ### MAIN
 
-# some checks
-[ -f "$DEBIRF_CONF" ] || failure "$DEBIRF_CONF config file not found."
-source "$DEBIRF_CONF"
-
 # check specified kernel package exists, and determine kernel name
-if [ "$1" ]; then
-    DEBIRF_KERNEL_PACKAGE="$1"
-    [ -f "$DEBIRF_KERNEL_PACKAGE" ] || failure "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
+DEBIRF_KERNEL_PACKAGE="$1"
+if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    echo "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
+    echo
+    usage
+    exit 1
 fi
 
 # check plugin directory exists
@@ -173,7 +203,7 @@ KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 create_initrd_${DEBIRF_METHOD} "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
 
 # final output
-KERNEL="$DEBIRF_PATH/vmlinu"*
+KERNEL="$DEBIRF_PATH/vmlinu"*"$KERNAVAIL"
 if [ "$KERNEL" ] ; then
     msg "kernel: $KERNEL"
 fi
