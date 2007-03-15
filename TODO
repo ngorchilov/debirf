@@ -21,5 +21,3 @@ make-debirf should know its version number and record it somewhere in
 backup all files removed so that the pruning step is reversible
 
 parameterize which locale you want to leave in place
-
-fix jamie's e-mail address
