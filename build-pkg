@@ -15,8 +15,8 @@ REPO=$(svn info | grep ^URL:\ | awk '{ print $2 }')
 VERS=$(head -n1 debian/changelog | awk '{ print $2 }' | sed 's|[^[:digit:].]||g')
 
 # export the baseline from the repo into a clean directory:
-rm -rf ./tmp
-mkdir ./tmp
+rm -rf ./tmp/debirf-"$VERS"
+mkdir -p ./tmp
 svn export "$REPO" ./tmp/debirf-"$VERS" 
 
 # apply any unapplied changes from the wd to the building copy:
