@@ -24,4 +24,4 @@ Description: build a kernel and initrd to run Debian from RAM
  debirf for any possible purpose by specifying what components are included
  in the generated image. 
  .
- Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
+  Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
