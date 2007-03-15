@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# debirf makefile for debian packaging
+#
+# (C) 2007 by Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
+# 
+# This file is released under the GPL, v2 or later
+# (see /usr/share/common-licenses/GPL)
+
+# not much to do here, since we're just moving some shell scripts
+# around.
+
+build:
+
+binary: binary-arch binary-indep
+
+binary-arch: build
+
+install:
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	cp -a fs/usr fs/etc $(CURDIR)/debian/debirf
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installexamples
+	dh_installman
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean 

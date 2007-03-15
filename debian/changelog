@@ -1,0 +1,6 @@
+debirf (0.1) unstable; urgency=low
+
+  * initial debian packaging
+
+ -- Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>  Thu, 15 Mar 2007 00:58:17 -0400
+

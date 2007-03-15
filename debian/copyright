@@ -1,0 +1,12 @@
+This package was debianized by Daniel Kahn Gillmor
+<dkg-debian.org@fifthhorseman.net> on Thu, 15 Mar 2007 01:12:29 -0400.
+
+It was downloaded from http://cmrg.fifthhorseman.net/wiki/debirf
+
+Upstream Authors: Jameson Rollins <jamieaddress?> and 
+     Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
+
+Copyright: 2007 Daniel Kahn Gillmor and Jameson Rollins
+
+License: debirf is distributed under the GNU GPL v2 or later
+ (see /usr/share/common-licenses/GPL) 
