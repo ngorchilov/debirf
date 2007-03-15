@@ -1,0 +1,32 @@
+.TH MAKE-DEBIRF "8" "March 2007" "build-debirf-kernel 0.1" "Administration Commands"
+.SH NAME
+make-debirf \- build an initrd to boot a full debian system entirely from RAM
+.SH SYNOPSIS
+.B make-debirf linux-image-2.6.18-4-486+inittmpfs_2_i386.deb
+.SH DESCRIPTION
+.PP
+Pass make-debirf the name of a .deb containing a linux kernel and
+modules that have been built with Kent Robotti's
+EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.
+.PP
+The debirf system is outlined at:
+.PP
+   http://cmrg.fifthhorseman.net/wiki/debirf
+.PP
+Unfortunately, make-debirf must be run as root.
+.PP
+You can use build-debirf-kernel to generate such a kernel package if
+you do not have one handy.
+.SH AUTHOR
+Written by Jameson Rollins and Daniel Kahn Gillmor.
+.SH "REPORTING BUGS"
+Report bugs to <debirf@fifthhorseman.net>.
+.SH COPYRIGHT
+Copyright \(co 2007 Jameson Rollins and Daniel Kahn Gillmor
+.br
+This is free software.  You may redistribute copies of it under the terms of
+the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+.BR build-debirf-kernel (1),
+.BR debootstrap (8)
