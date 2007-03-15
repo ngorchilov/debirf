@@ -1,3 +1,10 @@
+debirf (0.2) unstable; urgency=low
+
+  * added kernel-package, fakeroot, and linux-patch-inittmpfs to
+    Recommends: to encourage use of build-debirf-kernel
+
+ --
+
 debirf (0.1) unstable; urgency=low
 
   * initial debian packaging

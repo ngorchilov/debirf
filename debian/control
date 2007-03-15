@@ -9,6 +9,7 @@ Standards-Version: 3.7.2.2
 Package: debirf
 Architecture: all
 Depends: debootstrap, cpio, apt
+Recommends: kernel-package, fakeroot, linux-patch-inittmpfs
 Description: build a kernel and initrd to run debian from RAM
  debirf (Debian on Initial Ram Filesystem) is a set of tools designed
  to create and prepare a kernel and initial ram filesystem that can
