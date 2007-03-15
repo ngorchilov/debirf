@@ -4,7 +4,7 @@
 # This file is released under the GNU GPL v2 or later
 
 # run this script from the top level of your working directory to
-# build a debirf debian package in ./tmp
+# build a debirf debian package in ./build
 
 # you must have the svn and devscripts packages installed.
 
@@ -15,12 +15,12 @@ REPO=$(svn info | grep ^URL:\ | awk '{ print $2 }')
 VERS=$(head -n1 debian/changelog | awk '{ print $2 }' | sed 's|[^[:digit:].]||g')
 
 # export the baseline from the repo into a clean directory:
-rm -rf ./tmp/debirf-"$VERS"
-mkdir -p ./tmp
-svn export "$REPO" ./tmp/debirf-"$VERS" 
+rm -rf ./build/debirf-"$VERS"
+mkdir -p ./build
+svn export "$REPO" ./build/debirf-"$VERS" 
 
 # apply any unapplied changes from the wd to the building copy:
-svn diff | (cd ./tmp/debirf-"$VERS" && patch -p0)
+svn diff | (cd ./build/debirf-"$VERS" && patch -p0)
 
 # actually build:
-(cd ./tmp/debirf-"$VERS" && debuild -uc -us)
+(cd ./build/debirf-"$VERS" && debuild -uc -us)

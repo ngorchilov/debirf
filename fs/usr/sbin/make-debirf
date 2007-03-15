@@ -115,12 +115,12 @@ create_initrd_stupid_simple() {
 
 ### tweak initrd method: untested, probably doesn't work right yet.  soon!
 create_initrd_tweak_initrd() {
-    cat scripts/debirf <<EOF
+    cat "$DEBIRF_ROOT"/scripts/debirf <<EOF
 mountroot() {
  rootmnt="/"
 }
 EOF
-    cat > bin/run-init <<EOF
+    cat > "$DEBIRF_ROOT"/bin/run-init <<EOF
 #!/bin/sh
 if [ "$1" != "/" ] ; then
   exec /usr/lib/klibc/bin/run-init "$@"
@@ -133,7 +133,7 @@ fi
 EOF
     # create root image
     msg "creating debirf initrd..."
-    cp extra/boot/"$INITRD" debirf.cgz
+    cp initrd.img* "$1"
     (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$1"
 }
 
@@ -200,11 +200,13 @@ if ! awk '{ print $2 }' < "$DEBIRF_ROOT/etc/fstab" | grep -q '^/proc' ; then
 fi
 
 KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-create_initrd_${DEBIRF_METHOD} "${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
+DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
+create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
 
 # final output
-KERNEL="$DEBIRF_PATH/vmlinu"*"$KERNAVAIL"
-if [ "$KERNEL" ] ; then
-    msg "kernel: $KERNEL"
+DEBIRF_KERNEL="vmlinu"*"$KERNAVAIL"
+msg "debirf initrd created."
+if [ "$DEBIRF_INITRD/$DEBIRF_KERNEL" ] ; then
+    msg "kernel: $DEBIRF_PATH/"$DEBIRF_KERNEL
 fi
 msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"
