@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+# (C) 2007 Daniel Kahn Gillmor <dkg-debian.org>
+# This file is released under the GNU GPL v2 or later
+
+# run this script from the top level of your working directory to
+# build a debirf debian package in ./tmp
+
+# you must have the svn and devscripts packages installed.
+
+# find the repository path:
+REPO=$(svn info | grep ^URL:\ | awk '{ print $2 }')
+
+# extract the version number from the changelog:
+VERS=$(head -n1 debian/changelog | awk '{ print $2 }' | sed 's|[^[:digit:].]||g')
+
+# export the baseline from the repo into a clean directory:
+rm -rf ./tmp
+mkdir ./tmp
+svn export "$REPO" ./tmp/debirf-"$VERS" 
+
+# apply any unapplied changes from the wd to the building copy:
+svn diff | (cd ./tmp/debirf-"$VERS" && patch)
+
+# actually build:
+(cd ./tmp/debirf-"$VERS" && debuild -uc -us)
