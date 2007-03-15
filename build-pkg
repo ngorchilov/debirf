@@ -20,7 +20,7 @@ mkdir ./tmp
 svn export "$REPO" ./tmp/debirf-"$VERS" 
 
 # apply any unapplied changes from the wd to the building copy:
-svn diff | (cd ./tmp/debirf-"$VERS" && patch)
+svn diff | (cd ./tmp/debirf-"$VERS" && patch -p0)
 
 # actually build:
 (cd ./tmp/debirf-"$VERS" && debuild -uc -us)
