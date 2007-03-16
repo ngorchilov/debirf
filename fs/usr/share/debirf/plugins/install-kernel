@@ -9,9 +9,9 @@
 install_kernel_dpkg() {
     local KNAME=$(basename "$1")
     cp "$1" "$DEBIRF_ROOT/root/$KNAME"
-    chroot "$DEBIRF_ROOT" dpkg --install "root/$KNAME"
+    debirf_exec dpkg --install "root/$KNAME"
     # and clean up, just in case there were missing dependencies.
-    chroot "$DEBIRF_ROOT" apt-get -f install
+    debirf_exec apt-get -f install
     rm "$DEBIRF_ROOT/root/$KNAME"
 }
 
