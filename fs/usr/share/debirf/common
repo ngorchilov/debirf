@@ -8,7 +8,7 @@
 debirf_msg() {
     echo " debirf: $@"
 }
-export -f msg
+export -f debirf_msg
 
 # cause debirf to exit immediately with message and exit code
 # failure message <exit-code>
@@ -16,7 +16,7 @@ debirf_fail() {
     echo "$1" >&2
     exit ${2:-'1'}
 }
-export -f failure
+export -f debirf_fail
 
 # output info to the debirf.info file on the initramfs
 setup_debirf_info() {
@@ -38,8 +38,10 @@ EOF
     export -f debirf_info_comment
     export -f debirf_info_sh
 }
+export -f setup_debirf_info
 
 # execute command in debirf system using chroot
 debirf_exec() {
     chroot "$DEBIRF_ROOT" $@
 }
+export -f debirf_exec
