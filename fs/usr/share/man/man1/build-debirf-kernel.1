@@ -5,7 +5,7 @@ build-debirf-kernel \- build a kernel to boot a debian system entirely from RAM
 .B build-debirf-kernel
 .SH DESCRIPTION
 .PP
-Run build-debirf-kernel as a non-privileged user on a
+Run \fBbuild-debirf-kernel\fP as a non-privileged user on a
 properly-configured debian system to build a .deb kernel package that
 can boot entirely from an initramfs.  Having such a deb is a
 prerequisite for getting a debirf system up and running.
@@ -14,11 +14,12 @@ The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PP
-build-debirf-kernel will first check to ensure that you have the
+\fBbuild-debirf-kernel\fP will first check to ensure that you have the
 proper packages installed on your system before proceeding.  It will
 attempt to build a kernel that matches the kernel you are currently
 running, with the addition of Kent Robotti's EARLYUSERSPACE_ON_TMPFS
 (inittmpfs) patch.
+.PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
 .SH "REPORTING BUGS"

@@ -5,24 +5,29 @@ make-debirf \- build an initrd to boot a full Debian system entirely from RAM
 .B make-debirf linux-image-2.6.18-4-486+inittmpfs_2_i386.deb
 .SH DESCRIPTION
 .PP
-make-debirf is a utility to build a debirf system.  A debirf system is a kernel
-and an initramfs that can be passed to a machine at boot
-time to load a complete Debian system entirely into RAM.  Pass make-debirf the
-name of a .deb containing a linux kernel and modules that have been built with
-Kent Robotti's EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch, and make-debirf will
-output a kernel and an initramfs which can be used to boot a machine into Debian
-entirely on RAM.  Put the lovely pair into the boot partition of your machine in
-case of emergency; burn it onto an .iso; serve it over the net via PXE.
+\fBmake-debirf\fP is a utility to build a debirf system.  A debirf system is a
+kernel and an initramfs that can be passed to a machine at boot time to load a
+complete Debian system entirely into RAM.  \fBmake-debirf\fP takes as input the
+path to a linux-image-*.deb containing a linux kernel and modules (see \fBKERNEL
+REQUIREMENTS\fP below), and outputs the kernel and the debirf initramfs.  The
+lovely pair can be put into the boot partition of your machine in case of
+emergency, burnt onto an .iso, served over the net via PXE, etc. 
 .PP
 The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PP
-Unfortunately, make-debirf must be run as root, since root is necessary to mount
-/proc in the chroot during the debootstrap phase.
+Unfortunately, \fBmake-debirf\fP must be run as root, since root is necessary to
+properly build the debirf root with debootstrap phase, as well as to mount the
+debirf chroot /proc. 
+.PD
+.SH KERNEL REQUIREMENTS
 .PP
-You can use build-debirf-kernel to generate such a kernel package if
-you do not have one handy.
+At the moment, the kernel that is passed to \fBmake-debirf\fP must have been
+built with Kent Robotti's EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.
+.PP
+You can use \fBbuild-debirf-kernel\fP to generate such a kernel package if you
+do not have one handy. 
 .PD
 .SH PLUGINS
 .PP
@@ -30,26 +35,22 @@ you do not have one handy.
 are a way to extend the capabilities of debirf.  A plugin is a bash
 shell script that will execute during a certain phase of the debirf
 build, right after the debirf debootstrap is complete and /sys and /proc have
-been mounted.  The shell scripts in the plugin directory (
-.B DEBIRF_PLUGINS
-) are executed in an alpha-numeric order by
-.B run-parts.
+been mounted.  The shell scripts in the plugin directory (\fB$DEBIRF_PLUGINS\fP)
+are executed in an alpha-numeric order by \fBrun-parts\fP.
 .PP
 The plugins can be used to configure the system put into the debirf initramfs.
-All of the shell variables defined in the debirf.conf file are available to the
-plugins.
+All of the shell variables defined in the \fIdebirf.conf\fP file are available
+to the plugins. 
 .PD
 .SH FUNCTIONS
 .PP
 A set of pre-defined bash shell functions are available to the plugins to
-fasciliate configuring the debirf system.
+fasciliate configuring the debirf system:
 .PP
 .PD 0
 .TP
 .B debirf_exec <command>
-Execute <command> from with chroot inside debirf system (
-.B DEBIRF_ROOT
-).
+Execute <command> within debirf root (\fB$DEBIRF_ROOT\fP) with chroot.
 .TP
 .B msg <message>
 Output a message to standard out during the build process.
