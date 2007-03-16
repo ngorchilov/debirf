@@ -1,3 +1,11 @@
+debirf (0.3) unstable; urgency=low
+
+  * simplified plugin infrastructure (only single plugin directory now)
+  * updated man pages
+  * 
+
+ --
+
 debirf (0.2) unstable; urgency=low
 
   * added kernel-package, fakeroot, and linux-patch-inittmpfs to
