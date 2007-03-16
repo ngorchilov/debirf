@@ -5,18 +5,18 @@
 # which defines most of the shell variables
 
 # output debirf message to stdout
-debirf_msg() {
-    echo " debirf: $@"
+msg() {
+    echo "debirf: $@"
 }
-export -f debirf_msg
+export -f msg
 
 # cause debirf to exit immediately with message and exit code
 # failure message <exit-code>
-debirf_fail() {
+failure() {
     echo "$1" >&2
     exit ${2:-'1'}
 }
-export -f debirf_fail
+export -f failure
 
 # output info to the debirf.info file on the initramfs
 setup_debirf_info() {

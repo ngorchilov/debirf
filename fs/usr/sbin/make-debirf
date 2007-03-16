@@ -38,9 +38,9 @@ export LANG="C"
 
 usage() {
 cat <<EOF
-Usage: $CMD kernel-image
+Usage: $CMD kernel-image.deb
 
-Creat a debirf initramfs.
+Create a debirf initramfs.
 
 Default config file: /etc/debirf/debirf.conf
 All config variables are bash shell variables.
@@ -66,17 +66,17 @@ run_plugins() {
 ## create_initrd functions take the name of the targeted initrd as
 ## their first argument.
  
-### stupid simple method
+# stupid simple method
 create_initrd_stupid_simple() {
     #ln sbin/init to /init
     ln -sf sbin/init "$DEBIRF_ROOT/init"
     
     # create root image
-    debirf_msg "creating debirf initrd..."
+    msg "creating debirf initrd..."
     ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$1"
 }
 
-### tweak initrd method: untested, probably doesn't work right yet.  soon!
+# tweak initrd method: untested, probably doesn't work right yet.  soon!
 create_initrd_tweak_initrd() {
     cat "$DEBIRF_ROOT"/scripts/debirf <<EOF
 mountroot() {
@@ -95,7 +95,7 @@ else
 fi
 EOF
     # create root image
-    debirf_msg "creating debirf initrd..."
+    msg "creating debirf initrd..."
     cp initrd.img* "$1"
     (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$1"
 }
@@ -106,7 +106,7 @@ EOF
 trap EXIT
 
 # check specified kernel package exists, and determine kernel name
-DEBIRF_KERNEL_PACKAGE="$1"
+export DEBIRF_KERNEL_PACKAGE="$1"
 if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
     echo "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
     echo
@@ -115,14 +115,14 @@ if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
 fi
 
 # check for common functions
-[ -f "$DEBIRF_COMMON" ] || debirf_fail "debirf function file $DEBIRF_COMMON not found."
+[ -f "$DEBIRF_COMMON" ] || failure "debirf function file $DEBIRF_COMMON not found."
 source "$DEBIRF_COMMON"
 
 # check plugin directory exists
 if [ ! -d "$DEBIRF_PLUGINS" ] ; then
     read -p "Plugin directory $DEBIRF_PLUGINS not found.  Continue? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/y/Y}" != 'Y' ] ; then
-	debirf_fail "aborting."
+	failure "aborting."
     fi
 fi
 
@@ -130,11 +130,11 @@ fi
 if [ -d "$DEBIRF_ROOT" ] ; then
     read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
     if [ "${OK/y/Y}" = 'Y' ] ; then
-	debirf_msg "installing new root..."
+	msg "installing new root..."
 	create_debootstrap
     fi
 else
-    debirf_msg "installing root..."
+    msg "installing root..."
     create_debootstrap
 fi
 
@@ -148,7 +148,7 @@ mount -t sysfs sys "$DEBIRF_ROOT/sys"
 debirf_exec apt-get update
 
 # install plugins
-debirf_msg "installing plugins..."
+msg "installing plugins..."
 run_plugins
 
 # umount sys,proc
@@ -168,8 +168,8 @@ create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
 
 # final output
 DEBIRF_KERNEL="vmlinu"*"$KERNAVAIL"
-debirf_msg "debirf initrd created."
+msg "debirf initrd created."
 if [ "$DEBIRF_INITRD/$DEBIRF_KERNEL" ] ; then
-    debirf_msg "kernel: $DEBIRF_PATH/"$DEBIRF_KERNEL
+    msg "kernel: $DEBIRF_PATH/"$DEBIRF_KERNEL
 fi
-debirf_msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"
+msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"

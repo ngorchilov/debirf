@@ -32,5 +32,4 @@ EOF
 }
 
 ##### install kernel
-msg "installing kernel..."
 install_kernel "$DEBIRF_KERNEL_PACKAGE"
