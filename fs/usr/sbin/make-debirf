@@ -28,6 +28,8 @@ DEBIRF_DISTRO=${DEBIRF_DISTRO:-"etch"}
 
 DEBIRF_COMMON="/usr/share/debirf/common"
 
+DEBIRF_INFO_TARGET="${DEBIRF_ROOT}/etc/debirf/debirf.info"
+
 # set locale default
 export LC_CTYPE="C"
 export LANGUAGE="C"
@@ -106,7 +108,7 @@ EOF
 trap EXIT
 
 # check specified kernel package exists, and determine kernel name
-export DEBIRF_KERNEL_PACKAGE="$1"
+DEBIRF_KERNEL_PACKAGE="$1"
 if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
     echo "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
     echo

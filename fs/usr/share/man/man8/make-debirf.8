@@ -24,30 +24,32 @@ debirf chroot /proc.
 .SH KERNEL REQUIREMENTS
 .PP
 At the moment, the kernel that is passed to \fBmake-debirf\fP must have been
-built with Kent Robotti's EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.
-.PP
-You can use \fBbuild-debirf-kernel\fP to generate such a kernel package if you
-do not have one handy. 
+built with the EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.  Use
+\fBbuild-debirf-kernel\fP to generate such a kernel package if you do not have
+one handy.
 .PD
 .SH PLUGINS
 .PP
-.B Plugins
-are a way to extend the capabilities of debirf.  A plugin is a bash
-shell script that will execute during a certain phase of the debirf
-build, right after the debirf debootstrap is complete and /sys and /proc have
-been mounted.  The shell scripts in the plugin directory (\fB$DEBIRF_PLUGINS\fP)
-are executed in an alpha-numeric order by \fBrun-parts\fP.
+\fBPlugins\fP are a way to extend the capabilities of debirf.  A plugin is a
+bash shell script that will execute during a "plugin install" phase of the
+debirf build, right after the debirf debootstrap is complete and /sys and /proc
+have been mounted.  The shell scripts in the plugin directory
+(\fB$DEBIRF_PLUGINS\fP) are executed in an alpha-numeric order by
+\fBrun-parts\fP.
 .PP
 The plugins can be used to configure the system put into the debirf initramfs.
 All of the shell variables defined in the \fIdebirf.conf\fP file are available
-to the plugins. 
+to the plugins.
+.PP
+\fBNOTE:\fP The ordering of plugins is important.  Some plugins may depend on
+certain other plugins having already, or not yet, been run.  For instance, the
+plugin that cleans the debirf apt cache should be run near the end. 
 .PD
 .SH FUNCTIONS
 .PP
 A set of pre-defined bash shell functions are available to the plugins to
 fasciliate configuring the debirf system:
-.PP
-.PD 0
+.PD 1
 .TP
 .B debirf_exec <command>
 Execute <command> within debirf root (\fB$DEBIRF_ROOT\fP) with chroot.
@@ -57,7 +59,45 @@ Output a message to standard out during the build process.
 .TP
 .B failure <message> <exit-code>
 Cause make-debirf script to fail with <exit-code>, and <message> to stderr.
+.TP
+.B debirf_info_sh <message>
+Write one line of sh code to the \fIdebirf.info\fP file on the debirf root.
+.TP
+.B debirf_info_comment <message>
+Write one line of comment to the \fIdebirf.info\fP file on the debirf root.
 .RE
+.PD
+.SH ENVIRONMENT
+.PP
+The following environment variables are used by make-debirf:
+.PD 1
+.TP
+.B DEBIRF_CONF
+location of configuration (default: /etc/debirf/debirf.conf)
+.PP
+.B DEBIRF_LABEL
+debirf label (default: debirf)
+.TP
+.B DEBIRF_PATH
+where to build the debirf (default: /var/lib/debirf)
+.TP
+.B DEBIRF_ROOT
+the debirf root, used by plugins (default: $DEBIRF_PATH/root)
+.TP
+.B DEBIRF_PLUGINS
+the plugins directory (default: /usr/share/debirf/plugins)
+.TP
+.B DEBIRF_MIRROR
+Debian mirror (default: http://mirrors.kernel.org/debian)
+.TP
+.B DEBIRF_DISTRO
+debirf build distribution (default: etch)
+.PD
+.SH FILES
+.PD 1
+.TP
+/etc/debirf/debirf.conf
+Default configuration file.
 .PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
