@@ -126,8 +126,6 @@ if [ ! -d "$DEBIRF_PLUGINS" ] ; then
     fi
 fi
 
-cd "$DEBIRF_PATH"
-
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
     read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
