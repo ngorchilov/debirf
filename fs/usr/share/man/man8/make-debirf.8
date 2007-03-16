@@ -1,22 +1,63 @@
 .TH MAKE-DEBIRF "8" "March 2007" "build-debirf-kernel 0.1" "Administration Commands"
 .SH NAME
-make-debirf \- build an initrd to boot a full debian system entirely from RAM
+make-debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
 .B make-debirf linux-image-2.6.18-4-486+inittmpfs_2_i386.deb
 .SH DESCRIPTION
 .PP
-Pass make-debirf the name of a .deb containing a linux kernel and
-modules that have been built with Kent Robotti's
-EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.
+make-debirf is a utility to build a debirf system.  A debirf system is a kernel
+and an initramfs that can be passed to a machine at boot
+time to load a complete Debian system entirely into RAM.  Pass make-debirf the
+name of a .deb containing a linux kernel and modules that have been built with
+Kent Robotti's EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch, and make-debirf will
+output a kernel and an initramfs which can be used to boot a machine into Debian
+entirely on RAM.  Put the lovely pair into the boot partition of your machine in
+case of emergency; burn it onto an .iso; serve it over the net via PXE.
 .PP
 The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PP
-Unfortunately, make-debirf must be run as root.
+Unfortunately, make-debirf must be run as root, since root is necessary to mount
+/proc in the chroot during the debootstrap phase.
 .PP
 You can use build-debirf-kernel to generate such a kernel package if
 you do not have one handy.
+.PD
+.SH PLUGINS
+.PP
+.B Plugins
+are a way to extend the capabilities of debirf.  A plugin is a bash
+shell script that will execute during a certain phase of the debirf
+build, right after the debirf debootstrap is complete and /sys and /proc have
+been mounted.  The shell scripts in the plugin directory (
+.B DEBIRF_PLUGINS
+) are executed in an alpha-numeric order by
+.B run-parts.
+.PP
+The plugins can be used to configure the system put into the debirf initramfs.
+All of the shell variables defined in the debirf.conf file are available to the
+plugins.
+.PD
+.SH FUNCTIONS
+.PP
+A set of pre-defined bash shell functions are available to the plugins to
+fasciliate configuring the debirf system.
+.PP
+.PD 0
+.TP
+.B debirf_exec <command>
+Execute <command> from with chroot inside debirf system (
+.B DEBIRF_ROOT
+).
+.TP
+.B debirf_msg <message>
+Output a message to standard out during the build process.
+.TP
+.B debirf_failure <message> <exit-code>
+Cause make-debirf script to fail with <exit-code>, and <message> to stderr.
+.RE
+.PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
 .SH "REPORTING BUGS"

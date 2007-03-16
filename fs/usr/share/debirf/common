@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# pre-defined common functions for the make-debirf script.
+# this file is sourced after the debirf.conf file, 
+# which defines most of the shell variables
+
+# output debirf message to stdout
+debirf_msg() {
+    echo " debirf: $@"
+}
+export -f msg
+
+# cause debirf to exit immediately with message and exit code
+# failure message <exit-code>
+debirf_fail() {
+    echo "$1" >&2
+    exit ${2:-'1'}
+}
+export -f failure
+
+# output info to the debirf.info file on the initramfs
+setup_debirf_info() {
+    export DEBIRF_INFO_TARGET="${DEBIRF_ROOT}/etc/debirf/debirf.info"
+    mkdir -p $(dirname "$DEBIRF_INFO_TARGET")
+
+    cat > "$DEBIRF_INFO_TARGET" <<EOF
+#!/bin/sh
+# this debirf initramfs was generated on $(hostname)
+# at $(date -R)
+
+EOF
+    debirf_info_comment() {
+	echo "$@" | sed 's|^\(.\)|\# \1|' >> "$DEBIRF_INFO_TARGET"
+    }
+    debirf_info_sh() {
+	echo "$@" >> "$DEBIRF_INFO_TARGET"
+    }
+    export -f debirf_info_comment
+    export -f debirf_info_sh
+}
+
+# execute command in debirf system using chroot
+debirf_exec() {
+    chroot "$DEBIRF_ROOT" $@
+}
