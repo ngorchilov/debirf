@@ -1,0 +1,3 @@
+This directory is (ab)used by various packaging scripts.  do not place
+things in it unless you are *sure* they won't get clobbered by a
+build process.
