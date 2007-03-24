@@ -52,7 +52,7 @@ fasciliate configuring the debirf system:
 .PD 1
 .TP
 .B debirf_exec <command>
-Execute <command> within debirf root (\fB$DEBIRF_ROOT\fP) with chroot.
+Execute <command> within debirf root (\fBDEBIRF_ROOT\fP) with chroot.
 .TP
 .B msg <message>
 Output a message to standard out during the build process.
@@ -98,6 +98,10 @@ debirf build distribution (default: etch)
 .TP
 /etc/debirf/debirf.conf
 Default configuration file.
+.TP
+$DEBIRF_ROOT/etc/debirf/debirf.info
+File that stores various information about the debirf build.  This is a
+bash-sourceable file.
 .PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
