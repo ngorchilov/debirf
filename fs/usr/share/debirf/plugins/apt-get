@@ -1,7 +1,16 @@
 #!/bin/sh
 
+# debirf plugin: apt-get
 # remove/install extra packages with apt-get
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 debirf_exec apt-get --assume-yes remove --purge aptitude
 
-debirf_exec apt-get --assume-yes install less moreutils lvm2
+debirf_exec apt-get --assume-yes install less moreutils lvm2 mdadm

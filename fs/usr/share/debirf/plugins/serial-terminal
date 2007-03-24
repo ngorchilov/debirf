@@ -1,6 +1,15 @@
 #!/bin/sh
 
+# debirf plugin: serial-terminal
 # add serial terminal
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 INITTAB="$DEBIRF_ROOT/etc/inittab"
 TTY="ttyS0"

@@ -1,6 +1,15 @@
 #!/bin/sh
 
+# debirf plugin: interfaces
 # add default network interface configuration
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 cat > "$DEBIRF_ROOT"/etc/network/interfaces <<EOF
 # Used by ifup(8) and ifdown(8). See the interfaces(5) manpage or

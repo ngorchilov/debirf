@@ -1,6 +1,14 @@
 #!/bin/bash
 
-# DEBIRF creation script.  You must pass a kernel .deb as the first argument.
+# make-debirf: script to build debirf system (must be root).
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 ###############################################################
 ### VARIABLES
@@ -44,9 +52,7 @@ Usage: $CMD kernel-image.deb
 
 Create a debirf initramfs.
 
-Default config file: /etc/debirf/debirf.conf
-All config variables are bash shell variables.
-Specify alternate config file with "DEBIRF_CONF=".
+'man make-debirf' for more information.
 EOF
 }
 

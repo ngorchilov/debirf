@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# debirf plugin: hostname
 # add system name
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 echo "$DEBIRF_LABEL" > "$DEBIRF_ROOT"/etc/hostname

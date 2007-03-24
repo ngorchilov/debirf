@@ -1,7 +1,15 @@
 #!/bin/sh
 
-# debirf plugin to remove cached apt information not needed in the
-# initramfs:
+# debirf plugin: apt-clean
+# remove cached apt information not needed in the initramfs
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 chroot "$DEBIRF_ROOT" apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin

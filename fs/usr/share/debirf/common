@@ -3,6 +3,14 @@
 # pre-defined common functions for the make-debirf script.
 # this file is sourced after the debirf.conf file, 
 # which defines most of the shell variables
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
 # output debirf message to stdout
 msg() {

@@ -2,20 +2,32 @@
 
 # build-debirf-kernel: script to build debianized linux kernel package with 
 #                      the inittmpfs patch from Kent Robotti
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 2
+# or later.
 
-# usage: build-debirf-kernel [N]
-#  N: package revision number (defaults to 1)
-
-# author: Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
-# copyright: 2007
-# license: this file is released under the GPL
-
-# this script does not require root privileges at all.
+CMD=$(basename $0)
 
 BUILDDIR=${BUILDDIR:-~/src/linux}
 KVERS=$(uname -r | cut -f1 -d-)
 KAPPEND=$(uname -r | cut -f1 -d- --complement)
 PKGREV=${KVERS}-${1:-1}
+
+usage() {
+cat <<EOF
+usage: $CMD [N]
+N is package revision number (defaults to 1)
+
+Build a kernel for debirf.
+
+'man build-debirf-kernel' for more information.
+EOF
+}
 
 die() {
     echo "$1" >&2
@@ -28,8 +40,8 @@ if (! dpkg -l "linux-source-$KVERS" kernel-package fakeroot linux-patch-inittmpf
 fi
 
 # create a build directory
-mkdir -p $BUILDDIR
-cd $BUILDDIR
+mkdir -p "$BUILDDIR"
+cd "$BUILDDIR"
 tar xjf "/usr/src/linux-source-$KVERS.tar.bz2"
 cd "linux-source-$KVERS"
 
