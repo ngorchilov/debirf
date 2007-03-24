@@ -37,9 +37,10 @@ setup_debirf_info() {
     mkdir -p $(dirname "$DEBIRF_INFO_TARGET")
 
     cat > "$DEBIRF_INFO_TARGET" <<EOF
-#!/bin/sh
-# this debirf initramfs was generated on $(hostname)
-# at $(date -R)
+# debirf.info
+#
+# this debirf initramfs was generated
+# on $(hostname) at $(date -R)
 
 EOF
 }
