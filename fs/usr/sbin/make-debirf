@@ -32,7 +32,7 @@ DEBIRF_METHOD=${DEBIRF_METHOD:-"stupid_simple"}
 # Debian mirror
 DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
 # what distribution should debirf be built from?
-DEBIRF_DISTRO=${DEBIRF_DISTRO:-"etch"}
+DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
 
 DEBIRF_COMMON="/usr/share/debirf/common"
 
@@ -57,6 +57,7 @@ EOF
 }
 
 create_debootstrap() {
+    msg "creating debirf root..."
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
@@ -108,10 +109,30 @@ EOF
     (cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$1"
 }
 
+# mount sys, proc
+mount_proc-sys() {
+    msg "mounting proc..."
+    mount -t proc proc "$DEBIRF_ROOT/proc"
+    msg "mounting sys..."
+    mount -t sysfs sys "$DEBIRF_ROOT/sys"
+}
+
+# umount sys, proc
+umount_proc-sys() {
+    if mount | grep -q "$DEBIRF_ROOT/proc" ; then
+	msg "umounting proc..."
+	umount "$DEBIRF_ROOT/proc"
+    fi
+    if mount | grep -q "$DEBIRF_ROOT/sys" ; then
+	msg "umounting sys..."
+	umount "$DEBIRF_ROOT/sys"
+    fi
+}
+
 ###############################################################
 ### MAIN
 
-trap EXIT
+trap umount_proc-sys EXIT
 
 # check specified kernel package exists, and determine kernel name
 DEBIRF_KERNEL_PACKAGE="$1"
@@ -136,21 +157,41 @@ fi
 
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
-    read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
-    if [ "${OK/y/Y}" = 'Y' ] ; then
-	msg "installing new root..."
-	create_debootstrap
-    fi
-else
-    msg "installing root..."
-    create_debootstrap
+    echo "Directory $DEBIRF_ROOT already exists.  Select one of the following:"
+    select foo in 'rewrite' 'overwrite' 'skip' 'exit' ; do
+	case "$foo" in
+	    'rewrite')
+		msg "clearing old debirf root..."
+		rm -rf "$DEBIRF_ROOT"
+		create_debootstrap
+		;;
+	    'overwrite')
+		create_debootstrap
+		;;
+	    'skip')
+		;;
+	    *)
+		failure "aborting."
+		;;
+	esac
+	break
+    done
 fi
+
+# if [ -d "$DEBIRF_ROOT" ] ; then
+#     read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+#     if [ "${OK/y/Y}" = 'Y' ] ; then
+# 	msg "installing new root..."
+# 	create_debootstrap
+#     fi
+# else
+#     msg "installing root..."
+#     create_debootstrap
+# fi
 
 setup_debirf_info
 
-# mount sys, proc
-mount -t proc proc "$DEBIRF_ROOT/proc"
-mount -t sysfs sys "$DEBIRF_ROOT/sys"
+mount_proc-sys
 
 # update apt
 debirf_exec apt-get update
@@ -159,9 +200,7 @@ debirf_exec apt-get update
 msg "installing plugins..."
 run_plugins
 
-# umount sys,proc
-umount "$DEBIRF_ROOT/proc"
-umount "$DEBIRF_ROOT/sys"
+umount_proc-sys
 
 # clear mtab
 > "$DEBIRF_ROOT/etc/mtab"
@@ -172,12 +211,12 @@ fi
 
 KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
-create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
+create_initrd_${DEBIRF_METHOD} "$DEBIRF_PATH/$DEBIRF_INITRD"
 
 # final output
-DEBIRF_KERNEL="vmlinu"*"$KERNAVAIL"
+DEBIRF_KERNEL=$(ls "$DEBIRF_PATH" | grep "vmlinu" | grep "$KERNAVAIL")
 msg "debirf initrd created."
-if [ "$DEBIRF_INITRD/$DEBIRF_KERNEL" ] ; then
-    msg "kernel: $DEBIRF_PATH/"$DEBIRF_KERNEL
+if [ "$DEBIRF_PATH/$DEBIRF_KERNEL" ] ; then
+    msg "kernel: $DEBIRF_PATH/$DEBIRF_KERNEL"
 fi
 msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"

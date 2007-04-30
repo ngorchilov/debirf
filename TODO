@@ -1,18 +1,18 @@
 TODO:
 
-create an initial plugin directory that links to all/many of the default plugins
-   and gives the user a chance to add/remove what they want.
+see:
+
+http://cmrg.fifthhorseman.net/query?status=new&status=assigned&status=reopened&component=debirf&order=priority
+
+for outstanding enhancement and bug tickets for debirf.
+
+others:
 
 plugins:
 - motd: change root/etc/motd.tail
 - disk-rescue: a plugin that adds all potentially useful disk tools
 - remove-locales: parameterize which locale you want to leave in place
 
-possibly trim more files/packages
-
-make-debirf should know its version number and record it somewhere in
-   each image it creates
+man page for debirf.conf(5)
 
 backup all files removed so that the pruning step is reversible
-
-man page for debirf.conf(5)
