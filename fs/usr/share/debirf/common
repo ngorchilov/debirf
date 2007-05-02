@@ -12,11 +12,34 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-# output debirf message to stdout
-msg() {
-    echo "debirf: $@"
-}
-export -f msg
+###############################################################
+### VARIABLES
+
+DEBIRF_PROFILED=${DEBIRF_PROFILED:-"/etc/debirf"}
+DEBIRF_PROFILE_DEFAULT=${DEBIRF_PROFILE_DEFAULT:-"$DEBIRF_PROFILED/minimal"}
+
+### debirf.conf defaults
+# debirf label
+DEBIRF_LABEL=${DEBIRF_LABEL:-"debirf"}
+# where to build the debirf
+DEBIRF_BUILDD=${DEBIRF_BUILDD:-"/var/lib/debirf"}
+# the debirf root, used by plugins
+DEBIRF_ROOT=${DEBIRF_ROOT:-"$DEBIRF_BUILDD/root"}
+# the plugins directory
+DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"/usr/share/debirf/plugins"}
+# debirf boot method
+DEBIRF_METHOD=${DEBIRF_METHOD:-"stupid_simple"}
+# Debian mirror
+DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
+# what distribution should debirf be built from?
+DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
+
+# set locale default
+export LC_CTYPE="C"
+export LANGUAGE="C"
+export LANG="C"
+
+###############################################################
 
 # cause debirf to exit immediately with message and exit code
 # failure message <exit-code>
@@ -26,6 +49,12 @@ failure() {
 }
 export -f failure
 
+# output debirf message to stdout
+msg() {
+    echo "debirf: $@"
+}
+export -f msg
+
 # execute command in debirf system using chroot
 debirf_exec() {
     chroot "$DEBIRF_ROOT" $@
@@ -34,9 +63,9 @@ export -f debirf_exec
 
 # output info to the debirf.info file on the initramfs
 setup_debirf_info() {
-    mkdir -p $(dirname "$DEBIRF_INFO_TARGET")
+    mkdir -p $(dirname "${DEBIRF_ROOT}/etc/debirf/debirf.info")
 
-    cat > "$DEBIRF_INFO_TARGET" <<EOF
+    cat > "${DEBIRF_ROOT}/etc/debirf/debirf.info" <<EOF
 # debirf.info
 #
 # this debirf initramfs was generated
@@ -48,12 +77,12 @@ export -f setup_debirf_info
 
 # write comment to debirf.info file
 debirf_info_comment() {
-    echo "$@" | sed 's|^\(.\)|\# \1|' >> "$DEBIRF_INFO_TARGET"
+    echo "$@" | sed 's|^\(.\)|\# \1|' >> "${DEBIRF_ROOT}/etc/debirf/debirf.info"
 }
 export -f debirf_info_comment
 
 # write command to debirf.info file
 debirf_info_sh() {
-    echo "$@" >> "$DEBIRF_INFO_TARGET"
+    echo "$@" >> "${DEBIRF_ROOT}/etc/debirf/debirf.info"
 }
 export -f debirf_info_sh

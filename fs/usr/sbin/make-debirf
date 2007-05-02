@@ -15,45 +15,22 @@
 
 CMD=$(basename $0)
 
-DEBIRF_CONF=${DEBIRF_CONF:-"/etc/debirf/debirf.conf"}
-[ -f "$DEBIRF_CONF" ] && source "$DEBIRF_CONF"
-
-### defaults
-# debirf label
-DEBIRF_LABEL=${DEBIRF_LABEL:-"debirf"}
-# where to build the debirf
-DEBIRF_PATH=${DEBIRF_PATH:-"/var/lib/debirf"}
-# the debirf root, used by plugins
-DEBIRF_ROOT=${DEBIRF_ROOT:-"$DEBIRF_PATH/root"}
-# the plugins directory
-DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"/usr/share/debirf/plugins"}
-# debirf boot method
-DEBIRF_METHOD=${DEBIRF_METHOD:-"stupid_simple"}
-# Debian mirror
-DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
-# what distribution should debirf be built from?
-DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
-
-DEBIRF_COMMON="/usr/share/debirf/common"
-
-DEBIRF_INFO_TARGET="${DEBIRF_ROOT}/etc/debirf/debirf.info"
-
-# set locale default
-export LC_CTYPE="C"
-export LANGUAGE="C"
-export LANG="C"
+DEBIRF_COMMON=${DEBIRF_COMMON:-"/usr/share/debirf/common"}
+source "$DEBIRF_COMMON"
 
 ###############################################################
 ### FUNCTIONS
 
 usage() {
-cat <<EOF
-Usage: $CMD kernel-image.deb
-
-Create a debirf initramfs.
-
-'man make-debirf' for more information.
+    cat <<EOF
+Usage: $CMD profile kernel-image.deb
+       $CMD kernel-image.deb
 EOF
+}
+
+failure() {
+    echo "$1" >&2
+    exit ${2:-'1'}
 }
 
 create_debootstrap() {
@@ -119,6 +96,7 @@ mount_proc-sys() {
 
 # umount sys, proc
 umount_proc-sys() {
+    [ "$DEBIRF_ROOT" ] || exit
     if mount | grep -q "$DEBIRF_ROOT/proc" ; then
 	msg "umounting proc..."
 	umount "$DEBIRF_ROOT/proc"
@@ -134,30 +112,85 @@ umount_proc-sys() {
 
 trap umount_proc-sys EXIT
 
-# check specified kernel package exists, and determine kernel name
-DEBIRF_KERNEL_PACKAGE="$1"
-if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    echo "Specified kernel package $DEBIRF_KERNEL_PACKAGE not found."
-    echo
+if [ "$1" = '-h' -o "$1" = '--help' ] ; then
     usage
-    exit 1
+    exit 0
 fi
 
-# check for common functions
-[ -f "$DEBIRF_COMMON" ] || failure "debirf function file $DEBIRF_COMMON not found."
-source "$DEBIRF_COMMON"
+case $# in
+    1)
+	DEBIRF_KERNEL_PACKAGE="$1"
+	;;
+    2)
+	DEBIRF_PROFILE="$1"
+	DEBIRF_KERNEL_PACKAGE="$2"
+	;;
+    *)
+	echo "Improper number of input arguments."
+	usage
+	exit 1
+	;;
+esac
 
-# check plugin directory exists
-if [ ! -d "$DEBIRF_PLUGINS" ] ; then
-    read -p "Plugin directory $DEBIRF_PLUGINS not found.  Continue? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
+# check specified kernel package exists
+if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
+fi
+
+# check for debirf profile
+if [ -z "$DEBIRF_PROFILE" ] ; then
+    echo "Profile not specified."
+    read -p "Use default profile ('$DEBIRF_PROFILE_DEFAULT')? [Y|n]: " OK
+    if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
+	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
+    fi
+fi
+if [ "$DEBIRF_PROFILE" ] ; then
+    if [ ! -d "$DEBIRF_PROFILE" ] ; then
+	if [ ! -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
+	    failure "Profile '$DEBIRF_PROFILE' not found."
+	else
+	    DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
+	fi
+    fi
+    echo "Using profile '$DEBIRF_PROFILE'."
+    DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
+    DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins.d"
+fi
+
+# find debirf.conf
+if [ "$DEBIRF_CONF" ] ; then
+    if [ -f "$DEBIRF_CONF" ] ; then
+	source "$DEBIRF_CONF"
+    else
+	failure "Config file '$DEBIRF_CONF' not found."
+    fi
+fi
+
+# find plugin directory
+if [ "$DEBIRF_PLUGINS" ] ; then
+    if [ ! -d "$DEBIRF_PLUGINS" ] ; then
+	failure "Plugin directory '$DEBIRF_PLUGINS' not found."
+    fi
+else
+    echo "Plugin directory file not specified."
+    read -p "Continue without plugins? [y|N]: " OK
     if [ "${OK/y/Y}" != 'Y' ] ; then
 	failure "aborting."
     fi
 fi
 
+# echo
+# for var in ${!DEBIRF_*}; do
+#     export $var
+# done
+# env | /bin/grep "^DEBIRF_"
+# exit
+
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
-    echo "Directory $DEBIRF_ROOT already exists.  Select one of the following:"
+    echo "Directory $DEBIRF_ROOT already exists."
+    echo "Select one of the following:"
     select foo in 'rewrite' 'overwrite' 'skip' 'exit' ; do
 	case "$foo" in
 	    'rewrite')
@@ -178,29 +211,20 @@ if [ -d "$DEBIRF_ROOT" ] ; then
     done
 fi
 
-# if [ -d "$DEBIRF_ROOT" ] ; then
-#     read -p "Directory $DEBIRF_ROOT already exists.  write over? [y|N]: " -n 1 OK ; [ -z $OK ] || echo
-#     if [ "${OK/y/Y}" = 'Y' ] ; then
-# 	msg "installing new root..."
-# 	create_debootstrap
-#     fi
-# else
-#     msg "installing root..."
-#     create_debootstrap
-# fi
-
 setup_debirf_info
 
-mount_proc-sys
+if [ "$DEBIRF_PLUGINS" ] ; then
+    mount_proc-sys
+    
+    # update apt
+    debirf_exec apt-get update
+    
+    # install plugins
+    msg "installing plugins..."
+    run_plugins
 
-# update apt
-debirf_exec apt-get update
-
-# install plugins
-msg "installing plugins..."
-run_plugins
-
-umount_proc-sys
+    umount_proc-sys
+fi
 
 # clear mtab
 > "$DEBIRF_ROOT/etc/mtab"
@@ -211,12 +235,12 @@ fi
 
 KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
-create_initrd_${DEBIRF_METHOD} "$DEBIRF_PATH/$DEBIRF_INITRD"
+create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
 # final output
-DEBIRF_KERNEL=$(ls "$DEBIRF_PATH" | grep "vmlinu" | grep "$KERNAVAIL")
+DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL")
 msg "debirf initrd created."
-if [ "$DEBIRF_PATH/$DEBIRF_KERNEL" ] ; then
-    msg "kernel: $DEBIRF_PATH/$DEBIRF_KERNEL"
+if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
+    msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
 fi
-msg "initrd: $DEBIRF_PATH/$DEBIRF_INITRD"
+msg "initrd: $DEBIRF_BUILDD/$DEBIRF_INITRD"

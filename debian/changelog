@@ -2,8 +2,9 @@ debirf (0.4) unstable; urgency=low
 
   * added more options when existing DEBIRF_ROOT found
   * fixed bug about where initrd is written (closes CMRG #16)
+  * added new profiles structure
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 30 Apr 2007 00:26:21 -0400
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed,  2 May 2007 19:10:09 -0400
 
 debirf (0.3) unstable; urgency=low
 
