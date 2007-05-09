@@ -51,7 +51,6 @@ run_plugins() {
 
 ## create_initrd functions take the name of the targeted initrd as
 ## their first argument.
- 
 # stupid simple method
 create_initrd_stupid_simple() {
     #ln sbin/init to /init
@@ -120,7 +119,7 @@ fi
 case $# in
     1)
 	DEBIRF_KERNEL_PACKAGE="$1"
-	echo "Profile not specified.  Using default profile ('$DEBIRF_PROFILE_DEFAULT')..."
+	echo "Profile not specified.  Setting profile to '$DEBIRF_PROFILE_DEFAULT'..."
 	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
 	;;
     2)
@@ -141,29 +140,43 @@ fi
 
 # check for debirf profile
 if [ ! -d "$DEBIRF_PROFILE" ] ; then
-    if [ ! -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
-	failure "Profile '$DEBIRF_PROFILE' not found."
-    else
+    if [ -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
 	DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
-    fi
+    else
+	echo "Profile '$DEBIRF_PROFILE' not found."
+	read -p "Continue? [y|N]: " OK
+	if [ -z "$OK" -o "${OK/y/Y}" != 'Y' ] ; then
+	    failure "Aborting."
+	fi
     fi
 fi
 
 DEBIRF_CONF=${DEBIRF_CONF:-"$DEBIRF_PROFILE/debirf.conf"}
-DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"$DEBIRF_PROFILE/plugins"
+DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"$DEBIRF_PROFILE/plugins"}
 
 # find debirf.conf
-[ -f "$DEBIRF_CONF" ] && source "$DEBIRF_CONF"
+if [ -f "$DEBIRF_CONF" ] ; then
+    source "$DEBIRF_CONF"
+else
+    echo "debirf.conf not found.  Using defaults."
+fi
 
 # check plugins
-if [ ! -d foo -o $(ls foo -1 | wc -l) = 0 ] ; then
+if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
     echo "Plugin directory '$DEBIRF_PLUGINS' is empty or does not exist."
-    read -p "Continue? [Y|n]: " OK
+    read -p "Continue without plugins? [Y|n]: " OK
     if [ "$OK" -a "${OK/y/Y}" != 'Y' ] ; then
 	failure "Aborting."
     fi
 fi
     
+echo "Debirf variables:"
+for var in ${!DEBIRF_*}; do
+    export $var
+done
+env | /bin/grep "^DEBIRF_"
+read -p "continue?" OK
+
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
@@ -215,7 +228,7 @@ DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
 create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
 # final output
-DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL")
+DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL$")
 msg "debirf initrd created."
 if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
     msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"

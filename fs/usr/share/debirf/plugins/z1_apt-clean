@@ -11,7 +11,7 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-chroot "$DEBIRF_ROOT" apt-get clean
+debirf_exec apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
 mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
