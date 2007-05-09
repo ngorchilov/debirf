@@ -1,0 +1,12 @@
+/usr/share/debirf/plugins/apt-get /etc/debirf/minimal/plugins/apt-get
+/usr/share/debirf/plugins/bootlog /etc/debirf/minimal/plugins/bootlog
+/usr/share/debirf/plugins/hostname /etc/debirf/minimal/plugins/hostname
+/usr/share/debirf/plugins/install-kernel /etc/debirf/minimal/plugins/install-kernel
+/usr/share/debirf/plugins/interfaces /etc/debirf/minimal/plugins/interfaces
+/usr/share/debirf/plugins/root-bashrc /etc/debirf/minimal/plugins/root-bashrc
+/usr/share/debirf/plugins/serial-terminal /etc/debirf/minimal/plugins/serial-terminal
+/usr/share/debirf/plugins/store-config /etc/debirf/minimal/plugins/store-config
+/usr/share/debirf/plugins/z0_remove-locales /etc/debirf/minimal/plugins/z0_remove-locales
+/usr/share/debirf/plugins/z1_apt-clean /etc/debirf/minimal/plugins/z1_apt-clean
+
+disk-rescue /etc/debirf/default

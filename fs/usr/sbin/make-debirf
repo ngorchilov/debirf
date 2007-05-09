@@ -38,7 +38,7 @@ create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    /usr/sbin/debootstrap --exclude=aptitude --include=initramfs-tools "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    /usr/sbin/debootstrap --exclude=aptitude "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
 }
 
 run_plugins() {
@@ -120,6 +120,8 @@ fi
 case $# in
     1)
 	DEBIRF_KERNEL_PACKAGE="$1"
+	echo "Profile not specified.  Using default profile ('$DEBIRF_PROFILE_DEFAULT')..."
+	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
 	;;
     2)
 	DEBIRF_PROFILE="$1"
@@ -138,55 +140,30 @@ if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
 fi
 
 # check for debirf profile
-if [ -z "$DEBIRF_PROFILE" ] ; then
-    echo "Profile not specified."
-    read -p "Use default profile ('$DEBIRF_PROFILE_DEFAULT')? [Y|n]: " OK
-    if [ -z "$OK" -o "${OK/y/Y}" = 'Y' ] ; then
-	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
+if [ ! -d "$DEBIRF_PROFILE" ] ; then
+    if [ ! -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
+	failure "Profile '$DEBIRF_PROFILE' not found."
+    else
+	DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
+    fi
     fi
 fi
-if [ "$DEBIRF_PROFILE" ] ; then
-    if [ ! -d "$DEBIRF_PROFILE" ] ; then
-	if [ ! -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
-	    failure "Profile '$DEBIRF_PROFILE' not found."
-	else
-	    DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
-	fi
-    fi
-    echo "Using profile '$DEBIRF_PROFILE'."
-    DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
-    DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins.d"
-fi
+
+DEBIRF_CONF=${DEBIRF_CONF:-"$DEBIRF_PROFILE/debirf.conf"}
+DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"$DEBIRF_PROFILE/plugins"
 
 # find debirf.conf
-if [ "$DEBIRF_CONF" ] ; then
-    if [ -f "$DEBIRF_CONF" ] ; then
-	source "$DEBIRF_CONF"
-    else
-	failure "Config file '$DEBIRF_CONF' not found."
+[ -f "$DEBIRF_CONF" ] && source "$DEBIRF_CONF"
+
+# check plugins
+if [ ! -d foo -o $(ls foo -1 | wc -l) = 0 ] ; then
+    echo "Plugin directory '$DEBIRF_PLUGINS' is empty or does not exist."
+    read -p "Continue? [Y|n]: " OK
+    if [ "$OK" -a "${OK/y/Y}" != 'Y' ] ; then
+	failure "Aborting."
     fi
 fi
-
-# find plugin directory
-if [ "$DEBIRF_PLUGINS" ] ; then
-    if [ ! -d "$DEBIRF_PLUGINS" ] ; then
-	failure "Plugin directory '$DEBIRF_PLUGINS' not found."
-    fi
-else
-    echo "Plugin directory file not specified."
-    read -p "Continue without plugins? [y|N]: " OK
-    if [ "${OK/y/Y}" != 'Y' ] ; then
-	failure "aborting."
-    fi
-fi
-
-# echo
-# for var in ${!DEBIRF_*}; do
-#     export $var
-# done
-# env | /bin/grep "^DEBIRF_"
-# exit
-
+    
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
