@@ -68,8 +68,8 @@ setup_debirf_info() {
     cat > "${DEBIRF_ROOT}/etc/debirf/debirf.info" <<EOF
 # debirf.info
 #
-# this debirf initramfs was generated
-# on $(hostname) at $(date -R)
+# this debirf initramfs was generated on $(hostname)
+# $(date -R)
 
 EOF
 }

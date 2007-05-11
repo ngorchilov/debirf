@@ -11,7 +11,7 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-debirf_info_comment 'the following config variables were set:'
+debirf_info_comment 'the following config variables were set during build:'
 
 for var in ${!DEBIRF_*}; do
     debirf_info_sh "${var}=${!var}"
