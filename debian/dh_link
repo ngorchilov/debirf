@@ -1,12 +1,13 @@
-/usr/share/debirf/plugins/apt-get /etc/debirf/minimal/plugins/apt-get
-/usr/share/debirf/plugins/bootlog /etc/debirf/minimal/plugins/bootlog
-/usr/share/debirf/plugins/hostname /etc/debirf/minimal/plugins/hostname
-/usr/share/debirf/plugins/install-kernel /etc/debirf/minimal/plugins/install-kernel
-/usr/share/debirf/plugins/interfaces /etc/debirf/minimal/plugins/interfaces
-/usr/share/debirf/plugins/root-bashrc /etc/debirf/minimal/plugins/root-bashrc
-/usr/share/debirf/plugins/serial-terminal /etc/debirf/minimal/plugins/serial-terminal
-/usr/share/debirf/plugins/store-config /etc/debirf/minimal/plugins/store-config
-/usr/share/debirf/plugins/z0_remove-locales /etc/debirf/minimal/plugins/z0_remove-locales
-/usr/share/debirf/plugins/z1_apt-clean /etc/debirf/minimal/plugins/z1_apt-clean
+/usr/share/debirf/plugins/a0_store-config /etc/debirf/disk-rescue/plugins/a0_store-config
+/usr/share/debirf/plugins/a0_motd /etc/debirf/disk-rescue/plugins/a0_motd
+/usr/share/debirf/plugins/apt-get_disk-rescue /etc/debirf/disk-rescue/plugins/apt-get_disk-rescue
+/usr/share/debirf/plugins/bootlog /etc/debirf/disk-rescue/plugins/bootlog
+/usr/share/debirf/plugins/hostname /etc/debirf/disk-rescue/plugins/hostname
+/usr/share/debirf/plugins/install-kernel /etc/debirf/disk-rescue/plugins/install-kernel
+/usr/share/debirf/plugins/interfaces /etc/debirf/disk-rescue/plugins/interfaces
+/usr/share/debirf/plugins/root-bashrc /etc/debirf/disk-rescue/plugins/root-bashrc
+/usr/share/debirf/plugins/serial-terminal /etc/debirf/disk-rescue/plugins/serial-terminal
+/usr/share/debirf/plugins/z0_remove-locales /etc/debirf/disk-rescue/plugins/z0_remove-locales
+/usr/share/debirf/plugins/z1_apt-clean /etc/debirf/disk-rescue/plugins/z1_apt-clean
 
 disk-rescue /etc/debirf/default
