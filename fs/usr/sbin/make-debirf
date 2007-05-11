@@ -199,12 +199,24 @@ fi
     
 echo "Debirf variables:"
 for var in ${!DEBIRF_*}; do
-    export $var
+    if [ $var ] ; then
+	export $var
+    else
+	failure "Variable '$var' not properly set."
+    fi
 done
 env | /bin/grep "^DEBIRF_"
 read -p "enter to continue: " OK
 
+# check buildd
+if [ -z "$DEBIRF_BUILDD" ] ; then
+    failure "DEBIRF_BUILDD is not set."
+fi
+
 # create debootstrap root
+if [ -z "$DEBIRF_ROOT" ] ; then
+    failure "DEBIRF_ROOT is not set."
+fi
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
     echo "Select one of the following:"
