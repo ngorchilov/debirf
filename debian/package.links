@@ -10,4 +10,4 @@
 /usr/share/debirf/plugins/z0_remove-locales /etc/debirf/disk-rescue/plugins/z0_remove-locales
 /usr/share/debirf/plugins/z1_apt-clean /etc/debirf/disk-rescue/plugins/z1_apt-clean
 
-disk-rescue /etc/debirf/default
+/etc/debirf/disk-rescue /etc/debirf/default
