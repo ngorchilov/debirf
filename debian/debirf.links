@@ -1,6 +1,6 @@
 /usr/share/debirf/plugins/a0_store-config /etc/debirf/disk-rescue/plugins/a0_store-config
 /usr/share/debirf/plugins/a0_motd /etc/debirf/disk-rescue/plugins/a0_motd
-/usr/share/debirf/plugins/apt-get_disk-rescue /etc/debirf/disk-rescue/plugins/apt-get_disk-rescue
+/usr/share/debirf/plugins/apt-get-disk-rescue /etc/debirf/disk-rescue/plugins/apt-get-disk-rescue
 /usr/share/debirf/plugins/bootlog /etc/debirf/disk-rescue/plugins/bootlog
 /usr/share/debirf/plugins/hostname /etc/debirf/disk-rescue/plugins/hostname
 /usr/share/debirf/plugins/install-kernel /etc/debirf/disk-rescue/plugins/install-kernel

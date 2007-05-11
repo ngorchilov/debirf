@@ -21,7 +21,7 @@ install:
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	dh_links
+	dh_link
 
 	cp -a fs/usr fs/etc $(CURDIR)/debian/debirf
 
