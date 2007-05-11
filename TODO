@@ -8,10 +8,9 @@ for outstanding enhancement and bug tickets for debirf.
 
 others:
 
-plugins:
-- motd: change root/etc/motd.tail
-- disk-rescue: a plugin that adds all potentially useful disk tools
+potential plugins:
 - remove-locales: parameterize which locale you want to leave in place
+- busybox: for a lighter-weight more minimal system
 
 man page for debirf.conf(5)
 

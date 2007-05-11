@@ -91,7 +91,8 @@ create_initrd_unionfs() {
     ln -sf /sbin/init "$DEBIRF_ROOT/init"
     
     # add unionfs kernel module and init script
-    debirf_exec apt-get install unionfs-modules-"$KERNELAVAIL" unionfs-tools
+    debirf_exec apt-get update
+    debirf_exec apt-get install unionfs-modules-"$KERNAVAIL" unionfs-tools
 
     cat >"$DEBIRF_ROOT/etc/init.d/root-unionfs" <<EOF
 #!/bin/bash
@@ -141,7 +142,7 @@ fi
 case $# in
     1)
 	DEBIRF_KERNEL_PACKAGE="$1"
-	echo "Profile not specified.  Setting profile to '$DEBIRF_PROFILE_DEFAULT'..."
+	echo "Profile not specified.  Setting profile to '$DEBIRF_PROFILE_DEFAULT'."
 	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
 	;;
     2)
@@ -176,12 +177,16 @@ fi
 DEBIRF_CONF=${DEBIRF_CONF:-"$DEBIRF_PROFILE/debirf.conf"}
 DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"$DEBIRF_PROFILE/plugins"}
 
-# find debirf.conf
+# find debirf.conf and set unset variables with defaults.
 if [ -f "$DEBIRF_CONF" ] ; then
     source "$DEBIRF_CONF"
 else
     echo "debirf.conf not found.  Using defaults."
+    if [ /etc/debirf/debirf.conf ] ; then
+	source /etc/debirf/debirf.conf
+    fi
 fi
+source /usr/share/debirf/debirf.conf.defaults || failure "Could not source config defaults."
 
 # check plugins
 if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
@@ -197,7 +202,7 @@ for var in ${!DEBIRF_*}; do
     export $var
 done
 env | /bin/grep "^DEBIRF_"
-read -p "continue?" OK
+read -p "enter to continue: " OK
 
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
@@ -232,8 +237,9 @@ if [ "$DEBIRF_PLUGINS" ] ; then
     debirf_exec apt-get update
     
     # install plugins
-    msg "installing plugins..."
+    msg "executing plugins..."
     run_plugins
+    msg "plugins complete."
 
     umount_proc-sys
 fi

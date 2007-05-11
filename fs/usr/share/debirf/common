@@ -18,22 +18,6 @@
 DEBIRF_PROFILED=${DEBIRF_PROFILED:-"/etc/debirf"}
 DEBIRF_PROFILE_DEFAULT=${DEBIRF_PROFILE_DEFAULT:-"$DEBIRF_PROFILED/default"}
 
-### debirf.conf defaults
-# debirf label
-DEBIRF_LABEL=${DEBIRF_LABEL:-"debirf"}
-# where to build the debirf
-DEBIRF_BUILDD=${DEBIRF_BUILDD:-"/var/lib/debirf"}
-# the debirf root, used by plugins
-DEBIRF_ROOT=${DEBIRF_ROOT:-"$DEBIRF_BUILDD/root"}
-# the plugins directory
-DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"/usr/share/debirf/plugins"}
-# debirf boot method
-DEBIRF_METHOD=${DEBIRF_METHOD:-"stupid_simple"}
-# Debian mirror
-DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
-# what distribution should debirf be built from?
-DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
-
 # set locale default
 export LC_CTYPE="C"
 export LANGUAGE="C"
