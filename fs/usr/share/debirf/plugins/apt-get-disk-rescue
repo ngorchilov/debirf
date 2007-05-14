@@ -13,4 +13,4 @@
 
 debirf_exec apt-get --assume-yes remove --purge aptitude
 
-debirf_exec apt-get --assume-yes install less moreutils lvm2 mdadm lsof screen
+debirf_exec apt-get --assume-yes install less moreutils lvm2 mdadm lsof screen hdparm smartmontools
