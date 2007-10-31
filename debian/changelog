@@ -1,9 +1,11 @@
 debirf (0.5) unstable; urgency=low
 
-  * fixed old references to DEBIAN_PATH environment variable 
-  * fix apt-get-disk-rescue to stop mdadm after install
+  * fixed old broken references to DEBIAN_PATH environment variable 
+  * fix apt-get-disk-rescue plugin to stop mdadm daemon after install (was
+    preventing /proc from being unmounted)
+  * tweaked install-kernel plugin
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 30 Oct 2007 23:58:32 -0400
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 31 Oct 2007 00:14:31 -0400
 
 debirf (0.4) unstable; urgency=low
 

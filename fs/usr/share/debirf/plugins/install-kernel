@@ -35,9 +35,10 @@ EOF
     
     install_kernel_dpkg "$1"
     
+    # remove kernel symlinks
+    rm "$DEBIRF_ROOT"/{vmlinuz,initrd.img}
     # extract kernel and debian stock initrd:
     mv "$DEBIRF_ROOT"/boot/{vmlinu*,initrd*} "$DEBIRF_BUILDD"
-    rm "$DEBIRF_ROOT"/{vmlinuz,initrd.img}
 }
 
 ##### install kernel
