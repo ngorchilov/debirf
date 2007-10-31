@@ -36,7 +36,7 @@ EOF
     install_kernel_dpkg "$1"
     
     # extract kernel and debian stock initrd:
-    mv "$DEBIRF_ROOT"/boot/{vmlinu*,initrd*} "$DEBIRF_PATH"
+    mv "$DEBIRF_ROOT"/boot/{vmlinu*,initrd*} "$DEBIRF_BUILDD"
     rm "$DEBIRF_ROOT"/{vmlinuz,initrd.img}
 }
 

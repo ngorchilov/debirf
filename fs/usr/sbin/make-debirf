@@ -121,11 +121,11 @@ umount_proc-sys() {
     [ "$DEBIRF_ROOT" ] || exit
     if mount | grep -q "$DEBIRF_ROOT/proc" ; then
 	msg "umounting proc..."
-	umount "$DEBIRF_ROOT/proc"
+	umount "$DEBIRF_ROOT/proc" || failure "Can not umount proc."
     fi
     if mount | grep -q "$DEBIRF_ROOT/sys" ; then
 	msg "umounting sys..."
-	umount "$DEBIRF_ROOT/sys"
+	umount "$DEBIRF_ROOT/sys" || failure "Can not umount sys."
     fi
 }
 
@@ -238,6 +238,8 @@ if [ -d "$DEBIRF_ROOT" ] ; then
 	esac
 	break
     done
+else
+    create_debootstrap
 fi
 
 setup_debirf_info

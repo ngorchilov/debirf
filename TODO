@@ -12,6 +12,4 @@ potential plugins:
 - remove-locales: parameterize which locale you want to leave in place
 - busybox: for a lighter-weight more minimal system
 
-man page for debirf.conf(5)
-
 backup all files removed so that the pruning step is reversible

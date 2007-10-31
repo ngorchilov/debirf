@@ -1,3 +1,10 @@
+debirf (0.5) unstable; urgency=low
+
+  * fixed old references to DEBIAN_PATH environment variable 
+  * fix apt-get-disk-rescue to stop mdadm after install
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 30 Oct 2007 23:58:32 -0400
+
 debirf (0.4) unstable; urgency=low
 
   * added more options when existing DEBIRF_ROOT found

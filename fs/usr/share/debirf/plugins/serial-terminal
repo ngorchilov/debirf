@@ -17,7 +17,7 @@ TTY="ttyS0"
 if grep "$TTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
     echo "inittab already has terminal on $TTY."
 else
-    cat >> "$DEBIRF_ROOT"/etc/inittab <<EOF
+    cat >> "$INITTAB" <<EOF
 # debirf: added serial console output:
 T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100
 EOF
