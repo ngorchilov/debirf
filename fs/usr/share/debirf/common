@@ -15,11 +15,12 @@
 ###############################################################
 ### VARIABLES
 
-DEBIRF_PROFILED=${DEBIRF_PROFILED:-"/etc/debirf"}
+DEBIRF_PROFILED=${DEBIRF_PROFILED:-"/etc/debirf/profiles"}
 DEBIRF_PROFILE_DEFAULT=${DEBIRF_PROFILE_DEFAULT:-"$DEBIRF_PROFILED/default"}
 
 # set locale default
 export LC_CTYPE="C"
+export LC_ALL="C"
 export LANGUAGE="C"
 export LANG="C"
 

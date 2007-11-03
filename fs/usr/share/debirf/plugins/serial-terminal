@@ -14,6 +14,9 @@
 INITTAB="$DEBIRF_ROOT/etc/inittab"
 TTY="ttyS0"
 
+# make the device node, just to be sure it's there.
+debirf_exec mknod /dev/ttyS0 c 4 64
+
 if grep "$TTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
     echo "inittab already has terminal on $TTY."
 else
