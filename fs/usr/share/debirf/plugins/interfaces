@@ -28,8 +28,8 @@ rm -f "$DEBIRF_ROOT"/etc/udev/rules.d/*_persistent-net.rules
 
 # add comment to /etc/motd.tail
 cat >> "${DEBIRF_ROOT}/etc/motd.tail" <<EOF
-
 If you have a network interface (ie. "eth0"), you can bring it up with:
 "ifup eth0=dhcp"
 ("ifconfig -a" will list available network interfaces.)
+
 EOF
