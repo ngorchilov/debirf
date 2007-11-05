@@ -1,3 +1,14 @@
+/usr/share/debirf/plugins/a0_store-config /etc/debirf/profiles/minimal/plugins/a0_store-config
+/usr/share/debirf/plugins/a0_motd /etc/debirf/profiles/minimal/plugins/a0_motd
+/usr/share/debirf/plugins/bootlog /etc/debirf/profiles/minimal/plugins/bootlog
+/usr/share/debirf/plugins/hostname /etc/debirf/profiles/minimal/plugins/hostname
+/usr/share/debirf/plugins/install-kernel /etc/debirf/profiles/minimal/plugins/install-kernel
+/usr/share/debirf/plugins/interfaces /etc/debirf/profiles/minimal/plugins/interfaces
+/usr/share/debirf/plugins/root-bashrc /etc/debirf/profiles/minimal/plugins/root-bashrc
+/usr/share/debirf/plugins/z0_remove-locales /etc/debirf/profiles/minimal/plugins/z0_remove-locales
+/usr/share/debirf/plugins/z1_apt-clean /etc/debirf/profiles/minimal/plugins/z1_apt-clean
+/usr/share/debirf/plugins/z2_motd_end /etc/debirf/profiles/minimal/plugins/z2_motd_end
+
 /usr/share/debirf/plugins/a0_store-config /etc/debirf/profiles/rescue/plugins/a0_store-config
 /usr/share/debirf/plugins/a0_motd /etc/debirf/profiles/rescue/plugins/a0_motd
 /usr/share/debirf/plugins/apt-get-disk-rescue /etc/debirf/profiles/rescue/plugins/apt-get-disk-rescue
@@ -10,5 +21,3 @@
 /usr/share/debirf/plugins/z0_remove-locales /etc/debirf/profiles/rescue/plugins/z0_remove-locales
 /usr/share/debirf/plugins/z1_apt-clean /etc/debirf/profiles/rescue/plugins/z1_apt-clean
 /usr/share/debirf/plugins/z2_motd_end /etc/debirf/profiles/rescue/plugins/z2_motd_end
-
-/etc/debirf/profiles/rescue /etc/debirf/profiles/default

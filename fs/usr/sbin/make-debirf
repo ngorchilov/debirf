@@ -142,7 +142,7 @@ fi
 case $# in
     1)
 	DEBIRF_KERNEL_PACKAGE="$1"
-	echo "Profile not specified.  Setting profile to '$DEBIRF_PROFILE_DEFAULT'."
+	echo "Profile not specified.  Using default profile '$DEBIRF_PROFILE_DEFAULT'."
 	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
 	;;
     2)
@@ -161,38 +161,39 @@ if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
     failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
 fi
 
+# source debirf.conf default
+source /usr/share/debirf/debirf.conf.defaults
+# source system debirf.conf
+if [ -f /etc/debirf/debirf.conf ] ; then
+    source /etc/debirf/debirf.conf
+fi
+
 # check for debirf profile
 if [ ! -d "$DEBIRF_PROFILE" ] ; then
     if [ -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
 	DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
     else
 	echo "Profile '$DEBIRF_PROFILE' not found."
-	read -p "Continue? [y|N]: " OK
-	if [ -z "$OK" -o "${OK/y/Y}" != 'Y' ] ; then
+	read -p "Continue with defaults? [y|N]: " OK; OK=${OK:-N}
+	if [ "${OK/y/Y}" != 'Y' ] ; then
 	    failure "Aborting."
 	fi
     fi
 fi
 
-DEBIRF_CONF=${DEBIRF_CONF:-"$DEBIRF_PROFILE/debirf.conf"}
-DEBIRF_PLUGINS=${DEBIRF_PLUGINS:-"$DEBIRF_PROFILE/plugins"}
+DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
+DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
 
-# find debirf.conf and set unset variables with defaults.
+# source profile debirf.conf
 if [ -f "$DEBIRF_CONF" ] ; then
     source "$DEBIRF_CONF"
-else
-    echo "debirf.conf not found.  Using defaults."
-    if [ /etc/debirf/debirf.conf ] ; then
-	source /etc/debirf/debirf.conf
-    fi
 fi
-source /usr/share/debirf/debirf.conf.defaults || failure "Could not source config defaults."
-
+  
 # check plugins
 if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
     echo "Plugin directory '$DEBIRF_PLUGINS' is empty or does not exist."
-    read -p "Continue without plugins? [Y|n]: " OK
-    if [ "$OK" -a "${OK/y/Y}" != 'Y' ] ; then
+    read -p "Continue without plugins? [Y|n]: " OK; OK=${OK:-Y}
+    if [ "${OK/y/Y}" != 'Y' ] ; then
 	failure "Aborting."
     fi
 fi

@@ -33,7 +33,7 @@ one handy.
 .PP
 A debirf profile is a directory in /etc/debirf/profiles or a full path
 to a directory that possibly contains a debirf.conf and/or 'plugins'
-sub-directory.  If a profile is not specified, the profile 'default'
+sub-directory.  If a profile is not specified, the profile 'rescue'
 is assumed.  If that profile is not found, the default variables will
 be used (see \fBENVIRONMENT\fP below).
 .PD
@@ -106,8 +106,10 @@ debirf build distribution (default: lenny)
 .PD 1
 .TP
 /etc/debirf/debirf.conf
+System-wide configuration file.
+.TP
 /etc/debirf/profiles/<profile>/debirf.conf
-Default configuration file.
+Profile-specific configuration file.
 .TP
 $DEBIRF_ROOT/etc/debirf/debirf.info
 File that stores various information about the debirf build.  This is a

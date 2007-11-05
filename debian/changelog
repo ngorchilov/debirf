@@ -6,8 +6,9 @@ debirf (0.5) unstable; urgency=low
   * tweaked install-kernel plugin
   * mknod /dev/ttyS0 in serial-terminal plugin
   * moved profiles directory to /etc/debirf/profiles
+  * added 'minimal' profile
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Sat, 03 Nov 2007 01:19:19 -0400
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 05 Nov 2007 00:53:26 -0500
 
 debirf (0.4) unstable; urgency=low
 
