@@ -5,11 +5,12 @@ Maintainer: Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
 Uploaders: Jameson Rollins <jrollins@fifthhorseman.net>
 Build-Depends: debhelper (>= 4)
 Standards-Version: 3.7.2.2
+Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
 
 Package: debirf
 Architecture: all
-Depends: debootstrap, cpio, apt
-Recommends: kernel-package, fakeroot, linux-patch-inittmpfs
+Depends: debootstrap, cpio, apt, fakeroot, fakechroot
+Recommends: kernel-package, linux-patch-inittmpfs
 Description: build a kernel and initrd to run Debian from RAM
  debirf (Debian on Initial Ram Filesystem) is a set of tools designed
  to create and prepare a kernel and initial ram filesystem that can
@@ -23,5 +24,3 @@ Description: build a kernel and initrd to run Debian from RAM
  The debirf tools use a plugin architecture which allows you to customize
  debirf for any possible purpose by specifying what components are included
  in the generated image. 
- .
-  Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
