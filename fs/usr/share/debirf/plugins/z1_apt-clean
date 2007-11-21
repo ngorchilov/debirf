@@ -11,6 +11,8 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
+debirf_exec apt-get --assume-yes remove --purge aptitude
+
 debirf_exec apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*

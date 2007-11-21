@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # make-debirf: script to build debirf system (must be root).
 #
@@ -38,7 +38,8 @@ create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    /usr/sbin/debootstrap --exclude=aptitude "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    #/usr/sbin/debootstrap --exclude=aptitude "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    fakeroot -s "$DEBIRF_FAKECHROOT_STATE" fakechroot debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
 }
 
 run_plugins() {
@@ -46,7 +47,8 @@ run_plugins() {
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    run-parts --verbose "$DEBIRF_PLUGINS"
+    #run-parts --verbose "$DEBIRF_PLUGINS"
+    fakeroot -i "$DEBIRF_FAKECHROOT_STATE" -s "$DEBIRF_FAKECHROOT_STATE" run-parts --verbose "$DEBIRF_PLUGINS"
 }
 
 ## create_initrd functions take the name of the targeted initrd as
@@ -132,7 +134,7 @@ umount_proc-sys() {
 ###############################################################
 ### MAIN
 
-trap umount_proc-sys EXIT
+#trap umount_proc-sys EXIT
 
 if [ "$1" = '-h' -o "$1" = '--help' ] ; then
     usage
@@ -197,7 +199,21 @@ if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
 	failure "Aborting."
     fi
 fi
-    
+
+# check buildd
+if [ -z "$DEBIRF_BUILDD" ] ; then
+    failure "DEBIRF_BUILDD is not set."
+fi
+
+# check debirf root
+if [ -z "$DEBIRF_ROOT" ] ; then
+    failure "DEBIRF_ROOT is not set."
+fi
+
+# set fakechroot save file
+DEBIRF_FAKECHROOT_STATE="$DEBIRF_BUILDD/.fakechroot-$DEBIRF_LABEL.save"
+
+# check variables
 echo "Debirf variables:"
 for var in ${!DEBIRF_*}; do
     if [ $var ] ; then
@@ -209,15 +225,7 @@ done
 env | /bin/grep "^DEBIRF_"
 read -p "enter to continue: " OK
 
-# check buildd
-if [ -z "$DEBIRF_BUILDD" ] ; then
-    failure "DEBIRF_BUILDD is not set."
-fi
-
 # create debootstrap root
-if [ -z "$DEBIRF_ROOT" ] ; then
-    failure "DEBIRF_ROOT is not set."
-fi
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
     echo "Select one of the following:"
@@ -246,17 +254,14 @@ fi
 setup_debirf_info
 
 if [ "$DEBIRF_PLUGINS" ] ; then
-    mount_proc-sys
+    #mount_proc-sys
     
-    # update apt
-    debirf_exec apt-get update
-    
-    # install plugins
+    # run plugins
     msg "executing plugins..."
     run_plugins
     msg "plugins complete."
 
-    umount_proc-sys
+    #umount_proc-sys
 fi
 
 # clear mtab
