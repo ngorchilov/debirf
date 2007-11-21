@@ -1,0 +1,9 @@
+docs
+docs/example-profiles
+docs/example-profiles/rescue
+docs/example-profiles/rescue/plugins
+docs/example-profiles/rescue/debirf.conf
+docs/example-profiles/rescue/debirf.conf~
+docs/example-profiles/minimal
+docs/example-profiles/minimal/plugins
+docs/example-profiles/minimal/debirf.conf
