@@ -1,4 +1,4 @@
-.TH MAKE-DEBIRF "8" "March 2007" "make-debirf 0.1" "Administration Commands"
+.TH MAKE-DEBIRF "1" "March 2007" "make-debirf 0.1" "Administration Commands"
 .SH NAME
 make-debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
@@ -17,10 +17,6 @@ burnt onto an .iso, served over the net via PXE, etc.
 The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
-.PP
-Unfortunately, \fBmake-debirf\fP must be run as root, since root is necessary to
-properly build the debirf root with debootstrap, as well as to mount the
-debirf chroot /proc. 
 .PD
 .SH KERNEL REQUIREMENTS
 .PP
@@ -82,13 +78,13 @@ The following environment variables are used by make-debirf:
 .PD 1
 .TP
 .B DEBIRF_CONF
-location of configuration (default: /etc/debirf/debirf.conf)
+location of configuration
 .PP
 .B DEBIRF_LABEL
 debirf label (default: debirf)
 .TP
 .B DEBIRF_BUILDD
-where to build the debirf (default: /var/lib/debirf)
+where to build the debirf (default: ~/.debirf)
 .TP
 .B DEBIRF_ROOT
 the debirf root, used by plugins (default: $DEBIRF_BUILDD/root)
@@ -104,12 +100,6 @@ debirf build distribution (default: lenny)
 .PD
 .SH FILES
 .PD 1
-.TP
-/etc/debirf/debirf.conf
-System-wide configuration file.
-.TP
-/etc/debirf/profiles/<profile>/debirf.conf
-Profile-specific configuration file.
 .TP
 $DEBIRF_ROOT/etc/debirf/debirf.info
 File that stores various information about the debirf build.  This is a

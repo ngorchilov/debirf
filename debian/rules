@@ -23,7 +23,7 @@ install:
 	dh_installdirs
 	dh_link
 
-	cp -a fs/usr fs/etc $(CURDIR)/debian/debirf
+	cp -a fs/usr $(CURDIR)/debian/debirf
 
 binary-indep: build install
 	dh_testdir
