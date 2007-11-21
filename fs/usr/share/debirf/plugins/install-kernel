@@ -20,7 +20,7 @@ install_kernel_dpkg() {
     cp "$1" "$DEBIRF_ROOT/root/$KNAME"
     debirf_exec dpkg --install "root/$KNAME"
     # and clean up, just in case there were missing dependencies.
-    debirf_exec apt-get -f install
+    debirf_exec apt-get --assume-yes -f install
     rm "$DEBIRF_ROOT/root/$KNAME"
 }
 

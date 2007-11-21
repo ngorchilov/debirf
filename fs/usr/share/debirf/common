@@ -42,7 +42,7 @@ export -f msg
 
 # execute command in debirf system using chroot
 debirf_exec() {
-    chroot "$DEBIRF_ROOT" $@
+    fakechroot chroot "$DEBIRF_ROOT" $@
 }
 export -f debirf_exec
 
