@@ -11,14 +11,17 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-# functions to write files in debirf root /etc
-### ONLY RUN WITH debirf_exec ! ###
-write_etc_hostname() {
-    echo "$DEBIRF_LABEL" > /etc/hostname
-}
+# write all the debirf environment variables to the on-root debirf config file
+debirf_info_comment 'the following config variables were set during build:'
+for var in ${!DEBIRF_*}; do
+    debirf_info_sh "${var}=${!var}"
+done
 
-write_etc_hosts() {
-    cat <<EOF > /etc/hosts
+# write /etc/hostname
+echo "$DEBIRF_LABEL" > "${DEBIRF_ROOT}/etc/hostname"
+
+# write /etc/hosts
+cat > "${DEBIRF_ROOT}/etc/hosts" <<EOF
 127.0.0.1	localhost $DEBIRF_LABEL
 
 # The following lines are desirable for IPv6 capable hosts
@@ -29,18 +32,6 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 EOF
-}
-
-# write all the debirf environment variables to the on-root debirf config file
-debirf_info_comment 'the following config variables were set during build:'
-for var in ${!DEBIRF_*}; do
-    debirf_info_sh "${var}=${!var}"
-done
-
-# write /etc/hostname
-debirf_exec write_etc_hostname
-# write /etc/hosts
-debirf_exec write_etc_hosts
 
 # update apt
 debirf_exec apt-get update

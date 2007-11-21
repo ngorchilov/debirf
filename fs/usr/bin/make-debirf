@@ -1,6 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
 
-# make-debirf: script to build debirf system (must be root).
+# make-debirf: script to build debirf system.
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -38,7 +38,6 @@ create_debootstrap() {
     # include initramfs-tools because they'll be handy
     # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    #/usr/sbin/debootstrap --exclude=aptitude "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fakeroot -s "$DEBIRF_FAKECHROOT_STATE" fakechroot debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
 }
 
@@ -47,7 +46,6 @@ run_plugins() {
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    #run-parts --verbose "$DEBIRF_PLUGINS"
     fakeroot -i "$DEBIRF_FAKECHROOT_STATE" -s "$DEBIRF_FAKECHROOT_STATE" run-parts --verbose "$DEBIRF_PLUGINS"
 }
 
@@ -59,7 +57,6 @@ create_initrd_stupid_simple() {
     ln -sf /sbin/init "$DEBIRF_ROOT/init"
     
     # create root image
-    msg "creating debirf initrd..."
     ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$1"
 }
 
@@ -82,7 +79,6 @@ else
 fi
 EOF
     # create root image
-    msg "creating debirf initrd..."
     cp initrd.img* "$1"
     ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$1"
 }
@@ -106,29 +102,7 @@ EOF
     ln -sf ../init.d/root-unionfs /etc/rcS.d/S00root-unionfs
 
     # create root image
-    msg "creating debirf initrd..."
     ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$1"
-}
-
-# mount sys, proc
-mount_proc-sys() {
-    msg "mounting proc..."
-    mount -t proc proc "$DEBIRF_ROOT/proc"
-    msg "mounting sys..."
-    mount -t sysfs sys "$DEBIRF_ROOT/sys"
-}
-
-# umount sys, proc
-umount_proc-sys() {
-    [ "$DEBIRF_ROOT" ] || exit
-    if mount | grep -q "$DEBIRF_ROOT/proc" ; then
-	msg "umounting proc..."
-	umount "$DEBIRF_ROOT/proc" || failure "Can not umount proc."
-    fi
-    if mount | grep -q "$DEBIRF_ROOT/sys" ; then
-	msg "umounting sys..."
-	umount "$DEBIRF_ROOT/sys" || failure "Can not umount sys."
-    fi
 }
 
 ###############################################################
@@ -253,15 +227,11 @@ fi
 
 setup_debirf_info
 
+# run plugins
 if [ "$DEBIRF_PLUGINS" ] ; then
-    #mount_proc-sys
-    
-    # run plugins
     msg "executing plugins..."
     run_plugins
     msg "plugins complete."
-
-    #umount_proc-sys
 fi
 
 # clear mtab
@@ -273,6 +243,7 @@ fi
 
 KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
+msg "creating debirf initrd..."
 create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
 # final output

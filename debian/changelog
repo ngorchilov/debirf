@@ -1,11 +1,13 @@
 debirf (0.6) unstable; urgency=low
 
   * changed debootstrap to run with fakechroot
-  * changed plugins to run under fakeroot
-  * the above changes mean being root is not necessary to make-debirf.
-  * ***STILL IN DEVELOPMENT***
+  * changed plugins to run under fakeroot, and debirf_exec to use fakechroot
+  * being root is no longer necessary to make-debirf, therefore make-debirf was moved to /usr/bin/
+  * debirf can now function with stock debian kernels (as of 2.6.22), in rootfs
+  * /var/lib/debirf no longer included.  default buildd is ~/.debirf
+  * removed /etc/debirf in favor of doc/example-profiles
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 21 Nov 2007 01:32:50 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 21 Nov 2007 15:11:46 -0500
 
 debirf (0.5) unstable; urgency=low
 
