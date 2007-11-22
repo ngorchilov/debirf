@@ -6,8 +6,10 @@ debirf (0.6) unstable; urgency=low
   * debirf can now function with stock debian kernels (as of 2.6.22), in rootfs
   * /var/lib/debirf no longer included.  default buildd is ~/.debirf
   * removed /etc/debirf in favor of doc/example-profiles
+  * various other tweaks and fixes and streamlines
+  * NOT WORKING BECAUSE OF NO DEVICE TREE IN ROOT
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 21 Nov 2007 15:11:46 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 21 Nov 2007 22:33:42 -0500
 
 debirf (0.5) unstable; urgency=low
 

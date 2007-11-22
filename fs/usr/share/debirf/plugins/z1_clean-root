@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# debirf plugin: apt-clean
-# remove cached apt information not needed in the initramfs
+# debirf plugin: clean-root
+# clean up debirf root
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -11,9 +11,21 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
+# purge unneeded packages
 debirf_exec apt-get --assume-yes remove --purge aptitude
 
+# remove all cached apt information
 debirf_exec apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
 mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
+
+# remake proc and dev directories
+# (originally made as symlinks by debootstrap with fakechroot)
+#rm -rf "$DEBIRF_ROOT/dev"
+#mkdir "$DEBIRF_ROOT/dev"
+rm -rf "$DEBIRF_ROOT/proc"
+mkdir "$DEBIRF_ROOT/proc"
+
+# clear mtab
+> "$DEBIRF_ROOT/etc/mtab"

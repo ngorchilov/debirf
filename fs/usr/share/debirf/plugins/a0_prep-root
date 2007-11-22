@@ -22,7 +22,8 @@ echo "$DEBIRF_LABEL" > "${DEBIRF_ROOT}/etc/hostname"
 
 # write /etc/hosts
 cat > "${DEBIRF_ROOT}/etc/hosts" <<EOF
-127.0.0.1	localhost $DEBIRF_LABEL
+127.0.0.1	localhost
+127.0.1.1       $DEBIRF_LABEL
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
@@ -32,6 +33,12 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 EOF
+
+# add proc to fstab
+#if ! awk '{ print $2 }' < "$DEBIRF_ROOT/etc/fstab" | grep -q '^/proc' ; then
+#    echo proc /proc proc defaults 0 0 >> "$DEBIRF_ROOT/etc/fstab"
+#fi
+echo proc /proc proc defaults 0 0 > "${DEBIRF_ROOT}/etc/fstab"
 
 # update apt
 debirf_exec apt-get update
