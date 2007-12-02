@@ -72,7 +72,7 @@ EOF
 debirf_exec adduser --disabled-password --gecos "Kiosk User,,," guest
 
 ### configure runit service dir to start X session
-RUNIT_DIR=/srv/core-performance
+RUNIT_DIR=/srv/xkiosk
 RUNIT_DIR_DEBIRF="${DEBIRF_ROOT}/${RUNIT_DIR}"
 
 mkdir -p "$RUNIT_DIR_DEBIRF"/{env,log/main}
