@@ -69,7 +69,7 @@ EndSection
 EOF
 
 ### add guest user
-debirf_exec adduser --disabled-password --gecos "" guest
+debirf_exec adduser --disabled-password --gecos "Kiosk User,,," guest
 
 ### configure runit service dir to start X session
 RUNIT_DIR=/srv/core-performance
@@ -107,7 +107,11 @@ cat > "$DEBIRF_ROOT"/home/guest/.xinitrc <<EOF
 #!/bin/sh
 xsetroot -solid blue
 matchbox-window-manager &
-iceweasel
+TARG=http://cmrg.fifthhorseman.net/debirf
+if (grep -q 'browse=' </proc/cmdline) ; then
+  TARG=\$( sed 's/.*browse=\([^[:space:]]*\).*/\1/' </proc/cmdline)
+fi
+iceweasel \$TARG
 EOF
 
 # set permissions on /home/guest, just in case
