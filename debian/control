@@ -9,7 +9,7 @@ Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
 
 Package: debirf
 Architecture: all
-Depends: debootstrap, cpio, apt, fakeroot, fakechroot
+Depends: debootstrap, cpio, apt, fakeroot, fakechroot, busybox, klibc-utils
 Recommends: kernel-package, linux-patch-inittmpfs
 Description: build a kernel and initrd to run Debian from RAM
  debirf (Debian on Initial Ram Filesystem) is a set of tools designed

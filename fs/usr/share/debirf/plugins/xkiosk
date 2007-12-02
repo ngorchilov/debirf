@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# debirf plugin: xkiosk
+# create an graphical kiosk that starts x and a browser on boot.
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL, version 3
+# or later.
+
+### download needed packages
+# could maybe pick and choose xorg packages if hardware known
+debirf_exec apt-get install --assume-yes xorg runit matchbox-window-manager iceweasel
+
+### properly configure X
+# allow any user to start X (not just from command line):
+# ("debirf_exec dpkg-reconfigure x11-common")
+cat > "$DEBIRF_ROOT"/etc/X11/Xwrapper.config <<EOF
+allowed_users=anybody
+nice_value=0
+EOF
+
+# make standard xorg.conf
+cat > "$DEBIRF_ROOT"/etc/X11/xorg.conf <<EOF
+Section "Files"
+EndSection
+Section "InputDevice"
+	Identifier	"Generic Keyboard"
+	Driver		"kbd"
+	Option		"CoreKeyboard"
+	Option		"XkbRules"	"xorg"
+	Option		"XkbModel"	"pc104"
+	Option		"XkbLayout"	"us"
+EndSection
+Section "InputDevice"
+	Identifier	"Configured Mouse"
+	Driver		"mouse"
+	Option		"CorePointer"
+	Option		"Device"		"/dev/input/mice"
+	Option		"Protocol"		"ImPS/2"
+	Option		"Emulate3Buttons"	"true"
+EndSection
+Section "Device"
+	Identifier	"Generic Video Card"
+	Driver		"vesa"
+	BusID		"PCI:1:0:0"
+EndSection
+Section "Monitor"
+	Identifier "VGA"
+EndSection
+Section "Screen"
+	Identifier	"Default Screen"
+	Device		"Generic Video Card"
+	Monitor		"VGA"
+	DefaultDepth	24
+        SubSection "Display"
+                Modes           "1024x768"
+        EndSubSection
+EndSection
+Section "ServerLayout"
+	Identifier	"Default Layout"
+	Screen		"Default Screen"
+	InputDevice	"Generic Keyboard"
+	InputDevice	"Configured Mouse"
+EndSection
+EOF
+
+### add guest user
+debirf_exec adduser --disabled-password --gecos "" guest
+
+### configure runit service dir to start X session
+RUNIT_DIR=/srv/core-performance
+RUNIT_DIR_DEBIRF="${DEBIRF_ROOT}/${RUNIT_DIR}"
+
+mkdir -p "$RUNIT_DIR_DEBIRF"/{env,log/main}
+debirf_exec chown guest:guest "$RUNIT_DIR"/log/main
+
+echo guest > "$RUNIT_DIR_DEBIRF"/env/UID
+echo guest > "$RUNIT_DIR_DEBIRF"/env/GID
+echo /home/guest > "$RUNIT_DIR_DEBIRF"/env/HOME
+
+# creat run script
+# guest users starts X
+cat > "$RUNIT_DIR_DEBIRF"/run <<EOF
+#!/bin/sh
+exec 2>&1
+exec chpst -u guest:audio:video -e env /usr/bin/startx
+EOF
+debirf_exec chmod a+x "$RUNIT_DIR"/run
+
+# create log run script
+cat > "$RUNIT_DIR_DEBIRF"/log/run <<EOF
+#!/bin/sh
+exec chpst -u guest svlogd -tt ./main
+EOF
+debirf_exec chmod a+x "$RUNIT_DIR"/log/run
+
+# link in service dir
+debirf_exec ln -s "$RUNIT_DIR" /var/service/
+
+### make xinitrc
+# for guest user, loads window manager and browser
+cat > "$DEBIRF_ROOT"/home/guest/.xinitrc <<EOF
+#!/bin/sh
+xsetroot -solid blue
+matchbox-window-manager &
+iceweasel
+EOF
+
+# set permissions on /home/guest, just in case
+debirf_exec chown -R guest:guest /home/guest
+
+### configure network to come up automatically
+cat > "${DEBIRF_ROOT}/etc/network/interfaces" <<EOF
+auto lo
+iface lo inet loopback
+auto eth0=dhcp
+iface dhcp inet dhcp
+EOF
+
+# reset default udev persistent-net rule
+rm -f "$DEBIRF_ROOT"/etc/udev/rules.d/*_persistent-net.rules

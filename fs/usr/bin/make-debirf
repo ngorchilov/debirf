@@ -18,13 +18,17 @@ CMD=$(basename $0)
 DEBIRF_COMMON=${DEBIRF_COMMON:-"/usr/share/debirf/common"}
 source "$DEBIRF_COMMON"
 
+export FAKECHROOT_BUILD=false
+
 ###############################################################
 ### FUNCTIONS
 
 usage() {
     cat <<EOF
-Usage: $CMD profile kernel-image.deb
-       $CMD kernel-image.deb
+Usage: $CMD [options] profile kernel-image.deb|kernel-package-name
+
+options:
+  -f         fakechroot build (other wise requires being root)
 EOF
 }
 
@@ -36,9 +40,12 @@ failure() {
 create_debootstrap() {
     msg "creating debirf root..."
     # include initramfs-tools because they'll be handy
-    # exclude aptitude
     mkdir -p "$DEBIRF_ROOT"
-    fakeroot -s "$DEBIRF_FAKEROOT_STATE" fakechroot /usr/sbin/debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
+	fakeroot -s "$DEBIRF_FAKEROOT_STATE" fakechroot /usr/sbin/debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    else
+	/usr/sbin/debootstrap "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    fi
 }
 
 run_plugins() {
@@ -46,7 +53,11 @@ run_plugins() {
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" run-parts --verbose "$DEBIRF_PLUGINS"
+    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
+	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" run-parts --verbose "$DEBIRF_PLUGINS"
+    else
+	run-parts --verbose "$DEBIRF_PLUGINS"
+    fi
 }
 
 ## create_initrd functions take the name of the targeted initrd as
@@ -55,9 +66,65 @@ run_plugins() {
 create_initrd_stupid_simple() {
     #ln sbin/init to /init
     ln -sf /sbin/init "$DEBIRF_ROOT/init"
-    
-    # create root image
-    ( cd "$DEBIRF_ROOT" && find * | fakeroot cpio -H newc --create  | gzip ) > "$1"
+
+    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
+        # create a proper dev tree, based on the host systems dev tree
+	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" bash -c 'rm -rf '"$DEBIRF_ROOT"'/dev; (cd / && find dev | cpio --create) | (cd '"$DEBIRF_ROOT"'/ && cpio --extract)'    
+        #fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" bash -c 'rm -rf '"$DEBIRF_ROOT"'/dev; mkdir '"$DEBIRF_ROOT"'/dev'
+
+        # create root image
+	( cd "$DEBIRF_ROOT" && find * | fakeroot cpio --create -H newc | gzip ) > "$1"
+    else
+        # create root image
+	( cd "$DEBIRF_ROOT" && find * | cpio --create -H newc | gzip ) > "$1"
+    fi
+}
+
+# nested cpio archives
+create_initrd_nested() {
+    local util lib
+    local NEST_ROOT="$DEBIRF_BUILDD"/nest
+
+    # make the nested root
+    rm -rf "$NEST_ROOT"
+    mkdir -p "$NEST_ROOT"/{bin,lib}
+
+    # copy in needed executables
+    # these things should probably be pulled from the debirf system,
+    # instead of the build host (they are pulled by kernel install).
+    cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
+    for util in sh mkdir mount ls gunzip ; do
+	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
+    done
+    cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
+
+    # copy in needed libraries
+    for lib in $(ldd "$NEST_ROOT"/bin/* | egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8}\)$' | sed -r 's|.*[[:space:]](/[^[[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8}\)$|\1|' | sort -u) ; do
+	# pull libraries from most basic place libraries can live
+	# (avoid arch change between build env and debirf)
+	lib=/lib/$(basename "$lib")
+	echo -e "$lib\n$(readlink -f $lib)" | cpio --pass-through --make-directories "$NEST_ROOT"/
+    done
+    cp -f /lib/klibc-* "$NEST_ROOT"/lib/
+
+    # create nest init
+    cat > "$NEST_ROOT"/init <<EOF
+#!/bin/sh
+mkdir /newroot
+mount -t tmpfs tmpfs /newroot
+cd /newroot
+# specify /bin/cpio so that it gets used instead of the busybox builtin
+gunzip - </rootfs.cgz | /bin/cpio -i
+echo unpacking rootfs...
+exec /bin/run-init . /sbin/init <./dev/console >./dev/console
+EOF
+    chmod a+x "$NEST_ROOT"/init
+
+    msg "creating rootfs.cgz..."
+    create_initrd_stupid_simple "$NEST_ROOT"/rootfs.cgz
+
+    msg "creating wrapper cgz..."
+    ( cd "$NEST_ROOT" && find * | fakeroot cpio --create -H newc | gzip ) > "$1"
 }
 
 # tweak initrd method: untested, probably doesn't work right yet.  soon!
@@ -116,14 +183,19 @@ if [ "$1" = '-h' -o "$1" = '--help' ] ; then
 fi
 
 case $# in
-    1)
-	DEBIRF_KERNEL_PACKAGE="$1"
-	echo "Profile not specified.  Using default profile '$DEBIRF_PROFILE_DEFAULT'."
-	DEBIRF_PROFILE="$DEBIRF_PROFILE_DEFAULT"
-	;;
     2)
 	DEBIRF_PROFILE="$1"
 	DEBIRF_KERNEL_PACKAGE="$2"
+	;;
+    3)
+	if [ "$1" = '-f' ] ; then
+	    echo "Using fakechroot build."
+	    FAKECHROOT_BUILD=true
+	else
+	    failure "Improper input arguments."
+	fi
+	DEBIRF_PROFILE="$2"
+	DEBIRF_KERNEL_PACKAGE="$3"
 	;;
     *)
 	echo "Improper number of input arguments."
@@ -134,37 +206,39 @@ esac
 
 # check specified kernel package exists
 if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
+    if apt-cache show "$DEBIRF_KERNEL_PACKAGE" > /dev/null ; then
+	echo "Using apt kernel package '$DEBIRF_KERNEL_PACKAGE'."
+    else
+	failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
+    fi
 fi
 
-# source debirf.conf default
+# source debirf.conf defaults
 source /usr/share/debirf/debirf.conf.defaults
-# source system debirf.conf
-if [ -f /etc/debirf/debirf.conf ] ; then
-    source /etc/debirf/debirf.conf
-fi
 
 # check for debirf profile
-if [ ! -d "$DEBIRF_PROFILE" ] ; then
-    if [ -d "$DEBIRF_PROFILED/$DEBIRF_PROFILE" ] ; then
-	DEBIRF_PROFILE="$DEBIRF_PROFILED/$DEBIRF_PROFILE"
+if [ -d "$DEBIRF_PROFILE" ] ; then
+    echo "Loading profile '$DEBIRF_PROFILE'..."
+    DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
+    DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
+    # source profile debirf.conf
+    if [ -f "$DEBIRF_CONF" ] ; then
+	source "$DEBIRF_CONF"
     else
-	echo "Profile '$DEBIRF_PROFILE' not found."
-	read -p "Continue with defaults? [y|N]: " OK; OK=${OK:-N}
+	echo "$DEBIRF_CONF not found."
+	read -p "Continue with defaults? [Y|n]: " OK; OK=${OK:-Y}
 	if [ "${OK/y/Y}" != 'Y' ] ; then
 	    failure "Aborting."
 	fi
     fi
+else
+    echo "Profile '$DEBIRF_PROFILE' not found."
+    read -p "Continue with defaults? [y|N]: " OK; OK=${OK:-N}
+    if [ "${OK/y/Y}" != 'Y' ] ; then
+	failure "Aborting."
+    fi
 fi
 
-DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
-DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
-
-# source profile debirf.conf
-if [ -f "$DEBIRF_CONF" ] ; then
-    source "$DEBIRF_CONF"
-fi
-  
 # check plugins
 if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
     echo "Plugin directory '$DEBIRF_PLUGINS' is empty or does not exist."
@@ -205,7 +279,7 @@ if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Select one of the following:"
     select foo in 'rewrite' 'overwrite' 'skip' 'exit' ; do
 	case "$foo" in
-	    'rewrite')
+	    'wipe & rewrite')
 		msg "clearing old debirf root..."
 		rm -rf "$DEBIRF_ROOT"
 		create_debootstrap
@@ -236,7 +310,7 @@ fi
 
 KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
-msg "creating debirf initrd..."
+msg "creating debirf initrd ('$DEBIRF_METHOD')..."
 create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
 # final output
