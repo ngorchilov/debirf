@@ -107,7 +107,7 @@ cat > "$DEBIRF_ROOT"/home/guest/.xinitrc <<EOF
 #!/bin/sh
 xsetroot -solid blue
 matchbox-window-manager &
-TARG=http://cmrg.fifthhorseman.net/debirf
+TARG=http://cmrg.fifthhorseman.net/wiki/debirf
 if (grep -q 'browse=' </proc/cmdline) ; then
   TARG=\$( sed 's/.*browse=\([^[:space:]]*\).*/\1/' </proc/cmdline)
 fi
