@@ -3,13 +3,17 @@ debirf (0.6) unstable; urgency=low
   * new create_initrd_nested build function, boots debirf into tmpfs, which is cleaner and more stable and is now the default.
   * added ability to run make-debirf with fakechroot ('-f' option).  there are problems creating the device tree with this method, though, so it is still underdevelopment.
   * modified debootstrap, plugin run-parts, and debirf_exec to also use fakechroot
-  * being root *should* no longer be necessary to make-debirf, therefore make-debirf was moved to /usr/bin/
-  * debirf can now function with stock debian kernels (as of 2.6.22), in rootfs
+  * being root *should* no longer be necessary to make-debirf, therefore make-debirf has been moved to /usr/bin/
+  * debirf can now function in rootfs with stock debian kernels (as of 2.6.22)
   * removed /var/lib/debirf
   * removed /etc/debirf in favor of doc/example-profiles
   * added xkiosk plugin to start X session with browser on startup
+  * added xkiosk profile
+  * added getopt for command line argument checking
+  * added command line arguments to skip some checking/user interaction
+  * can now pass kernel package name to make-debirf, instead of just deb, although proper package checking is not fully working
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 02 Dec 2007 12:00:32 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 03 Dec 2007 00:40:46 -0500
 
 debirf (0.5) unstable; urgency=low
 

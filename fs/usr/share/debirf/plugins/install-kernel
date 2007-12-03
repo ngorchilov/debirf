@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # debirf plugin: install-kernel
 # install a kernel package, indicated by the expected environment
@@ -25,16 +25,17 @@ install_kernel_dpkg() {
 }
 
 install_kernel_apt() {
-    debirf_exec apt-get --assume-yes --force-yes -f install "$1"
+    debirf_exec apt-get --assume-yes install "$1"
 }
 
 install_kernel() {
     # kernel install settings
     cat >"$DEBIRF_ROOT/etc/kernel-img.conf" <<EOF
 # debirf: default kernel-img options:
-do_symlinks = yes
+do_symlinks = no
 do_bootloader = no
-do_initrd = yes
+warn_initrd = no
+silent_modules = yes
 EOF
 
     if [ -f "$1" ] ; then

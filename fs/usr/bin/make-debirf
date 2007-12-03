@@ -26,9 +26,16 @@ export FAKECHROOT_BUILD=false
 usage() {
     cat <<EOF
 Usage: $CMD [options] profile kernel-image.deb|kernel-package-name
+Build a debirf diskless image.
+'profile' is a path to a debirf profile directory.
 
 options:
-  -f         fakechroot build (other wise requires being root)
+  -h|--help          this help message
+  -f|--fakechroot    fakechroot build (other wise requires being root)
+  -c|--check-vars    check variables before make
+  -n|--new           create new root, even if old one exists
+  -o|--overwrite     debootstrap on top of old root if it exists
+  -s|--skip          skip debootstrap step if old root exists
 EOF
 }
 
@@ -38,8 +45,6 @@ failure() {
 }
 
 create_debootstrap() {
-    msg "creating debirf root..."
-    # include initramfs-tools because they'll be handy
     mkdir -p "$DEBIRF_ROOT"
     if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
 	fakeroot -s "$DEBIRF_FAKEROOT_STATE" fakechroot /usr/sbin/debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
@@ -175,34 +180,60 @@ EOF
 ###############################################################
 ### MAIN
 
-#trap umount_proc-sys EXIT
+# option parsing
+TEMP=$(getopt --options -hfcnos --longoptions help,fakechroot,check-vars,new,overwrite,skip -n "$CMD" -- "$@")
 
-if [ "$1" = '-h' -o "$1" = '--help' ] ; then
+if [ $? != 0 ] ; then
+    echo "Invalid options." >&2 
     usage
-    exit 0
+    exit 1
 fi
 
-case $# in
-    2)
-	DEBIRF_PROFILE="$1"
-	DEBIRF_KERNEL_PACKAGE="$2"
-	;;
-    3)
-	if [ "$1" = '-f' ] ; then
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true ; do
+    case "$1" in
+        -h|--help)
+	    usage
+	    exit 0
+            ;;
+        -f|--fakechroot)
 	    echo "Using fakechroot build."
 	    FAKECHROOT_BUILD=true
-	else
-	    failure "Improper input arguments."
-	fi
-	DEBIRF_PROFILE="$2"
-	DEBIRF_KERNEL_PACKAGE="$3"
-	;;
-    *)
-	echo "Improper number of input arguments."
-	usage
-	exit 1
-	;;
-esac
+            shift 1
+            ;;
+        -c|--check-vars)
+            CHECK_VARS=true
+            shift 1
+            ;;
+        -n|--new)
+            WRITE_MODE=rewrite
+            shift 1
+            ;;
+        -o|--overwrite)
+            WRITE_MODE=overwrite
+            shift 1
+            ;;
+        -s|--skip)
+            WRITE_MODE=skip
+            shift 1
+            ;;
+        --)
+            shift
+            ;;
+        *)
+	    if (( $# < 1 )) ; then
+		echo "Improper number of input arguments."
+		usage
+		exit 1
+            fi
+            DEBIRF_PROFILE="$1"
+	    DEBIRF_KERNEL_PACKAGE="$2"
+            break
+            ;;
+    esac
+done
 
 # check specified kernel package exists
 if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
@@ -262,42 +293,67 @@ fi
 DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakechroot-$DEBIRF_LABEL.save"
 
 # check variables
-echo "Debirf variables:"
-for var in ${!DEBIRF_*}; do
-    if [ $var ] ; then
-	export $var
-    else
-	failure "Variable '$var' not properly set."
-    fi
-done
-env | /bin/grep "^DEBIRF_"
-read -p "enter to continue: " OK
+if [ "$CHECK_VARS" ] ; then
+    echo "Debirf variables:"
+    for var in ${!DEBIRF_*}; do
+	if [ $var ] ; then
+	    export $var
+	else
+	    failure "Variable '$var' not properly set."
+	fi
+    done
+    env | /bin/grep "^DEBIRF_"
+    read -p "enter to continue: " OK
+fi
 
 # create debootstrap root
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
-    echo "Select one of the following:"
-    select foo in 'rewrite' 'overwrite' 'skip' 'exit' ; do
-	case "$foo" in
-	    'wipe & rewrite')
-		msg "clearing old debirf root..."
-		rm -rf "$DEBIRF_ROOT"
-		create_debootstrap
-		;;
-	    'overwrite')
-		create_debootstrap
-		;;
-	    'skip')
-		;;
-	    *)
-		failure "aborting."
-		;;
-	esac
-	break
-    done
+    if [ -z "$WRITE_MODE" ] ; then
+	echo "Select one of the following:"
+	select foo in 'new' 'overwrite' 'skip' 'exit' ; do
+	    case "$foo" in
+		'new')
+		    WRITE_MODE=rewrite
+		    ;;
+		'overwrite')
+		    WRITE_MODE=overwrite
+		    ;;
+		'skip')
+		    WRITE_MODE=skip
+		    ;;
+		*)
+		    failure "aborting."
+		    ;;
+	    esac
+	    break
+	done
+    fi
 else
-    create_debootstrap
+    WRITE_MODE=new
 fi
+case "$WRITE_MODE" in
+    'new')
+	msg "creating debirf root..."
+	create_debootstrap
+	;;
+    'rewrite')
+	msg "clearing old debirf root..."
+	rm -rf "$DEBIRF_ROOT"
+	msg "creating debirf root..."
+	create_debootstrap
+	;;
+    'overwrite')
+	msg "overwriting old debirf root..."
+	create_debootstrap
+	;;
+    'skip')
+	msg "skipping debootstrap..."
+	;;
+    *)
+	failure "aborting."
+	;;
+esac
 
 setup_debirf_info
 
