@@ -19,15 +19,18 @@ DEBIRF_COMMON=${DEBIRF_COMMON:-"/usr/share/debirf/common"}
 source "$DEBIRF_COMMON"
 
 export FAKECHROOT_BUILD=false
+STAGE_ROOT=true
+STAGE_PLUGINS=true
+STAGE_INITRD=true
 
 ###############################################################
 ### FUNCTIONS
 
 usage() {
     cat <<EOF
-Usage: $CMD [options] profile kernel-image.deb|kernel-package-name
-Build a debirf diskless image.
-'profile' is a path to a debirf profile directory.
+Usage: $CMD [options] profile kernel
+Create a debirf system.  'profile' is a path to a debirf profile
+directory, and 'kernel' is a kernel-img .deb, or akernel package name.
 
 options:
   -h|--help          this help message
@@ -36,6 +39,7 @@ options:
   -n|--new           create new root, even if old one exists
   -o|--overwrite     debootstrap on top of old root if it exists
   -s|--skip          skip debootstrap step if old root exists
+  -i|--initrd-only   do not create root, just create initramfs
 EOF
 }
 
@@ -181,7 +185,7 @@ EOF
 ### MAIN
 
 # option parsing
-TEMP=$(getopt --options -hfcnos --longoptions help,fakechroot,check-vars,new,overwrite,skip -n "$CMD" -- "$@")
+TEMP=$(getopt --options -hfcnosi --longoptions help,fakechroot,check-vars,new,overwrite,skip,initrd-only -n "$CMD" -- "$@")
 
 if [ $? != 0 ] ; then
     echo "Invalid options." >&2 
@@ -219,6 +223,11 @@ while true ; do
             WRITE_MODE=skip
             shift 1
             ;;
+	-i|--initrd-only)
+	    STAGE_ROOT=false
+	    STAGE_PLUGINS=false
+	    shift 1
+	    ;;
         --)
             shift
             ;;
@@ -228,21 +237,12 @@ while true ; do
 		usage
 		exit 1
             fi
-            DEBIRF_PROFILE="$1"
+	    DEBIRF_PROFILE="$1"
 	    DEBIRF_KERNEL_PACKAGE="$2"
             break
             ;;
     esac
 done
-
-# check specified kernel package exists
-if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    if apt-cache show "$DEBIRF_KERNEL_PACKAGE" > /dev/null ; then
-	echo "Using apt kernel package '$DEBIRF_KERNEL_PACKAGE'."
-    else
-	failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
-    fi
-fi
 
 # source debirf.conf defaults
 source /usr/share/debirf/debirf.conf.defaults
@@ -306,7 +306,19 @@ if [ "$CHECK_VARS" ] ; then
     read -p "enter to continue: " OK
 fi
 
-# create debootstrap root
+### BUILD ROOT
+if [ "$STAGE_ROOT" = 'true' ] ; then
+
+# check specified kernel package exists
+if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    if apt-cache show "$DEBIRF_KERNEL_PACKAGE" > /dev/null ; then
+	echo "Using apt kernel package '$DEBIRF_KERNEL_PACKAGE'."
+    else
+	failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
+    fi
+fi
+
+# determine write mode
 if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Directory $DEBIRF_ROOT already exists."
     if [ -z "$WRITE_MODE" ] ; then
@@ -354,25 +366,44 @@ case "$WRITE_MODE" in
 	failure "aborting."
 	;;
 esac
+else
+    echo "Not building root."
+fi
+### END BUILD ROOT
 
-setup_debirf_info
 
-# run plugins
-if [ "$DEBIRF_PLUGINS" ] ; then
+### RUN PLUGINS
+if [ "$STAGE_PLUGINS" = 'true' ] ; then
+    setup_debirf_info
     msg "executing plugins..."
     run_plugins
     msg "plugins complete."
+else
+    echo "Not running plugins."
 fi
+### END RUN PLUGINS
 
-KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
-msg "creating debirf initrd ('$DEBIRF_METHOD')..."
-create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
-# final output
-DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL$")
-msg "debirf initrd created."
-if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
-    msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
+### BUILD INITRD
+if [ "$STAGE_INITRD" = 'true' ] ; then
+    if [ ! -d "$DEBIRF_ROOT" ] ; then
+	failure "Root not found."
+    fi
+    # determine initrd name
+    KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+    DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
+
+    msg "creating debirf initrd ('$DEBIRF_METHOD')..."
+    create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
+
+    # final output
+    DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL$")
+    msg "debirf initrd created."
+    if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
+	msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
+    fi
+    msg "initrd: $DEBIRF_BUILDD/$DEBIRF_INITRD"
+else
+    echo "Not creating initramfs."
 fi
-msg "initrd: $DEBIRF_BUILDD/$DEBIRF_INITRD"
+### END BUILD INITRD

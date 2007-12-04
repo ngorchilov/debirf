@@ -30,6 +30,7 @@ install_kernel_apt() {
 
 install_kernel() {
     # kernel install settings
+    # http://www.penguin-soft.com/penguin/man/5/kernel-img.conf.html
     cat >"$DEBIRF_ROOT/etc/kernel-img.conf" <<EOF
 # debirf: default kernel-img options:
 do_symlinks = no

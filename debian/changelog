@@ -1,3 +1,9 @@
+debirf (0.7) unstable; urgency=low
+
+  * added ability to just create initramfs from pre-build root.
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 03 Dec 2007 23:13:34 -0500
+
 debirf (0.6) unstable; urgency=low
 
   * new create_initrd_nested build function, boots debirf into tmpfs, which is cleaner and more stable and is now the default.
