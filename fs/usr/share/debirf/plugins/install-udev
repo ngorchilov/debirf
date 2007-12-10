@@ -12,4 +12,4 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-debirf_exec apt-get install udev
+debirf_exec apt-get --assume-yes install udev
