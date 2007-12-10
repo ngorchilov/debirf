@@ -380,14 +380,14 @@ if [ "$STAGE_INITRD" = 'true' ] ; then
 	failure "Root not found."
     fi
     # determine initrd name
-    KERNAVAIL=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-    DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNAVAIL}.cgz"
+    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+    DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
 
     msg "creating debirf initrd ('$DEBIRF_METHOD')..."
     create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
 
     # final output
-    DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNAVAIL$")
+    DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
     msg "debirf initrd created."
     if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
 	msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"

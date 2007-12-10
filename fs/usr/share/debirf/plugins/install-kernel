@@ -23,8 +23,17 @@ else
     KNAME=$(basename "$DEBIRF_ROOT"/linux-image-*)
 fi
 
+# install the module init tools, since they are needed
+debirf_exec apt-get --assume-yes install module-init-tools
+
 echo "extracting kernel package $KNAME..."
 debirf_exec dpkg --extract "$KNAME" /
+
+DEBIRF_KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+
+# depmod to create module list
+echo "generating modules.dep..."
+debirf_exec depmod -a "$DEBIRF_KERNEL_VERS"
 
 rm "$DEBIRF_ROOT/$KNAME"
 
