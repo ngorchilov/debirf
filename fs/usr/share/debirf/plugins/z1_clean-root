@@ -12,7 +12,7 @@
 # or later.
 
 # purge unneeded packages
-debirf_exec apt-get --assume-yes remove --purge aptitude
+#debirf_exec apt-get --assume-yes remove --purge aptitude
 
 # remove all cached apt information
 debirf_exec apt-get clean

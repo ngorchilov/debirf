@@ -15,45 +15,23 @@
 # They are Copyright 2007, and are all released under the GPL, version 2
 # or later.
 
-install_kernel_dpkg() {
-    local KNAME=$(basename "$1")
-    cp "$1" "$DEBIRF_ROOT/root/$KNAME"
-    debirf_exec dpkg --install "root/$KNAME"
-    # and clean up, just in case there were missing dependencies.
-    debirf_exec apt-get --assume-yes --force-yes -f install
-    rm "$DEBIRF_ROOT/root/$KNAME"
-}
+if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    KNAME=$(basename "$DEBIRF_KERNEL_PACKAGE")
+    cp "$DEBIRF_KERNEL_PACKAGE" "$DEBIRF_ROOT/$KNAME"
+else
+    debirf_exec aptitude download "$DEBIRF_KERNEL_PACKAGE"
+    KNAME=$(basename "$DEBIRF_ROOT"/linux-image-*)
+fi
 
-install_kernel_apt() {
-    debirf_exec apt-get --assume-yes install "$1"
-}
+echo "extracting kernel package $KNAME..."
+debirf_exec dpkg --extract "$KNAME" /
 
-install_kernel() {
-    # kernel install settings
-    # http://www.penguin-soft.com/penguin/man/5/kernel-img.conf.html
-    cat >"$DEBIRF_ROOT/etc/kernel-img.conf" <<EOF
-# debirf: default kernel-img options:
-do_symlinks = no
-do_bootloader = no
-warn_initrd = no
-silent_modules = yes
-EOF
+rm "$DEBIRF_ROOT/$KNAME"
 
-    if [ -f "$1" ] ; then
-	install_kernel_dpkg "$1"
-    else
-	install_kernel_apt "$1"
-    fi
-    
-    # extract kernel and debian stock initrd:
-    mv "$DEBIRF_ROOT"/boot/vmlinu* "$DEBIRF_BUILDD"
-    mv "$DEBIRF_ROOT"/boot/initrd* "$DEBIRF_BUILDD"
+# extract kernel and debian stock initrd:
+mv "$DEBIRF_ROOT"/boot/vmlinu* "$DEBIRF_BUILDD"
 
-    # remove kernel symlinks
-    [ -L "$DEBIRF_ROOT"/vmlinuz ] && rm "$DEBIRF_BUILDD"/vmlinuz
-    [ -L "$DEBIRF_ROOT"/initrd.img ] && rm "$DEBIRF_BUILDD"/initrd.img
-
-}
-
-##### install kernel
-install_kernel "$DEBIRF_KERNEL_PACKAGE"
+# remove kernel symlinks
+if [ -L "$DEBIRF_ROOT"/vmlinuz ] ; then
+    rm "$DEBIRF_BUILDD"/vmlinuz
+fi

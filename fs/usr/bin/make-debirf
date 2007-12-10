@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # make-debirf: script to build debirf system.
 #
@@ -30,7 +30,7 @@ usage() {
     cat <<EOF
 Usage: $CMD [options] profile kernel
 Create a debirf system.  'profile' is a path to a debirf profile
-directory, and 'kernel' is a kernel-img .deb, or akernel package name.
+directory, and 'kernel' is a kernel-img .deb, or a kernel package name.
 
 options:
   -h|--help          this help message
@@ -98,9 +98,7 @@ create_initrd_nested() {
     rm -rf "$NEST_ROOT"
     mkdir -p "$NEST_ROOT"/{bin,lib}
 
-    # copy in needed executables
-    # these things should probably be pulled from the debirf system,
-    # instead of the build host (they are pulled by kernel install).
+    # copy needed executables into nest
     cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
     for util in sh mkdir mount ls gunzip ; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
@@ -247,36 +245,28 @@ done
 # source debirf.conf defaults
 source /usr/share/debirf/debirf.conf.defaults
 
-# check for debirf profile
+# check profile
 if [ -d "$DEBIRF_PROFILE" ] ; then
     echo "Loading profile '$DEBIRF_PROFILE'..."
     DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
     DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
-    # source profile debirf.conf
-    if [ -f "$DEBIRF_CONF" ] ; then
-	source "$DEBIRF_CONF"
-    else
-	echo "$DEBIRF_CONF not found."
-	read -p "Continue with defaults? [Y|n]: " OK; OK=${OK:-Y}
-	if [ "${OK/y/Y}" != 'Y' ] ; then
-	    failure "Aborting."
-	fi
-    fi
 else
-    echo "Profile '$DEBIRF_PROFILE' not found."
-    read -p "Continue with defaults? [y|N]: " OK; OK=${OK:-N}
-    if [ "${OK/y/Y}" != 'Y' ] ; then
-	failure "Aborting."
-    fi
+    failure "$DEBIRF_PROFILE not found.  Create a new profile with the '-p' option."
 fi
 
-# check plugins
-if [ ! -d "$DEBIRF_PLUGINS" -o $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
-    echo "Plugin directory '$DEBIRF_PLUGINS' is empty or does not exist."
-    read -p "Continue without plugins? [Y|n]: " OK; OK=${OK:-Y}
-    if [ "${OK/y/Y}" != 'Y' ] ; then
-	failure "Aborting."
-    fi
+# source profile debirf.conf
+if [ -f "$DEBIRF_CONF" ] ; then
+    source "$DEBIRF_CONF"
+else
+    failure "$DEBIRF_CONF not found."
+fi
+
+# check plugins directory
+if [ ! -d "$DEBIRF_PLUGINS" ] ; then
+    failure "$DEBIRF_PLUGINS does not exist."
+fi
+if [ $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
+    failure "$DEBIRF_PLUGINS is empty."
 fi
 
 # check buildd
