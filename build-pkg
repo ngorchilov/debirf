@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # (C) 2007 Daniel Kahn Gillmor <dkg-debian.org>
-# This file is released under the GNU GPL v2 or later
+# This file is released under the GNU GPL v3 or later
 
 # run this script from the top level of your working directory to
 # build a debian package in ./build
@@ -30,4 +30,4 @@ svn export "$REPO" ./build/"$PKG"
 svn diff | (cd ./build/"$PKG" && patch -p0)
 
 # actually build:
-(cd ./build/"$PKG" && debuild -uc -us)
+(cd ./build/"$PKG" && debuild)
