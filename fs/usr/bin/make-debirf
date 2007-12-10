@@ -28,9 +28,10 @@ STAGE_INITRD=true
 
 usage() {
     cat <<EOF
-Usage: $CMD [options] profile kernel
+Usage: $CMD [options] profile [kernel]
 Create a debirf system.  'profile' is a path to a debirf profile
-directory, and 'kernel' is a kernel-img .deb, or a kernel package name.
+directory.  If a kernel is specified, it will override the kernel
+specified in the profile debirf.conf.
 
 options:
   -h|--help          this help message
@@ -40,6 +41,15 @@ options:
   -o|--overwrite     debootstrap on top of old root if it exists
   -s|--skip          skip debootstrap step if old root exists
   -i|--initrd-only   do not create root, just create initramfs
+EOF
+}
+
+usage_profile() {
+    cat <<EOF
+It looks like your profile is not correctly formed.  You should begin
+by copying and modifying one of the example debirf profiles.
+On Debian, you should run:
+cp -r /usr/share/doc/debirf/example-profiles/<profile-name> . 
 EOF
 }
 
@@ -236,7 +246,9 @@ while true ; do
 		exit 1
             fi
 	    DEBIRF_PROFILE="$1"
-	    DEBIRF_KERNEL_PACKAGE="$2"
+	    if [ "$2" ] ; then
+		DEBIRF_KERNEL_PACKAGE="$2"
+	    fi
             break
             ;;
     esac
@@ -251,22 +263,30 @@ if [ -d "$DEBIRF_PROFILE" ] ; then
     DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
     DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
 else
-    failure "$DEBIRF_PROFILE not found.  Create a new profile with the '-p' option."
+    echo "$DEBIRF_PROFILE not found."
+    usage_profile
+    exit 1
 fi
 
 # source profile debirf.conf
 if [ -f "$DEBIRF_CONF" ] ; then
     source "$DEBIRF_CONF"
 else
-    failure "$DEBIRF_CONF not found."
+    echo "$DEBIRF_CONF not found."
+    usage_profile
+    exit 1
 fi
 
 # check plugins directory
 if [ ! -d "$DEBIRF_PLUGINS" ] ; then
-    failure "$DEBIRF_PLUGINS does not exist."
+    echo "$DEBIRF_PLUGINS does not exist."
+    usage_profile
+    exit 1
 fi
 if [ $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
-    failure "$DEBIRF_PLUGINS is empty."
+    echo "$DEBIRF_PLUGINS is empty."
+    usage_profile
+    exit 1
 fi
 
 # check buildd
@@ -306,6 +326,8 @@ if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
     else
 	failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
     fi
+else
+    echo "Using deb kernel package '$DEBIRF_KERNEL_PACKAGE'."
 fi
 
 # determine write mode
