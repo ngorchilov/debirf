@@ -17,8 +17,3 @@ DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
 
 # what distribution should debirf be built from?
 DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
-
-# kernel, either a package name, or a path to a .deb
-# in either case, it must be a package or deb for a complete kernel,
-# not a metapackage.
-DEBIRF_KERNEL_PACKAGE=${DEBIRF_KERNEL_PACKAGE:-"linux-image-2.6.22-3-686"}

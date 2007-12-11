@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # debirf plugin: install-kernel
 # install a kernel package, indicated by the expected environment
@@ -12,30 +12,31 @@
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL, version 2
-# or later.
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
 
 if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    KNAME=$(basename "$DEBIRF_KERNEL_PACKAGE")
-    cp "$DEBIRF_KERNEL_PACKAGE" "$DEBIRF_ROOT/$KNAME"
+    # install kernel deb if given at command line
+    cp "$DEBIRF_KERNEL_PACKAGE" "$DEBIRF_ROOT"/var/cache/apt/archives/
 else
-    debirf_exec aptitude download "$DEBIRF_KERNEL_PACKAGE"
-    KNAME=$(basename "$DEBIRF_ROOT"/linux-image-*)
+    # otherwise, try to figure out the kernel to install
+    # assume arch of build host
+    KERNEL_ARCH=$(uname -r | cut -f 3 -d '-')
+    debirf_exec aptitude install --download-only linux-image-2.6-"$KERNEL_ARCH"
 fi
 
-# install the module init tools, since they are needed
-debirf_exec apt-get --assume-yes install module-init-tools
+KNAME=$(basename "$DEBIRF_ROOT"/var/cache/apt/archives/linux-image-*)
 
 echo "extracting kernel package $KNAME..."
-debirf_exec dpkg --extract "$KNAME" /
+debirf_exec dpkg --extract /var/cache/apt/archives/"$KNAME" /
 
-KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+# install the module init tools, since they are needed for depmod
+debirf_exec apt-get --assume-yes install module-init-tools
 
 # depmod to create module list
+KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
 echo "generating modules.dep..."
 debirf_exec depmod -a "$KERNEL_VERS"
-
-rm "$DEBIRF_ROOT/$KNAME"
 
 # extract kernel and debian stock initrd:
 mv "$DEBIRF_ROOT"/boot/vmlinu* "$DEBIRF_BUILDD"

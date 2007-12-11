@@ -7,8 +7,8 @@
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL, version 2
-# or later.
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
 
 cd "$DEBIRF_ROOT" 
 find usr/share/locale -maxdepth 1 -mindepth 1 -type d ! -iname 'en*' -execdir rm -rf '{}' \+

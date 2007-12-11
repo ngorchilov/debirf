@@ -8,8 +8,8 @@
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL, version 3
-# or later.
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
 
 cat > "${DEBIRF_ROOT}/etc/network/interfaces" <<EOF
 # Used by ifup(8) and ifdown(8). See the interfaces(5) manpage or

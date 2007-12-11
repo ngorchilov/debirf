@@ -7,8 +7,8 @@
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL, version 2
-# or later.
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
 
 ###############################################################
 ### VARIABLES
@@ -28,10 +28,11 @@ STAGE_INITRD=true
 
 usage() {
     cat <<EOF
-Usage: $CMD [options] profile [kernel]
-Create a debirf system.  'profile' is a path to a debirf profile
-directory.  If a kernel is specified, it will override the kernel
-specified in the profile debirf.conf.
+Usage: $CMD [options] profile [kernel.deb]
+Create a debirf system.  The 'profile' is a path to a debirf profile
+directory.  If no kernel is specified, make-debirf will use the 
+latest kernel for the specified suite.  If a path to a kernel deb is 
+specified on the command line, that will be installed instead.
 
 options:
   -h|--help          this help message
@@ -319,15 +320,9 @@ fi
 ### BUILD ROOT
 if [ "$STAGE_ROOT" = 'true' ] ; then
 
-# check specified kernel package exists
+# check if specified kernel package exists
 if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    if apt-cache show "$DEBIRF_KERNEL_PACKAGE" > /dev/null ; then
-	echo "Using apt kernel package '$DEBIRF_KERNEL_PACKAGE'."
-    else
-	failure "Specified kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
-    fi
-else
-    echo "Using deb kernel package '$DEBIRF_KERNEL_PACKAGE'."
+    failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
 fi
 
 # determine write mode

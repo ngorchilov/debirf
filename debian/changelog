@@ -1,3 +1,10 @@
+debirf (0.10) unstable; urgency=low
+
+  * moved all files to GPLv3 (fixes ticket #50)
+  * simplify kernel installation.  now accept deb at command line, or make-debirf will just figure out the kernel himself (closes #48)
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 11 Dec 2007 00:51:52 -0500
+
 debirf (0.9) unstable; urgency=low
 
   * added DEBIRF_KERNEL_PACKAGE to debirf.conf

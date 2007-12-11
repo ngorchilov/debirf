@@ -9,7 +9,7 @@
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL, version 2
-# or later.
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
 
 debirf_exec apt-get --assume-yes install udev
