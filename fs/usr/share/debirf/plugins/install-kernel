@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -e
 
 # debirf plugin: install-kernel
 # install a kernel package, indicated by the expected environment
@@ -15,17 +15,17 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    # install kernel deb if given at command line
-    cp "$DEBIRF_KERNEL_PACKAGE" "$DEBIRF_ROOT"/var/cache/apt/archives/
-else
+if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
     # otherwise, try to figure out the kernel to install
     # assume arch of build host
-    KERNEL_ARCH=$(uname -r | cut -f 3 -d '-')
-    debirf_exec aptitude install --download-only linux-image-2.6-"$KERNEL_ARCH"
+    KERNEL_ARCH=$(uname -r | tr '-' '\n' | tail -1)
+    debirf_exec apt-get --assume-yes --download-only install linux-image-2.6-"$KERNEL_ARCH"
+else
+    # install kernel deb if given at command line
+    cp "$DEBIRF_KERNEL_PACKAGE" "$DEBIRF_ROOT"/var/cache/apt/archives/
 fi
 
-KNAME=$(basename "$DEBIRF_ROOT"/var/cache/apt/archives/linux-image-*)
+KNAME=$(basename "$DEBIRF_ROOT"/var/cache/apt/archives/linux-image-2.6.*)
 
 echo "extracting kernel package $KNAME..."
 debirf_exec dpkg --extract /var/cache/apt/archives/"$KNAME" /

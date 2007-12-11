@@ -2,53 +2,79 @@
 .SH NAME
 make-debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
-.B make-debirf [profile] linux-image.deb
+.B make-debirf [options] profile
 .SH DESCRIPTION
 .PP
-\fBmake-debirf\fP is a utility to build a debirf system.  A debirf system is a
-kernel and an initramfs that can be passed to a machine at boot time to load a
-complete Debian system entirely into RAM.  \fBmake-debirf\fP takes as input the
-path to a linux-image-*.deb containing a linux kernel and modules (see \fBKERNEL
-REQUIREMENTS\fP), and possibly a debirf profile (see \fBPROFILES\fP).
-Make-debirf then generates a debirf initramfs and a kernel image.  The lovely
-pair can be put into the boot partition of your machine in case of emergency,
-burnt onto an .iso, served over the net via PXE, etc.
+\fBmake-debirf\fP is a utility to build a debirf system.  A debirf
+system is a kernel and initramfs that can be passed to a machine at
+boot time to load a complete Debian system entirely into RAM.
+\fBmake-debirf\fP takes as input the path to a debirf profile (see
+\fBPROFILES\fP).  \fBmake-debirf\fP then generates a debirf initramfs
+and a kernel image.  The lovely pair can be put into the boot
+partition of your machine in case of emergency, burnt onto an .iso,
+served over the net via PXE, etc.
+.PP
+\fBmake-debirf\fP will try to pick the most up-to-date kernel for the
+suite you are installing (versions 2.6 only), with the arch determined
+by the kernel running on the host build system.
+.PP
+If not run with the '-f' option, \fBmake-debirf\fP requires superuser
+privileges to debootstrap the debirf root.
 .PP
 The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PD
-.SH KERNEL REQUIREMENTS
+.SH OPTIONS
 .PP
-At the moment, the kernel that is passed to \fBmake-debirf\fP must have been
-built with the EARLYUSERSPACE_ON_TMPFS (inittmpfs) patch.  Use
-\fBbuild-debirf-kernel\fP to generate such a kernel package if you do not have
-one handy.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+this help message
+.TP
+\fB\-f\fR, \fB\-\-fakechroot\fR
+fakechroot build, not requiring su privileges (EXPERIMENTAL)
+.TP
+\fB\-c\fR, \fB\-\-check-vars\fR
+check variables before make
+.TP
+\fB\-n\fR, \fB\-\-new\fR
+create new root, even if old one exists
+.TP
+\fB\-o\fR, \fB\-\-overwrite\fR
+debootstrap on top of old root if it exists
+.TP
+\fB\-s\fR, \fB\-\-skip\fR
+skip debootstrap step altogether if old root exists
+.TP
+\fB\-i\fR, \fB\-\-initrd-only\fR
+remake initramfs from existing root (skip debootstrap and plugin
+stages)
+.TP
+\fB\-k\fR, \fB\-\-kernel-deb=KERNEL\fR
+install KERNEL .deb, instead of default kernel
 .PD
 .SH PROFILES
 .PP
-A debirf profile is a directory in /etc/debirf/profiles or a full path
-to a directory that possibly contains a debirf.conf and/or 'plugins'
-sub-directory.  If a profile is not specified, the profile 'rescue'
-is assumed.  If that profile is not found, the default variables will
-be used (see \fBENVIRONMENT\fP below).
+A debirf profile is a directory in containing a debirf.conf config
+file and a plugin sub-directory (see \fBPLUGINS\fP).
 .PD
 .SH PLUGINS
 .PP
-\fBPlugins\fP are a way to extend the capabilities of debirf.  A plugin is a
-bash shell script that will execute during a "plugin install" phase of the
-debirf build, right after the debirf debootstrap is complete and /sys and /proc
-have been mounted.  The shell scripts in the plugin directory
-(\fB$DEBIRF_PLUGINS\fP) are executed in an alpha-numeric order by
-\fBrun-parts\fP.
+\fBPlugins\fP are used to configure the debirf system, and can be used
+to extend the capabilities of debirf.  Plugins are bash shell scripts
+that are executed in alpha-numeric order by \fBrun-parts\fP in a
+chroot in the debirf root during the plugin stage of the debirf build.
+The plugin stage is right after the debirf debootstrap stage, and
+right before the initramfs archive is created.  All of the shell
+variables defined in the \fIdebirf.conf\fP file are available to the
+plugins.
 .PP
-The plugins can be used to configure the system put into the debirf initramfs.
-All of the shell variables defined in the \fIdebirf.conf\fP file are available
-to the plugins.
-.PP
-\fBNOTE:\fP The ordering of plugins is important.  Some plugins may depend on
-certain other plugins having already, or not yet, been run.  For instance, the
-plugin that cleans the debirf apt cache should be run near the end. 
+\fBNOTE:\fP Some plugins are more important to the proper functioning
+of debirf than others, and the ordering of plugins is important.  Some
+plugins may depend on certain other plugins having already been, or
+not yet been, run.  For instance, the plugin that cleans the debirf
+apt cache ("z1_clean_root") should be run at the end of the plugin
+stage.
 .PD
 .SH FUNCTIONS
 .PP
@@ -77,20 +103,14 @@ Write one line of comment to the \fIdebirf.info\fP file on the debirf root.
 The following environment variables are used by make-debirf:
 .PD 1
 .TP
-.B DEBIRF_CONF
-location of configuration
-.PP
 .B DEBIRF_LABEL
 debirf label (default: debirf)
 .TP
 .B DEBIRF_BUILDD
-where to build the debirf (default: ~/.debirf)
+where to build the debirf (default: ./)
 .TP
 .B DEBIRF_ROOT
 the debirf root, used by plugins (default: $DEBIRF_BUILDD/root)
-.TP
-.B DEBIRF_PLUGINS
-the plugins directory (default: /usr/share/debirf/plugins)
 .TP
 .B DEBIRF_MIRROR
 Debian mirror (default: http://mirrors.kernel.org/debian)
@@ -100,6 +120,10 @@ debirf build distribution (default: lenny)
 .PD
 .SH FILES
 .PD 1
+.TP
+debirf.conf
+Debirf profile configuration file.  Usually contains values for the
+various debirf environment variables.
 .TP
 $DEBIRF_ROOT/etc/debirf/debirf.info
 File that stores various information about the debirf build.  This is a
@@ -117,4 +141,5 @@ the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
 .BR build-debirf-kernel (1),
-.BR debootstrap (8)
+.BR debootstrap (8),
+.BR fakechroot (1)

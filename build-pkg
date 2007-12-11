@@ -30,4 +30,4 @@ svn export "$REPO" ./build/"$PKG"
 svn diff | (cd ./build/"$PKG" && patch -p0)
 
 # actually build:
-(cd ./build/"$PKG" && debuild)
+(cd ./build/"$PKG" && debuild -uc -us)

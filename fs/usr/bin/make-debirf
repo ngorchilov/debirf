@@ -28,20 +28,20 @@ STAGE_INITRD=true
 
 usage() {
     cat <<EOF
-Usage: $CMD [options] profile [kernel.deb]
+Usage: $CMD [options] profile
 Create a debirf system.  The 'profile' is a path to a debirf profile
-directory.  If no kernel is specified, make-debirf will use the 
-latest kernel for the specified suite.  If a path to a kernel deb is 
-specified on the command line, that will be installed instead.
+directory.  make-debirf requires superuser privileges for the debootstrap
+stage, unless the '-f' option is given (still experimental).
 
 options:
-  -h|--help          this help message
-  -f|--fakechroot    fakechroot build (other wise requires being root)
-  -c|--check-vars    check variables before make
-  -n|--new           create new root, even if old one exists
-  -o|--overwrite     debootstrap on top of old root if it exists
-  -s|--skip          skip debootstrap step if old root exists
-  -i|--initrd-only   do not create root, just create initramfs
+  -h|--help               this help message
+  -f|--fakechroot         fakechroot build
+  -c|--check-vars         check variables before make
+  -n|--new                create new root, even if old one exists
+  -o|--overwrite          debootstrap on top of old root if it exists
+  -s|--skip               skip debootstrap step if old root exists
+  -i|--initrd-only        remake initramfs from existing root
+  -k|--kernel-deb=KERNEL  install KERNEL .deb, instead of default kernel
 EOF
 }
 
@@ -49,7 +49,7 @@ usage_profile() {
     cat <<EOF
 It looks like your profile is not correctly formed.  You should begin
 by copying and modifying one of the example debirf profiles.
-On Debian, you should run:
+On Debian, you can copy them from the debirf docs:
 cp -r /usr/share/doc/debirf/example-profiles/<profile-name> . 
 EOF
 }
@@ -194,7 +194,7 @@ EOF
 ### MAIN
 
 # option parsing
-TEMP=$(getopt --options -hfcnosi --longoptions help,fakechroot,check-vars,new,overwrite,skip,initrd-only -n "$CMD" -- "$@")
+TEMP=$(getopt --options -hfcnosik: --longoptions help,fakechroot,check-vars,new,overwrite,skip,initrd-only,kernel-deb: -n "$CMD" -- "$@")
 
 if [ $? != 0 ] ; then
     echo "Invalid options." >&2 
@@ -212,7 +212,6 @@ while true ; do
 	    exit 0
             ;;
         -f|--fakechroot)
-	    echo "Using fakechroot build."
 	    FAKECHROOT_BUILD=true
             shift 1
             ;;
@@ -237,6 +236,10 @@ while true ; do
 	    STAGE_PLUGINS=false
 	    shift 1
 	    ;;
+	-k|--kernel-deb)
+	    DEBIRF_KERNEL_PACKAGE="$2"
+	    shift 2
+	    ;;
         --)
             shift
             ;;
@@ -247,13 +250,21 @@ while true ; do
 		exit 1
             fi
 	    DEBIRF_PROFILE="$1"
-	    if [ "$2" ] ; then
-		DEBIRF_KERNEL_PACKAGE="$2"
-	    fi
             break
             ;;
     esac
 done
+
+if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
+    echo "Using fakechroot build."
+fi	    
+if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
+    if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+	echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
+    else
+	failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
+    fi
+fi
 
 # source debirf.conf defaults
 source /usr/share/debirf/debirf.conf.defaults
@@ -319,11 +330,6 @@ fi
 
 ### BUILD ROOT
 if [ "$STAGE_ROOT" = 'true' ] ; then
-
-# check if specified kernel package exists
-if [ ! -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
-fi
 
 # determine write mode
 if [ -d "$DEBIRF_ROOT" ] ; then
