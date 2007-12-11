@@ -15,6 +15,10 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
+# clear out old modules if they exist, to avoid confusion
+rm -rf "$DEBIRF_ROOT/lib/modules"
+
+# download/copy in kernel package
 if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
     # otherwise, try to figure out the kernel to install
     # assume arch of build host
