@@ -127,7 +127,7 @@ create_initrd_nested() {
 
     # copy needed executables into nest
     cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
-    for util in sh mkdir mount ls gunzip ; do
+    for util in sh mkdir mount ls gunzip grep awk free ; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
@@ -145,7 +145,8 @@ create_initrd_nested() {
     cat > "$NEST_ROOT"/init <<EOF
 #!/bin/sh
 mkdir /newroot
-mount -t tmpfs -o size=10g tmpfs /newroot
+MEMSIZE=$(free | grep 'Mem:' | awk '{ print $2 }')
+mount -t tmpfs -o size=${MEMSIZE}k tmpfs /newroot
 cd /newroot
 echo unpacking rootfs...
 # specify /bin/cpio so that it gets used instead of the busybox builtin
