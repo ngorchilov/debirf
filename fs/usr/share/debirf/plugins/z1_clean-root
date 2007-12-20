@@ -27,5 +27,5 @@ mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
 rm -rf "$DEBIRF_ROOT/proc"
 mkdir "$DEBIRF_ROOT/proc"
 
-# clear mtab
-> "$DEBIRF_ROOT/etc/mtab"
+# setup dynamically updated /etc/mtab
+ln -sf /proc/mounts "$DEBIRF_ROOT/etc/mtab"

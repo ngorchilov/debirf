@@ -18,10 +18,16 @@ CMD=$(basename $0)
 DEBIRF_COMMON=${DEBIRF_COMMON:-"/usr/share/debirf/common"}
 source "$DEBIRF_COMMON"
 
-export FAKECHROOT_BUILD=false
+# default build type
+export ROOT_BUILD=false
+
+# stages to run by default
 STAGE_ROOT=true
 STAGE_PLUGINS=true
 STAGE_INITRD=true
+
+# list of packages to exclude from debootstrap
+export EXCLUDE=cron,logrotate,ed,tasksel-data,tcpd
 
 ###############################################################
 ### FUNCTIONS
@@ -30,18 +36,17 @@ usage() {
     cat <<EOF
 Usage: $CMD [options] profile
 Create a debirf system.  The 'profile' is a path to a debirf profile
-directory.  make-debirf requires superuser privileges for the debootstrap
-stage, unless the '-f' option is given (still experimental).
+directory.
 
 options:
   -h|--help               this help message
-  -f|--fakechroot         fakechroot build
   -c|--check-vars         check variables before make
   -n|--new                create new root, even if old one exists
   -o|--overwrite          debootstrap on top of old root if it exists
   -s|--skip               skip debootstrap step if old root exists
+  -r|--root-build         build as superuser
   -i|--initrd-only        remake initramfs from existing root
-  -k|--kernel-deb=KERNEL  install KERNEL .deb, instead of default kernel
+  -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
 EOF
 }
 
@@ -61,43 +66,54 @@ failure() {
 
 create_debootstrap() {
     mkdir -p "$DEBIRF_ROOT"
-    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
-	fakeroot -s "$DEBIRF_FAKEROOT_STATE" fakechroot /usr/sbin/debootstrap --variant=fakechroot "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    if [ "$ROOT_BUILD" = 'true' ] ; then
+	/usr/sbin/debootstrap --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     else
-	/usr/sbin/debootstrap "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
 }
+
+# fix the device tree in the debirf root if fakechroot variant was 
+# used with debootstrap (default non-privileged behavior)
+fix_dev() {
+    if [ -L "$DEBIRF_ROOT"/dev -o ! -d "$DEBIRF_ROOT"/dev ] ; then
+	msg "fixing debirf root dev tree..."
+
+        # remove old dev
+	fakeroot_if_needed rm -f "$DEBIRF_ROOT"/dev
+
+        # create new dev based on dev archive that comes with debootstrap
+	fakeroot_if_needed sh -c "cd $DEBIRF_ROOT; tar -xzf /usr/lib/debootstrap/devices.tar.gz"
+
+	# create /dev/console, since it's not included by default
+	fakeroot_if_needed sh -c "mknod $DEBIRF_ROOT/dev/console c 5 1; chmod 0600 $DEBIRF_ROOT/dev/console"
+    fi
+}
+export -f fix_dev
 
 run_plugins() {
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
-	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" run-parts --verbose "$DEBIRF_PLUGINS"
-    else
-	run-parts --verbose "$DEBIRF_PLUGINS"
-    fi
+    fakeroot_if_needed run-parts --verbose "$DEBIRF_PLUGINS"
 }
 
-## create_initrd functions take the name of the targeted initrd as
-## their first argument.
+# pack the rootfs archive
+# takes one input argument as name of output archive file
+pack_rootfs() {
+    # need to pack archive in fakechroot/chroot so that symlinks correctly
+    # point within debirf root, instead of to host path
+    fakeroot_if_needed fakechroot chroot "$DEBIRF_ROOT" sh -c "find * | cpio --create -H newc" | gzip > "$1"
+}
+export -f pack_rootfs
+
+
+## create_initrd functions
 # stupid simple method
 create_initrd_stupid_simple() {
-    #ln sbin/init to /init
-    ln -sf /sbin/init "$DEBIRF_ROOT/init"
-
-    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
-        # create a proper dev tree, based on the host systems dev tree
-	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" bash -c 'rm -rf '"$DEBIRF_ROOT"'/dev; (cd / && find dev | cpio --create) | (cd '"$DEBIRF_ROOT"'/ && cpio --extract)'    
-        #fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" bash -c 'rm -rf '"$DEBIRF_ROOT"'/dev; mkdir '"$DEBIRF_ROOT"'/dev'
-
-        # create root image
-	( cd "$DEBIRF_ROOT" && find * | fakeroot cpio --create -H newc | gzip ) > "$1"
-    else
-        # create root image
-	( cd "$DEBIRF_ROOT" && find * | cpio --create -H newc | gzip ) > "$1"
-    fi
+    fakeroot_if_needed ln -sf /sbin/init "$DEBIRF_ROOT/init"
+    pack_rootfs "$DEBIRF_INITRD"
 }
 
 # nested cpio archives
@@ -129,23 +145,27 @@ create_initrd_nested() {
     cat > "$NEST_ROOT"/init <<EOF
 #!/bin/sh
 mkdir /newroot
-mount -t tmpfs tmpfs /newroot
+mount -t tmpfs -o size=10g tmpfs /newroot
 cd /newroot
-# specify /bin/cpio so that it gets used instead of the busybox builtin
-gunzip - </rootfs.cgz | /bin/cpio -i
 echo unpacking rootfs...
-exec /bin/run-init . /sbin/init <./dev/console >./dev/console
+# specify /bin/cpio so that it gets used instead of the busybox builtin
+# busybox cpio returns "need to fix this" when unpacking hard links
+gunzip - < /rootfs.cgz | /bin/cpio -i
+echo running /sbin/init...
+exec /bin/run-init . /sbin/init < ./dev/console > ./dev/console
 EOF
     chmod a+x "$NEST_ROOT"/init
 
     msg "creating rootfs.cgz..."
-    create_initrd_stupid_simple "$NEST_ROOT"/rootfs.cgz
+    fakeroot_if_needed ln -sf /sbin/init "$DEBIRF_ROOT/init"
+    pack_rootfs "$NEST_ROOT"/rootfs.cgz
 
     msg "creating wrapper cgz..."
-    ( cd "$NEST_ROOT" && find * | fakeroot cpio --create -H newc | gzip ) > "$1"
+    ( cd "$NEST_ROOT" && find * | fakeroot_if_needed cpio --create -H newc | gzip ) > "$DEBIRF_INITRD"
 }
 
 # tweak initrd method: untested, probably doesn't work right yet.  soon!
+# NONFUNCTIONING
 create_initrd_tweak_initrd() {
     cat "$DEBIRF_ROOT/scripts/debirf" <<EOF
 mountroot() {
@@ -169,6 +189,7 @@ EOF
 }
 
 # unionfs method: also untested and probably not working.
+# NONFUNCTIONING
 create_initrd_unionfs() {
     #ln sbin/init to /init
     ln -sf /sbin/init "$DEBIRF_ROOT/init"
@@ -194,7 +215,7 @@ EOF
 ### MAIN
 
 # option parsing
-TEMP=$(getopt --options -hfcnosik: --longoptions help,fakechroot,check-vars,new,overwrite,skip,initrd-only,kernel-deb: -n "$CMD" -- "$@")
+TEMP=$(getopt --options -hcnosrik: --longoptions help,check-vars,new,overwrite,skip,root-build,initrd-only,kernel: -n "$CMD" -- "$@")
 
 if [ $? != 0 ] ; then
     echo "Invalid options." >&2 
@@ -210,10 +231,6 @@ while true ; do
         -h|--help)
 	    usage
 	    exit 0
-            ;;
-        -f|--fakechroot)
-	    FAKECHROOT_BUILD=true
-            shift 1
             ;;
         -c|--check-vars)
             CHECK_VARS=true
@@ -231,12 +248,16 @@ while true ; do
             WRITE_MODE=skip
             shift 1
             ;;
+        -r|--root-build)
+	    ROOT_BUILD=true
+            shift 1
+            ;;
 	-i|--initrd-only)
 	    STAGE_ROOT=false
 	    STAGE_PLUGINS=false
 	    shift 1
 	    ;;
-	-k|--kernel-deb)
+	-k|--kernel)
 	    DEBIRF_KERNEL_PACKAGE="$2"
 	    shift 2
 	    ;;
@@ -255,9 +276,10 @@ while true ; do
     esac
 done
 
-if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
-    echo "Using fakechroot build."
-fi	    
+if [ $(id -u) = '0' -a "$ROOT_BUILD" != 'true' ] ; then
+    failure "To run $CMD as root, you must use the '--root-build' option."
+fi
+	    
 if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
     if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
 	echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
@@ -304,7 +326,10 @@ fi
 # check buildd
 if [ -z "$DEBIRF_BUILDD" ] ; then
     failure "DEBIRF_BUILDD is not set."
+elif echo "$DEBIRF_BUILDD" | grep -q -v '^/' ; then
+    failure "DEBIRF_BUILDD is not a absolute path."
 fi
+    
 
 # check debirf root
 if [ -z "$DEBIRF_ROOT" ] ; then
@@ -312,7 +337,10 @@ if [ -z "$DEBIRF_ROOT" ] ; then
 fi
 
 # set fakechroot save file
-DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakechroot-$DEBIRF_LABEL.save"
+DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-${DEBIRF_LABEL}.save"
+if [ "$ROOT_BUILD" != 'true' ] ; then
+    > "$DEBIRF_FAKEROOT_STATE"
+fi
 
 # check variables
 if [ "$CHECK_VARS" ] ; then
@@ -379,11 +407,14 @@ case "$WRITE_MODE" in
 	failure "aborting."
 	;;
 esac
+
+# fix the dev tree if running as non-priv user (fakechroot debootstrap)
+fix_dev
+
 else
     echo "Not building root."
 fi
 ### END BUILD ROOT
-
 
 ### RUN PLUGINS
 if [ "$STAGE_PLUGINS" = 'true' ] ; then
@@ -396,18 +427,17 @@ else
 fi
 ### END RUN PLUGINS
 
-
 ### BUILD INITRD
 if [ "$STAGE_INITRD" = 'true' ] ; then
     if [ ! -d "$DEBIRF_ROOT" ] ; then
-	failure "Root not found."
+	failure "debirf root not found."
     fi
     # determine initrd name
     KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-    DEBIRF_INITRD="${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
+    DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
 
     msg "creating debirf initrd ('$DEBIRF_METHOD')..."
-    create_initrd_${DEBIRF_METHOD} "$DEBIRF_BUILDD/$DEBIRF_INITRD"
+    create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
 
     # final output
     DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
@@ -415,7 +445,7 @@ if [ "$STAGE_INITRD" = 'true' ] ; then
     if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
 	msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
     fi
-    msg "initrd: $DEBIRF_BUILDD/$DEBIRF_INITRD"
+    msg "initrd: $DEBIRF_INITRD"
 else
     echo "Not creating initramfs."
 fi

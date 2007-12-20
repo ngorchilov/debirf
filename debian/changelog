@@ -1,3 +1,12 @@
+debirf (0.11) unstable; urgency=low
+
+  * finally, working fakechroot/non-privileged build method!  superuser privileges no longer required (and are in fact now discouraged)
+  * udev is now required for non-pirvileged builds to function, though.
+  * make tmpfs 10G by default
+  * prune some unneeded packages (cron, logrotate, ed, tcpd, tasksel)
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Thu, 20 Dec 2007 09:17:02 -0500
+
 debirf (0.10) unstable; urgency=low
 
   * moved all files to GPLv3 (closes #50)

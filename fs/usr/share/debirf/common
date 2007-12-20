@@ -37,12 +37,21 @@ msg() {
 }
 export -f msg
 
+fakeroot_if_needed() {
+    if [ "$ROOT_BUILD" = 'true' ] ; then
+	"$@"
+    else
+	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
+    fi
+}
+export -f fakeroot_if_needed
+
 # execute command in debirf system using chroot
 debirf_exec() {
-    if [ "$FAKECHROOT_BUILD" = 'true' ] ; then
-	fakechroot /usr/sbin/chroot "$DEBIRF_ROOT" "$@"
-    else
+    if [ "$ROOT_BUILD" = 'true' ] ; then
 	/usr/sbin/chroot "$DEBIRF_ROOT" "$@"
+    else
+	fakechroot /usr/sbin/chroot "$DEBIRF_ROOT" "$@"
     fi
 }
 export -f debirf_exec
