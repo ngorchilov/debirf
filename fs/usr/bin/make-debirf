@@ -145,8 +145,8 @@ create_initrd_nested() {
     cat > "$NEST_ROOT"/init <<EOF
 #!/bin/sh
 mkdir /newroot
-MEMSIZE=$(free | grep 'Mem:' | awk '{ print $2 }')
-mount -t tmpfs -o size=${MEMSIZE}k tmpfs /newroot
+MEMSIZE=\$(free | grep 'Mem:' | awk '{ print \$2 }')
+mount -t tmpfs -o size=\${MEMSIZE}k tmpfs /newroot
 cd /newroot
 echo unpacking rootfs...
 # specify /bin/cpio so that it gets used instead of the busybox builtin
