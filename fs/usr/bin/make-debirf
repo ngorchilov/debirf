@@ -29,7 +29,7 @@ STAGE_INITRD=true
 ROOT_WARNING=true
 
 # list of packages to exclude from debootstrap
-export EXCLUDE=cron,ed,logrotate,tasksel-data,tcpd
+export EXCLUDE=cron,ed,logrotate,tasksel,tasksel-data,tcpd
 
 ###############################################################
 ### FUNCTIONS
