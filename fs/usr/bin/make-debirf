@@ -278,10 +278,6 @@ while true ; do
     esac
 done
 
-if [ $(id -u) = '0' -a "$ROOT_BUILD" != 'true' ] ; then
-    failure "To run $CMD as root, you must use the '--root-build' option."
-fi
-	    
 if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
     if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
 	echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
@@ -299,7 +295,7 @@ if [ -d "$DEBIRF_PROFILE" ] ; then
     DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
     DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
 else
-    echo "$DEBIRF_PROFILE not found."
+    echo "Profile '$DEBIRF_PROFILE' not found."
     usage_profile
     exit 1
 fi
@@ -360,7 +356,7 @@ if [ "$STAGE_ROOT" = 'true' ] ; then
 
 # determine write mode
 if [ -d "$DEBIRF_ROOT" ] ; then
-    echo "Directory $DEBIRF_ROOT already exists."
+    echo "Debirf root '$DEBIRF_ROOT' already exists."
     if [ -z "$WRITE_MODE" ] ; then
 	echo "Select one of the following:"
 	select foo in 'new' 'overwrite' 'skip' 'exit' ; do
@@ -429,7 +425,7 @@ fi
 ### BUILD INITRD
 if [ "$STAGE_INITRD" = 'true' ] ; then
     if [ ! -d "$DEBIRF_ROOT" ] ; then
-	failure "debirf root not found."
+	failure "Debirf root '$DEBIRF_ROOT' not found."
     fi
     # determine initrd name
     KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
