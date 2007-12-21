@@ -44,8 +44,8 @@ options:
   -n|--new                create new root, even if old one exists
   -o|--overwrite          debootstrap on top of old root if it exists
   -s|--skip               skip debootstrap step if old root exists
-  -r|--root-build         use standard build, instead of fakechroot
-                          (requires superuser privileges)
+  -r|--root-build         use real chroot to build instead of fakechroot
+                          (requires superuser privileges or CAP_SYS_CHROOT)
   -i|--initrd-only        remake initramfs from existing root
   -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
 EOF
