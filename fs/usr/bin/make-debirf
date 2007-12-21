@@ -285,14 +285,16 @@ while true ; do
     esac
 done
 
-if [ $(id -u) = '0' -a "$ROOT_WARNING" = 'true' ] ; then
+if [ $(id -u) = '0' ] ; then
     cat <<EOF
-Warning: you are attempting to run make-debirf as root.  There is
-potential for improperly written plugins to damage your system.
+Warning: You are running make-debirf as root.  There is a potential
+for improperly written plugins to damage your system.
 EOF
-    read -p "Are you sure you wish to continue? [y|N]: " OK; OK=${OK:=N}
-    if [ "${OK/y/Y}" != 'Y' ] ; then
-	failure "Aborting."
+    if [ "$ROOT_WARNING" = 'true' ] ; then
+	read -p "Are you sure you wish to continue? [y|N]: " OK; OK=${OK:=N}
+	if [ "${OK/y/Y}" != 'Y' ] ; then
+	    failure "Aborting."
+	fi
     fi
 fi
 
