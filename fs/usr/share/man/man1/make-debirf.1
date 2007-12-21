@@ -47,7 +47,7 @@ debootstrap on top of old root if it exists
 skip debootstrap step altogether if old root exists
 .TP
 \fB\-i\fR, \fB\-\-initrd-only\fR
-remake initramfs from existing root (skip debootstrap and plugin
+remake initramfs from existing root (skip debootstrap and module
 stages)
 .TP
 \fB\-k\fR, \fB\-\-kernel-deb=KERNEL\fR
@@ -56,29 +56,29 @@ install KERNEL .deb, instead of default kernel
 .SH PROFILES
 .PP
 A debirf profile is a directory in containing a debirf.conf config
-file and a plugin sub-directory (see \fBPLUGINS\fP).
+file and a module sub-directory (see \fBMODULES\fP).
 .PD
-.SH PLUGINS
+.SH MODULES
 .PP
-\fBPlugins\fP are used to configure the debirf system, and can be used
-to extend the capabilities of debirf.  Plugins are bash shell scripts
+\fBModules\fP are used to configure the debirf system, and can be used
+to extend the capabilities of debirf.  Modules are bash shell scripts
 that are executed in alpha-numeric order by \fBrun-parts\fP in a
-chroot in the debirf root during the plugin stage of the debirf build.
-The plugin stage is right after the debirf debootstrap stage, and
+chroot in the debirf root during the module stage of the debirf build.
+The module stage is right after the debirf debootstrap stage, and
 right before the initramfs archive is created.  All of the shell
 variables defined in the \fIdebirf.conf\fP file are available to the
-plugins.
+modules.
 .PP
-\fBNOTE:\fP Some plugins are more important to the proper functioning
-of debirf than others, and the ordering of plugins is important.  Some
-plugins may depend on certain other plugins having already been, or
-not yet been, run.  For instance, the plugin that cleans the debirf
-apt cache ("z1_clean_root") should be run at the end of the plugin
+\fBNOTE:\fP Some modules are more important to the proper functioning
+of debirf than others, and the ordering of modules is important.  Some
+modules may depend on certain other modules having already been, or
+not yet been, run.  For instance, the module that cleans the debirf
+apt cache ("z1_clean_root") should be run at the end of the module
 stage.
 .PD
 .SH FUNCTIONS
 .PP
-A set of pre-defined bash shell functions are available to the plugins to
+A set of pre-defined bash shell functions are available to the modules to
 fasciliate configuring the debirf system:
 .PD 1
 .TP
@@ -110,7 +110,7 @@ debirf label (default: debirf)
 where to build the debirf (default: ./)
 .TP
 .B DEBIRF_ROOT
-the debirf root, used by plugins (default: $DEBIRF_BUILDD/root)
+the debirf root, used by modules (default: $DEBIRF_BUILDD/root)
 .TP
 .B DEBIRF_MIRROR
 Debian mirror (default: http://mirrors.kernel.org/debian)

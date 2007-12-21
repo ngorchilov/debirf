@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# debirf plugin: xkiosk
+# debirf module: xkiosk
 # create an graphical kiosk that starts x and a browser on boot.
 #
 # The debirf scripts were written by

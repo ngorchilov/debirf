@@ -23,7 +23,7 @@ export ROOT_BUILD=false
 
 # stages to run by default
 STAGE_ROOT=true
-STAGE_PLUGINS=true
+STAGE_MODULES=true
 STAGE_INITRD=true
 
 ROOT_WARNING=true
@@ -95,31 +95,12 @@ fix_dev() {
 }
 export -f fix_dev
 
-# output info to the debirf.info file on the initramfs
-setup_debirf_info() {
-    mkdir -p "${DEBIRF_ROOT}/etc/debirf"
-
-    cat > "${DEBIRF_ROOT}/etc/debirf/debirf.info" <<EOF
-# debirf.info
-#
-# $DEBIRF_LABEL
-# this debirf initramfs was generated on: $(hostname -f)
-# $(date -R)
-
-EOF
-
-    debirf_info_comment 'the following config variables were set during build:'
-    for var in ${!DEBIRF_*}; do
-	debirf_info_sh "${var}=${!var}"
-    done
-}
-
-run_plugins() {
+run_modules() {
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    fakeroot_if_needed run-parts --verbose "$DEBIRF_PLUGINS"
+    fakeroot_if_needed run-parts --verbose "$DEBIRF_MODULES"
 }
 
 # pack the rootfs archive
@@ -282,7 +263,7 @@ while true ; do
 	    ;;
 	-i|--initrd-only)
 	    STAGE_ROOT=false
-	    STAGE_PLUGINS=false
+	    STAGE_MODULES=false
 	    shift 1
 	    ;;
 	-k|--kernel)
@@ -307,7 +288,7 @@ done
 if [ $(id -u) = '0' ] ; then
     cat <<EOF
 Warning: You are running make-debirf as root.  There is a potential
-for improperly written plugins to damage your system.
+for improperly written modules to damage your system.
 EOF
     if [ "$ROOT_WARNING" = 'true' ] ; then
 	read -p "Are you sure you wish to continue? [y|N]: " OK; OK=${OK:=N}
@@ -332,7 +313,7 @@ source /usr/share/debirf/debirf.conf.defaults
 if [ -d "$DEBIRF_PROFILE" ] ; then
     echo "Loading profile '$DEBIRF_PROFILE'..."
     DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
-    DEBIRF_PLUGINS="$DEBIRF_PROFILE/plugins"
+    DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
 else
     echo "Profile '$DEBIRF_PROFILE' not found."
     usage_profile
@@ -348,14 +329,14 @@ else
     exit 1
 fi
 
-# check plugins directory
-if [ ! -d "$DEBIRF_PLUGINS" ] ; then
-    echo "$DEBIRF_PLUGINS does not exist."
+# check modules directory
+if [ ! -d "$DEBIRF_MODULES" ] ; then
+    echo "$DEBIRF_MODULES does not exist."
     usage_profile
     exit 1
 fi
-if [ $(ls "$DEBIRF_PLUGINS" -1 | wc -l) = 0 ] ; then
-    echo "$DEBIRF_PLUGINS is empty."
+if [ $(ls "$DEBIRF_MODULES" -1 | wc -l) = 0 ] ; then
+    echo "$DEBIRF_MODULES is empty."
     usage_profile
     exit 1
 fi
@@ -450,25 +431,15 @@ else
 fi
 ### END BUILD ROOT
 
-### RUN PLUGINS
-if [ "$STAGE_PLUGINS" = 'true' ] ; then
-    msg: "prepping root for plugins..."
-
-    setup_debirf_info
-
-    # write /etc/hostname
-    echo "$DEBIRF_LABEL" > "${DEBIRF_ROOT}/etc/hostname"
-
-    # update apt
-    debirf_exec apt-get update
-
-    msg "executing plugins..."
-    run_plugins
-    msg "plugins complete."
+### RUN MODULES
+if [ "$STAGE_MODULES" = 'true' ] ; then
+    msg "executing modules..."
+    run_modules
+    msg "modules complete."
 else
-    echo "Not running plugins."
+    echo "Not running modules."
 fi
-### END RUN PLUGINS
+### END RUN MODULES
 
 ### BUILD INITRD
 if [ "$STAGE_INITRD" = 'true' ] ; then

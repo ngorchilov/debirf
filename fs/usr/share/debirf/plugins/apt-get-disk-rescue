@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# debirf plugin: apt-get
+# debirf module: apt-get
 # remove/install extra packages with apt-get
 #
 # The debirf scripts were written by

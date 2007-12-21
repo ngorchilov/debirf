@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
-# debirf plugin: install-kernel
+# debirf module: install-kernel
 # install a kernel package, indicated by the expected environment
 # variables:
 #  DEBIRF_PATH
 #  DEBIRF_ROOT
 #  DEBIRF_KERNEL_PACKAGE
 #
-# WARNING: this plugin is necessary for proper functioning of debirf.
+# WARNING: this module is necessary for proper functioning of debirf.
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>

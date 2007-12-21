@@ -1,3 +1,11 @@
+debirf (0.12) unstable; urgency=low
+
+  * change name of "plugins" to "modules".  hopefully this will elliminate at least my uneasyness about the requirement of some of the modules.  this will require people to rename their existing "plugins" directories to be "modules".
+  * re-added prep-root module
+  * expanded info in debirf.conf on image, includes debirf version (ticket #21)
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 21 Dec 2007 17:21:22 -0500
+
 debirf (0.11) unstable; urgency=low
 
   * finally, working fakechroot/non-privileged build method!  superuser privileges no longer required (and are in fact now discouraged)

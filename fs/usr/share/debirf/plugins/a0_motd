@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# debirf plugin: motd
+# debirf module: motd
 # custom /etc/motd.tail file
 #
 # The debirf scripts were written by

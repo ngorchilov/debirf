@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# debirf plugin: install-udev
+# debirf module: install-udev
 # install udev 
 #
-# WARNING: this plugin is necessary for proper functioning of debirf.
+# WARNING: this module is necessary for proper functioning of debirf.
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>

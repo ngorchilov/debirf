@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# debirf plugin: serial-terminal
+# debirf module: serial-terminal
 # add serial terminal
 #
 # The debirf scripts were written by

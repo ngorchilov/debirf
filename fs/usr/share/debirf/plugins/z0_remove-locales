@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# debirf plugin: remove-locales
+# debirf module: remove-locales
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>

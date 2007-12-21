@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# debirf plugin: networking
+# debirf module: networking
 # setup default network interface configuration
 #
 # The debirf scripts were written by
