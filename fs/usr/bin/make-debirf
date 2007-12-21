@@ -452,6 +452,8 @@ fi
 
 ### RUN PLUGINS
 if [ "$STAGE_PLUGINS" = 'true' ] ; then
+    msg: "prepping root for plugins..."
+
     setup_debirf_info
 
     # write /etc/hostname
