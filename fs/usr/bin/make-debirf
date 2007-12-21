@@ -27,7 +27,7 @@ STAGE_PLUGINS=true
 STAGE_INITRD=true
 
 # list of packages to exclude from debootstrap
-export EXCLUDE=cron,logrotate,ed,tasksel-data,tcpd
+export EXCLUDE=cron,ed,logrotate,tasksel-data,tcpd
 
 ###############################################################
 ### FUNCTIONS
@@ -44,7 +44,8 @@ options:
   -n|--new                create new root, even if old one exists
   -o|--overwrite          debootstrap on top of old root if it exists
   -s|--skip               skip debootstrap step if old root exists
-  -r|--root-build         build as superuser
+  -r|--root-build         use standard build, instead of fakechroot
+                          (requires superuser privileges)
   -i|--initrd-only        remake initramfs from existing root
   -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
 EOF
