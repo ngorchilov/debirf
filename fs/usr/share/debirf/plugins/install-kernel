@@ -7,6 +7,8 @@
 #  DEBIRF_ROOT
 #  DEBIRF_KERNEL_PACKAGE
 #
+# WARNING: this plugin is necessary for proper functioning of debirf.
+#
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
 # and

@@ -3,6 +3,8 @@
 # debirf plugin: clean-root
 # clean up debirf root
 #
+# WARNING: this plugin is necessary for proper functioning of debirf.
+#
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
 # and
@@ -20,12 +22,13 @@ rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
 mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
 
-# remake proc and dev directories
-# (originally made as symlinks by debootstrap with fakechroot)
-#rm -rf "$DEBIRF_ROOT/dev"
-#mkdir "$DEBIRF_ROOT/dev"
+# remake proc directory
+# (originally made as symlink by debootstrap with fakechroot)
 rm -rf "$DEBIRF_ROOT/proc"
 mkdir "$DEBIRF_ROOT/proc"
+
+# add proc to fstab
+echo proc /proc proc defaults 0 0 > "${DEBIRF_ROOT}/etc/fstab"
 
 # setup dynamically updated /etc/mtab
 ln -sf /proc/mounts "$DEBIRF_ROOT/etc/mtab"

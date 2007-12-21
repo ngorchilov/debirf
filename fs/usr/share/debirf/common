@@ -56,20 +56,6 @@ debirf_exec() {
 }
 export -f debirf_exec
 
-# output info to the debirf.info file on the initramfs
-setup_debirf_info() {
-    mkdir -p $(dirname "${DEBIRF_ROOT}/etc/debirf/debirf.info")
-
-    cat > "${DEBIRF_ROOT}/etc/debirf/debirf.info" <<EOF
-# debirf.info
-#
-# this debirf initramfs was generated on $(hostname)
-# $(date -R)
-
-EOF
-}
-export -f setup_debirf_info
-
 # write comment to debirf.info file
 debirf_info_comment() {
     echo "$@" | sed 's|^\(.\)|\# \1|' >> "${DEBIRF_ROOT}/etc/debirf/debirf.info"

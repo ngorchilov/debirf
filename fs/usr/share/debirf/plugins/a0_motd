@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh
 
 # debirf plugin: motd
 # custom /etc/motd.tail file
