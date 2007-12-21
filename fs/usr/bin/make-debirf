@@ -162,7 +162,7 @@ EOF
     pack_rootfs "$NEST_ROOT"/rootfs.cgz
 
     msg "creating wrapper cgz..."
-    ( cd "$NEST_ROOT" && find * | fakeroot_if_needed cpio --create -H newc | gzip ) > "$DEBIRF_INITRD"
+    fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$DEBIRF_INITRD"
 }
 
 # tweak initrd method: untested, probably doesn't work right yet.  soon!
@@ -327,10 +327,7 @@ fi
 # check buildd
 if [ -z "$DEBIRF_BUILDD" ] ; then
     failure "DEBIRF_BUILDD is not set."
-elif echo "$DEBIRF_BUILDD" | grep -q -v '^/' ; then
-    failure "DEBIRF_BUILDD is not a absolute path."
 fi
-    
 
 # check debirf root
 if [ -z "$DEBIRF_ROOT" ] ; then
