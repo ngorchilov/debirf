@@ -28,6 +28,9 @@ STAGE_INITRD=true
 
 ROOT_WARNING=true
 
+# location of devices.tar.gz file
+export DEVICE_ARCHIVE=/usr/lib/debirf/devices.tar.gz
+
 # list of packages to exclude from debootstrap
 export EXCLUDE=cron,ed,logrotate,tasksel,tasksel-data,tcpd
 
@@ -86,10 +89,10 @@ fix_dev() {
         # remove old dev
 	fakeroot_if_needed rm -f "$DEBIRF_ROOT"/dev
 
-        # create new dev based on dev archive that comes with debootstrap
-	fakeroot_if_needed sh -c "cd $DEBIRF_ROOT; tar -xzf /usr/lib/debootstrap/devices.tar.gz"
+        # create new dev from devices archive
+	fakeroot_if_needed sh -c "cd $DEBIRF_ROOT; tar -xzf $DEVICE_ARCHIVE"
 
-	# create /dev/console, since it's not included by default
+	# create /dev/console
 	fakeroot_if_needed sh -c "mknod $DEBIRF_ROOT/dev/console c 5 1; chmod 0600 $DEBIRF_ROOT/dev/console"
     fi
 }

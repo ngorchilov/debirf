@@ -8,16 +8,22 @@
 
 PROF_DIR=example-profiles
 
-all: $(PROF_DIR)/minimal.tgz $(PROF_DIR)/rescue.tgz $(PROF_DIR)/xkiosk.tgz
+all:
 
 $(PROF_DIR)/minimal.tgz:
-	cd $(PROF_DIR) && tar cz -f minimal.tgz minimal/
+	cd $(PROF_DIR) && tar czf minimal.tgz minimal/
 
 $(PROF_DIR)/rescue.tgz:
-	cd $(PROF_DIR) && tar cz -f rescue.tgz rescue/
+	cd $(PROF_DIR) && tar czf rescue.tgz rescue/
 
 $(PROF_DIR)/xkiosk.tgz:
-	cd $(PROF_DIR) && tar cz -f xkiosk.tgz xkiosk/
+	cd $(PROF_DIR) && tar czf xkiosk.tgz xkiosk/
+
+release: $(PROF_DIR)/minimal.tgz $(PROF_DIR)/rescue.tgz $(PROF_DIR)/xkiosk.tgz
+	mkdir -p build/upstream
+	ln -s ../.. build/upstream/debirf-$(VERSION)
+	(cd build/upstream && tar czf ../debirf_$(VERSION).tar.gz --exclude=.svn --exclude=*~ debirf-$(VERSION)/{fs,COPYING,Makefile,example-profiles})
+	rm -f build/upstream/debirf-$(VERSION)
 
 clean:
 	rm $(PROF_DIR)/minimal.tgz
