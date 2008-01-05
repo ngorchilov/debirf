@@ -1,0 +1,6 @@
+the devices.tar file is made from the device tree of a debootstrap run
+as root:
+
+# debootstrap lenny debootstrap http://ftp.debian.org/debian/
+...
+# ( cd debootstrap/ && tar c dev/ ) > devices.tar

@@ -3,6 +3,7 @@
 # debirf module: clean-root
 # clean up debirf root
 #
+# *** REQUIRED MODULE ***
 # WARNING: this module is necessary for proper functioning of debirf.
 #
 # The debirf scripts were written by
