@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>
 Uploaders: Jameson Rollins <jrollins@fifthhorseman.net>
 Build-Depends: debhelper (>= 4)
-Standards-Version: 3.7.2.2
+Standards-Version: 3.7.3
 Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
 
 Package: debirf
