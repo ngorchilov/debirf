@@ -1,8 +1,11 @@
-debirf (0.13) unstable; urgency=low
+debirf (0.13-1) unstable; urgency=low
 
-  * example profiles are now tgz archives.
+  * example profiles are now tgz archives (closes #46)
+  * added new full devices.tar.gz to create fuller device tree (closes #60)
+  * transition to non-native packaging (closes #26)
+  * added exit-on-error to modules install run-part
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Sat, 05 Jan 2008 12:00:37 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 06 Jan 2008 17:22:20 -0500
 
 debirf (0.12) unstable; urgency=low
 

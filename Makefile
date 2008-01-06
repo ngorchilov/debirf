@@ -6,9 +6,12 @@
 # this makefile is used to build the archives of the example 
 # profile directories
 
+PREFIX=/usr
+
 PROF_DIR=example-profiles
 
 all:
+	echo "debirf is composed of scripts, so no compilation is necessary"
 
 $(PROF_DIR)/minimal.tgz:
 	cd $(PROF_DIR) && tar czf minimal.tgz minimal/
@@ -19,7 +22,26 @@ $(PROF_DIR)/rescue.tgz:
 $(PROF_DIR)/xkiosk.tgz:
 	cd $(PROF_DIR) && tar czf xkiosk.tgz xkiosk/
 
-release: $(PROF_DIR)/minimal.tgz $(PROF_DIR)/rescue.tgz $(PROF_DIR)/xkiosk.tgz
+build-profiles: $(PROF_DIR)/minimal.tgz $(PROF_DIR)/rescue.tgz $(PROF_DIR)/xkiosk.tgz
+
+install: build-profiles
+	install -d $(PREFIX)/bin
+	install -d $(PREFIX)/share/debirf/modules
+	install -d $(PREFIX)/share/debirf/example-profiles
+	install -d $(PREFIX)/lib/debirf
+	install -d $(PREFIX)/share/man/man1
+	install fs/usr/bin/make-debirf $(PREFIX)/bin/make-debirf
+	install fs/usr/bin/build-debirf-kernel $(PREFIX)/bin/build-debirf-kernel
+	install fs/usr/share/debirf/common $(PREFIX)/share/debirf/
+	install -m 0644 fs/usr/share/debirf/debirf.conf.defaults $(PREFIX)/share/debirf/
+	install fs/usr/share/debirf/modules/* $(PREFIX)/share/debirf/modules/
+	install -m 0644 fs/usr/lib/debirf/devices.tar.gz $(PREFIX)/lib/debirf/
+	install -m 0644 fs/usr/lib/debirf/README $(PREFIX)/lib/debirf/
+	install -m 0644 fs/usr/share/man/man1/make-debirf.1 $(PREFIX)/share/man/man1/make-debirf.1
+	install -m 0644 fs/usr/share/man/man1/build-debirf-kernel.1 $(PREFIX)/share/man/man1/build-debirf-kernel.1
+	install -m 0644 example-profiles/*.tgz $(PREFIX)/share/debirf/example-profiles/
+
+release: 
 	mkdir -p build/upstream
 	ln -s ../.. build/upstream/debirf-$(VERSION)
 	(cd build/upstream && tar czf ../debirf_$(VERSION).tar.gz --exclude=.svn --exclude=*~ debirf-$(VERSION)/{fs,COPYING,Makefile,example-profiles})

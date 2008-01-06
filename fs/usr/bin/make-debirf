@@ -103,7 +103,7 @@ run_modules() {
     for var in ${!DEBIRF_*}; do
 	export $var
     done
-    fakeroot_if_needed run-parts --verbose "$DEBIRF_MODULES"
+    fakeroot_if_needed run-parts --verbose --exit-on-error "$DEBIRF_MODULES"
 }
 
 # pack the rootfs archive
@@ -355,7 +355,7 @@ if [ -z "$DEBIRF_ROOT" ] ; then
 fi
 
 # set fakechroot save file
-DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-${DEBIRF_LABEL}.save"
+DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state_${DEBIRF_LABEL}"
 if [ "$ROOT_BUILD" != 'true' ] ; then
     > "$DEBIRF_FAKEROOT_STATE"
 fi

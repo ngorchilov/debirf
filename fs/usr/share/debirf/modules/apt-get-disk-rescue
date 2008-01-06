@@ -11,6 +11,9 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-debirf_exec apt-get --assume-yes install less moreutils lvm2 mdadm lsof screen hdparm smartmontools pciutils
+# why does aptitude not seem to be recognizing --without-recommends option?
+# currently requires explicitly not installing:
+# courier-mta mailx bsd-mailx
+debirf_exec aptitude --without-recommends --assume-yes install less moreutils lvm2 lsof screen hdparm pciutils mdadm smartmontools courier-mta- mailx- bsd-mailx-
 
 debirf_exec /etc/init.d/mdadm stop

@@ -10,6 +10,10 @@
 # not much to do here, since we're just moving some shell scripts
 # around.
 
+PROF_DIR=example-profiles
+
+all:
+
 build:
 
 binary: binary-arch binary-indep
@@ -23,7 +27,7 @@ install:
 	dh_installdirs
 	dh_link
 
-	cp -a fs/usr $(CURDIR)/debian/debirf
+	$(MAKE)	install PREFIX=$(CURDIR)/debian/debirf/usr
 
 binary-indep: build install
 	dh_testdir
