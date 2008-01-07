@@ -1,14 +1,51 @@
-Debirf includes a set of example debirf profiles in
-/usr/share/doc/debirf/example-profiles/.  Right now these include:
+debirf is a system that will create diskless, all-in-ram images
+(kernel and initramfs) that boot entirely into ram and leaves the user
+in a fully functional Debian system.
+
+debirf has a module architecture that allows users to easily customize
+the images that they build, using simple shell scripts, to do
+basically anything the Debian can do.  Some included examples
+"profiles" are:
 
 minimal: very minimal system with no extras
-rescue: includes some extra disk rescue utilities 
-xkiosk: sets up a diskless kiosk with a web browser
 
-Each of these profiles includes a debirf.conf, and a modules directory
-that includes links to the various modules that the profile uses.
-Start by unpacking one of the example profiles, e.g.:
+rescue: includes a full complement of system repair utilities,
+        including mdadm, lvm2, testdisk, foremost, etc
 
-$ tar xzf /usr/share/doc/debirf/example-profiles/minimal.tgz
+xkiosk: run a simple clean GUI interface for public-access web
+	browsing (pass it the "browse=URL" boot parameter to specify
+	a startup URL)
 
-You can then modify the debirf.conf as desired, and build a debirf!
+These profiles are are included with debirf in
+/usr/share/doc/debirf/example-profiles/.  Each of these profiles
+includes a debirf.conf, and a modules directory that includes links to
+the various modules that the profile uses.  Start by unpacking one of
+the example profiles, e.g.:
+
+$ cd /path/to
+$ tar xzf /usr/share/doc/debirf/example-profiles/<profile>.tgz
+
+Before building, you can modify the debirf.conf as desired to specify
+alternate build locations (in the profile directory my default), and
+which Debian mirror and distro to use (ala debootstrap).  Once you
+have your profile ready, build it with make-debirf:
+
+$ make-debirf /path/to/<profile>
+
+The make-debirf script creates the root filesystem for the new image
+using debootstrap, then uses the debirf modules to customize the root
+fs and prepare it for diskless booting.  Finally the kernel is
+extracted, and the root fs is archived into an initramfs.
+
+The kernel and initramfs can be placed in your system boot partition,
+burnt to read-only media, or supplied by a netboot server.
+
+Have fun!  Create new modules and profiles for your specific needs.
+If you think your module or profile would be generally useful, please
+let us know and we'll include it with future versions of debirf.  Also
+please let us know of any issues, bugs, or requests.
+
+debirf is a CMRG project:
+
+http://cmrg.fifthhorseman.net/wiki/debirf
+debirf@cmrg.fifthhorseman.net

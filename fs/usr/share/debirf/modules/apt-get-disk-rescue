@@ -14,6 +14,6 @@
 # why does aptitude not seem to be recognizing --without-recommends option?
 # currently requires explicitly not installing:
 # courier-mta mailx bsd-mailx
-debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm pciutils mdadm smartmontools courier-mta- mailx- bsd-mailx-
+debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools courier-mta- mailx- bsd-mailx-
 
 debirf_exec /etc/init.d/mdadm stop

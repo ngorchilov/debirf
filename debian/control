@@ -16,11 +16,12 @@ Description: build a kernel and initrd to run Debian from RAM
  to create and prepare a kernel and initial ram filesystem that can
  run a full-blown Debian environment entirely from RAM.
  .
- The kernel and initrd pair created by debirf can be used for a myriad of
- purposes, from quick-and-easy system repair to diskless thin clients.  The
- kernel and initrd can be placed in your system boot partition, burnt to
- read-only media, or supplied by a netboot server.
+ The kernel and initramfs pair created by debirf can be used for a
+ myriad of purposes, from quick-and-easy system repair to diskless
+ thin clients.  The kernel and initrd can be placed in your system
+ boot partition, burnt to read-only media, or supplied by a netboot
+ server.
  .
- The debirf tools use a plugin architecture which allows you to customize
- debirf for any possible purpose by specifying what components are included
- in the generated image. 
+ The debirf tools use a module architecture which allows you to
+ customize debirf for any possible purpose by specifying what
+ components are included in the generated image.
