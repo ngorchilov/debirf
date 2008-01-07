@@ -8,7 +8,7 @@
 
 PREFIX=/usr
 
-PROF_DIR=example-profiles
+PROF_DIR=docs/example-profiles
 
 all:
 	echo "debirf is composed of scripts, so no compilation is necessary"
@@ -39,12 +39,12 @@ install: build-profiles
 	install -m 0644 fs/usr/lib/debirf/README $(PREFIX)/lib/debirf/
 	install -m 0644 fs/usr/share/man/man1/make-debirf.1 $(PREFIX)/share/man/man1/make-debirf.1
 	install -m 0644 fs/usr/share/man/man1/build-debirf-kernel.1 $(PREFIX)/share/man/man1/build-debirf-kernel.1
-	install -m 0644 example-profiles/*.tgz $(PREFIX)/share/doc/debirf/example-profiles/
+	install -m 0644 docs/example-profiles/*.tgz $(PREFIX)/share/doc/debirf/example-profiles/
 
 release: 
 	mkdir -p build/upstream
 	ln -s ../.. build/upstream/debirf-$(VERSION)
-	(cd build/upstream && tar czf ../debirf_$(VERSION).tar.gz --exclude=.svn --exclude=*~ debirf-$(VERSION)/{fs,COPYING,Makefile,example-profiles})
+	(cd build/upstream && tar czf ../debirf_$(VERSION).tar.gz --exclude=.svn --exclude=*~ debirf-$(VERSION)/{fs,COPYING,Makefile,docs})
 	rm -f build/upstream/debirf-$(VERSION)
 
 clean:
