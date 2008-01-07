@@ -7,7 +7,7 @@ xkiosk: sets up a diskless kiosk with a web browser
 
 Each of these profiles includes a debirf.conf, and a modules directory
 that includes links to the various modules that the profile uses.
-Start by unpacking one of the example profiles, ie.:
+Start by unpacking one of the example profiles, e.g.:
 
 $ tar xzf /usr/share/doc/debirf/example-profiles/minimal.tgz
 
