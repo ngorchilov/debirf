@@ -9,7 +9,10 @@ debirf (0.13-1) unstable; urgency=low
 
 debirf (0.12) unstable; urgency=low
 
-  * change name of "plugins" to "modules".  hopefully this will elliminate at least my uneasyness about the requirement of some of the modules.  this will require people to rename their existing "plugins" directories to be "modules".
+  * change name of "plugins" to "modules".  hopefully this will elliminate
+    at least my uneasyness about the requirement of some of the modules.
+    this will require people to rename their existing "plugins"
+    directories to be "modules".
   * re-added prep-root module
   * expanded info in debirf.conf on image, includes debirf version (ticket #21)
 
@@ -17,7 +20,8 @@ debirf (0.12) unstable; urgency=low
 
 debirf (0.11) unstable; urgency=low
 
-  * finally, working fakechroot/non-privileged build method!  superuser privileges no longer required (and are in fact now discouraged)
+  * finally, working fakechroot/non-privileged build method!  superuser
+    privileges no longer required (and are in fact now discouraged)
   * udev is now required for non-pirvileged builds to function, though.
   * make tmpfs 10G by default
   * prune some unneeded packages (cron, logrotate, ed, tcpd, tasksel)
@@ -27,7 +31,9 @@ debirf (0.11) unstable; urgency=low
 debirf (0.10) unstable; urgency=low
 
   * moved all files to GPLv3 (closes #50)
-  * simplify kernel installation.  now will accept deb as command line parameter, or make-debirf will just figure out the kernel itself (closes #48)
+  * simplify kernel installation.  now will accept deb as command line
+    parameter, or make-debirf will just figure out the kernel itself
+    (closes #48)
   * updated man page
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 11 Dec 2007 15:31:22 -0500
@@ -42,7 +48,8 @@ debirf (0.9) unstable; urgency=low
 debirf (0.8) unstable; urgency=low
 
   * simplified profile checking.
-  * fixed/cleaned-up install-kernel plugin to extract kernel rather than install (ticket #49).
+  * fixed/cleaned-up install-kernel plugin to extract kernel rather than
+    install (ticket #49).
   * added install-udev plugin.
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 10 Dec 2007 12:12:04 -0500
@@ -55,10 +62,15 @@ debirf (0.7) unstable; urgency=low
 
 debirf (0.6) unstable; urgency=low
 
-  * new create_initrd_nested build function, boots debirf into tmpfs, which is cleaner and more stable and is now the default.
-  * added ability to run make-debirf with fakechroot ('-f' option).  there are problems creating the device tree with this method, though, so it is still underdevelopment.
-  * modified debootstrap, plugin run-parts, and debirf_exec to also use fakechroot
-  * being root *should* no longer be necessary to make-debirf, therefore make-debirf has been moved to /usr/bin/
+  * new create_initrd_nested build function, boots debirf into tmpfs,
+    which is cleaner and more stable and is now the default.
+  * added ability to run make-debirf with fakechroot ('-f' option).  there
+    are problems creating the device tree with this method, though, so it
+    is still underdevelopment.
+  * modified debootstrap, plugin run-parts, and debirf_exec to also use
+    fakechroot
+  * being root *should* no longer be necessary to make-debirf, therefore
+    make-debirf has been moved to /usr/bin/
   * debirf can now function in rootfs with stock debian kernels (as of 2.6.22)
   * removed /var/lib/debirf
   * removed /etc/debirf in favor of doc/example-profiles
@@ -66,7 +78,8 @@ debirf (0.6) unstable; urgency=low
   * added xkiosk profile
   * added getopt for command line argument checking
   * added command line arguments to skip some checking/user interaction
-  * can now pass kernel package name to make-debirf, instead of just deb, although proper package checking is not fully working
+  * can now pass kernel package name to make-debirf, instead of just deb,
+    although proper package checking is not fully working
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Mon, 03 Dec 2007 00:40:46 -0500
 
