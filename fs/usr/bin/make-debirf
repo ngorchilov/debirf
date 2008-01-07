@@ -32,6 +32,7 @@ ROOT_WARNING=true
 export DEVICE_ARCHIVE=/usr/lib/debirf/devices.tar.gz
 
 # list of packages to exclude from debootstrap
+export INCLUDE=less
 export EXCLUDE=cron,ed,logrotate,tasksel,tasksel-data,tcpd
 
 ###############################################################
@@ -76,7 +77,7 @@ create_debootstrap() {
     if [ "$ROOT_BUILD" = 'true' ] ; then
 	/usr/sbin/debootstrap --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
 }
 

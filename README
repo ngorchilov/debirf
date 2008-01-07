@@ -1,0 +1,14 @@
+Debirf includes a set of example debirf profiles in
+/usr/share/doc/debirf/example-profiles/.  Right now these include:
+
+minimal: very minimal system with no extras
+rescue: includes some extra disk rescue utilities 
+xkiosk: sets up a diskless kiosk with a web browser
+
+Each of these profiles includes a debirf.conf, and a modules directory
+that includes links to the various modules that the profile uses.
+Start by unpacking one of the example profiles:
+
+$ tar xzf /usr/share/debirf/example-profiles/minimal.tgz
+
+You can then modify the debirf.conf as desired.
