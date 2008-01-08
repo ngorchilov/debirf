@@ -173,53 +173,6 @@ EOF
     fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$DEBIRF_INITRD"
 }
 
-# tweak initrd method: untested, probably doesn't work right yet.  soon!
-# NONFUNCTIONING
-create_initrd_tweak_initrd() {
-    cat "$DEBIRF_ROOT/scripts/debirf" <<EOF
-mountroot() {
- rootmnt="/"
-}
-EOF
-    cat > "$DEBIRF_ROOT/bin/run-init" <<EOF
-#!/bin/sh
-if [ "$1" != "/" ] ; then
-  exec /usr/lib/klibc/bin/run-init "$@"
-else
-  MOUNT_POINT="$1"
-  INIT="$2"
-  shift 2
-  exec "$INIT" "$@"
-fi
-EOF
-    # create root image
-    cp initrd.img* "$1"
-    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) >> "$1"
-}
-
-# unionfs method: also untested and probably not working.
-# NONFUNCTIONING
-create_initrd_unionfs() {
-    #ln sbin/init to /init
-    ln -sf /sbin/init "$DEBIRF_ROOT/init"
-    
-    # add unionfs kernel module and init script
-    debirf_exec apt-get update
-    debirf_exec apt-get install unionfs-modules-"$KERNAVAIL" unionfs-tools
-
-    cat >"$DEBIRF_ROOT/etc/init.d/root-unionfs" <<EOF
-#!/bin/bash
-
-mount -t tmpfs tmpfs /tmp
-mount -t unionfs dirs=/=ro:/tmp=rw unionfs /
-EOF
-
-    ln -sf ../init.d/root-unionfs /etc/rcS.d/S00root-unionfs
-
-    # create root image
-    ( cd "$DEBIRF_ROOT" && find * | cpio -H newc --create  | gzip ) > "$1"
-}
-
 ###############################################################
 ### MAIN
 

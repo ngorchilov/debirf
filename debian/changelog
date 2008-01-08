@@ -5,8 +5,9 @@ debirf (0.13-1) unstable; urgency=low
     not requiring the install-udev module (closes #60)
   * transition to non-native packaging (closes #26)
   * added exit-on-error to modules install run-parts
+  * removed old useless create_initrd functions
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 06 Jan 2008 17:22:20 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 08 Jan 2008 15:43:48 -0500
 
 debirf (0.12) unstable; urgency=low
 
