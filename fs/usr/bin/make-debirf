@@ -336,15 +336,19 @@ if [ -d "$DEBIRF_ROOT" ] ; then
     echo "Debirf root '$DEBIRF_ROOT' already exists."
     if [ -z "$WRITE_MODE" ] ; then
 	echo "Select one of the following:"
-	select foo in 'new' 'overwrite' 'skip' 'exit' ; do
-	    case "$foo" in
-		'new')
+	CASE1='new: delete the old root and create a new one'
+	CASE2='overwrite: leave the old root and debootstrap on top of it'
+	CASE3='skip: skip building the root and go right to installing modules'
+	CASE4='exit'
+	select CASE in "$CASE1" "$CASE2" "$CASE3" "$CASE4" ; do
+	    case "$REPLY" in
+		1)
 		    WRITE_MODE=rewrite
 		    ;;
-		'overwrite')
+		2)
 		    WRITE_MODE=overwrite
 		    ;;
-		'skip')
+		3)
 		    WRITE_MODE=skip
 		    ;;
 		*)

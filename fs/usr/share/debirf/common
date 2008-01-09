@@ -41,7 +41,9 @@ fakeroot_if_needed() {
     if [ "$ROOT_BUILD" = 'true' ] ; then
 	"$@"
     else
-	fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
+        # include paths as though we are superuser
+	PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
+	)
     fi
 }
 export -f fakeroot_if_needed
