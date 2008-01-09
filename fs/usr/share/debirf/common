@@ -43,7 +43,6 @@ fakeroot_if_needed() {
     else
         # include paths as though we are superuser
 	PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
-	)
     fi
 }
 export -f fakeroot_if_needed
