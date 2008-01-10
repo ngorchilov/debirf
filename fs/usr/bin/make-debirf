@@ -31,9 +31,9 @@ ROOT_WARNING=true
 # location of devices.tar.gz file
 export DEVICE_ARCHIVE=/usr/share/debirf/devices.tar.gz
 
-# list of packages to exclude from debootstrap
+# list of packages to include/exclude from debootstrap
 export INCLUDE=less
-export EXCLUDE=cron,ed,logrotate,tasksel,tasksel-data,tcpd
+export EXCLUDE=bsdmainutils,cron,ed,logrotate,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
 ### FUNCTIONS

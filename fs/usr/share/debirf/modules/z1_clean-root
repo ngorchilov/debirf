@@ -18,6 +18,7 @@
 #debirf_exec apt-get --assume-yes remove --purge aptitude
 
 # remove all cached apt information
+debirf_exec apt-get autoremove
 debirf_exec apt-get clean
 rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*

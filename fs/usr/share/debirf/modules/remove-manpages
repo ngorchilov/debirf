@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# debirf module: remove-manpages
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
+
+debirf_exec apt-get --assume-yes purge man-db manpages info
