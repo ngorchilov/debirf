@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# debirf module: remove-manpages
+# debirf module: install-manpages
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -10,4 +10,4 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-debirf_exec apt-get --assume-yes purge man-db manpages info
+debirf_exec apt-get --assume-yes install man-db manpages info

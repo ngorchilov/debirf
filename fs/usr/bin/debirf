@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# make-debirf: script to build debirf system.
+# debirf: script to build debirf system.
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -33,7 +33,7 @@ export DEVICE_ARCHIVE=/usr/share/debirf/devices.tar.gz
 
 # list of packages to include/exclude from debootstrap
 export INCLUDE=less
-export EXCLUDE=bsdmainutils,cron,ed,logrotate,tasksel,tasksel-data,tcpd,traceroute
+export EXCLUDE=bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
 ### FUNCTIONS
@@ -41,8 +41,8 @@ export EXCLUDE=bsdmainutils,cron,ed,logrotate,tasksel,tasksel-data,tcpd,tracerou
 usage() {
     cat <<EOF
 Usage: $CMD [options] profile
-Create a debirf system.  The 'profile' is a path to a debirf profile
-directory.
+Create a debirf kernel and initramfs.  The 'profile' is a path to a debirf
+profile directory.
 
 options:
   -h|--help               this help message
@@ -60,10 +60,10 @@ EOF
 
 usage_profile() {
     cat <<EOF
-It looks like your profile is not correctly formed.  You should begin
-by copying and modifying one of the example debirf profiles.
-On Debian, you can copy them from the debirf docs:
-cp -r /usr/share/doc/debirf/example-profiles/<profile-name> . 
+It looks like your profile is not correctly formed.  Please refer to the
+README file included with this package.
+On Debian, unpack one of the example profiles from the debirf docs:
+tar xzvf /usr/share/doc/debirf/example-profiles/<profile-name>.tgz 
 EOF
 }
 
@@ -244,7 +244,7 @@ done
 
 if [ $(id -u) = '0' ] ; then
     cat <<EOF
-Warning: You are running make-debirf as root.  There is a potential
+Warning: You are running debirf as root.  There is a potential
 for improperly written modules to damage your system.
 EOF
     if [ "$ROOT_WARNING" = 'true' ] ; then
@@ -307,7 +307,7 @@ fi
 DEBIRF_ROOT="$DEBIRF_BUILDD/root"
 
 # set fakechroot save file
-DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state_${DEBIRF_LABEL}"
+DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
 if [ "$ROOT_BUILD" != 'true' ] ; then
     > "$DEBIRF_FAKEROOT_STATE"
 fi

@@ -1,20 +1,18 @@
-.TH MAKE-DEBIRF "1" "March 2007" "make-debirf 0.1" "User Commands"
+.TH DEBIRF "1" "March 2007" "debirf 0.1" "User Commands"
 .SH NAME
-make-debirf \- build an initrd to boot a full Debian system entirely from RAM
+debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
-.B make-debirf [options] profile
+.B debirf [options] profile
 .SH DESCRIPTION
 .PP
-\fBmake-debirf\fP is a utility to build a debirf system.  A debirf
-system is a kernel and initramfs that can be passed to a machine at
-boot time to load a complete Debian system entirely into RAM.
-\fBmake-debirf\fP takes as input the path to a debirf profile (see
-\fBPROFILES\fP).  \fBmake-debirf\fP then generates a debirf initramfs
-and a kernel image.  The lovely pair can be put into the boot
-partition of your machine in case of emergency, burnt onto an .iso,
-served over the net via PXE, etc.
+\fBdebirf\fP (DEBian on Initial Ram Filesystem) is a set of tools
+designed to create and prepare a kernel and initial ram filesystem
+that can run a full-blown Debian environment entirely from RAM.
 .PP
-\fBmake-debirf\fP will try to pick the most up-to-date kernel for the
+\fBdebirf\fP takes as input the path to a debirf profile (see
+\fBPROFILES\fP), and then generates a debirf kernel and initramfs.
+.PP
+\fBdebirf\fP will try to pick the most up-to-date kernel for the
 suite you are installing (versions 2.6 only), with the arch determined
 by the kernel running on the host build system.
 .PP
@@ -90,7 +88,7 @@ Execute <command> within debirf root (\fBDEBIRF_ROOT\fP) with chroot.
 Output a message to standard out during the build process.
 .TP
 .B failure <message> <exit-code>
-Cause make-debirf script to fail with <exit-code>, and <message> to stderr.
+Cause debirf script to fail with <exit-code>, and <message> to stderr.
 .TP
 .B debirf_info_sh <message>
 Write one line of sh code to the \fIdebirf.info\fP file on the debirf root.
@@ -101,7 +99,7 @@ Write one line of comment to the \fIdebirf.info\fP file on the debirf root.
 .PD
 .SH ENVIRONMENT
 .PP
-The following environment variables are used by make-debirf:
+The following environment variables are used by debirf:
 .PD 1
 .TP
 .B DEBIRF_LABEL
@@ -109,9 +107,6 @@ debirf label (default: debirf)
 .TP
 .B DEBIRF_BUILDD
 where to build the debirf (default: ./)
-.TP
-.B DEBIRF_ROOT
-the debirf root, used by modules (default: $DEBIRF_BUILDD/root)
 .TP
 .B DEBIRF_MIRROR
 Debian mirror (default: http://mirrors.kernel.org/debian)
@@ -124,7 +119,7 @@ debirf build distribution (default: lenny)
 .TP
 debirf.conf
 Debirf profile configuration file.  Usually contains values for the
-various debirf environment variables.
+various debirf environment variables (see \fBENVIRONMENT\fP).
 .TP
 $DEBIRF_ROOT/etc/debirf/debirf.info
 File that stores various information about the debirf build.  This is a

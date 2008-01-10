@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# pre-defined common functions for the make-debirf script.
+# pre-defined common functions for the debirf script.
 # this file is sourced after the debirf.conf file, 
 # which defines most of the shell variables
 #

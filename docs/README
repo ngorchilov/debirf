@@ -28,11 +28,11 @@ $ tar xzf /usr/share/doc/debirf/example-profiles/<profile>.tgz
 Before building, you can modify the debirf.conf as desired to specify
 alternate build locations (in the profile directory my default), and
 which Debian mirror and distro to use (ala debootstrap).  Once you
-have your profile ready, build it with make-debirf:
+have your profile ready, build it with the debirf build script:
 
-$ make-debirf /path/to/<profile>
+$ debirf /path/to/<profile>
 
-The make-debirf script creates the root filesystem for the new image
+The debirf script creates the root filesystem for the new image
 using debootstrap, then uses the debirf modules to customize the root
 fs and prepare it for diskless booting.  Finally the kernel is
 extracted, and the root fs is archived into an initramfs.
