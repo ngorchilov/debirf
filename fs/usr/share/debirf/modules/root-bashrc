@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# debirf plugin: root-bashrc
+# debirf module: root-bashrc
 # create default root .bashrc
 #
 # The debirf scripts were written by

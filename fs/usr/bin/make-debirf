@@ -303,10 +303,8 @@ if [ -z "$DEBIRF_BUILDD" ] ; then
     failure "DEBIRF_BUILDD is not set."
 fi
 
-# check debirf root
-if [ -z "$DEBIRF_ROOT" ] ; then
-    failure "DEBIRF_ROOT is not set."
-fi
+# set root directory
+DEBIRF_ROOT="$DEBIRF_BUILDD/root"
 
 # set fakechroot save file
 DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state_${DEBIRF_LABEL}"
