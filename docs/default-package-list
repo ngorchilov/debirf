@@ -1,5 +1,5 @@
-these are the packages installed by default with the "minimal"
-profile:
+as of Thu, 10 Jan 2008 23:34:33 -0500, these are the packages
+installed by default on Debian "lenny" with the "minimal" profile:
 
 adduser
 apt
