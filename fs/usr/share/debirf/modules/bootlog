@@ -11,7 +11,7 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-cat > "$DEBIRF_ROOT"/etc/default/bootlogd <<EOF
+cat <<EOF > "$DEBIRF_ROOT"/etc/default/bootlogd
 # Run bootlogd at startup ?
 BOOTLOGD_ENABLE=Yes
 EOF

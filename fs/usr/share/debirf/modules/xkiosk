@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # debirf module: xkiosk
 # create an graphical kiosk that starts x and a browser on boot.

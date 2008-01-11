@@ -11,7 +11,7 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-cat > "$DEBIRF_ROOT"/root/.bashrc <<EOF
+cat <<EOF > "$DEBIRF_ROOT"/root/.bashrc
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
 export PS1='$? \h:\w\\$ '

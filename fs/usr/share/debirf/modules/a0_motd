@@ -11,7 +11,7 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-cat > "${DEBIRF_ROOT}/etc/motd.tail" <<EOF
+cat <<EOF > "${DEBIRF_ROOT}/etc/motd.tail"
 ==================================================
 Welcome to debirf: DEBian on InitRamFs
 
