@@ -7,15 +7,20 @@ the images that they build, using simple shell scripts, to do
 basically anything that Debian can do.  Some included example
 "profiles" are:
 
-minimal: very minimal system with no extras, including no man pages or
-	 udev.
+minimal:
+  very minimal system with no extras, including no man pages or udev.
+  - requires ~230M for buildd, and produces a 47M initramfs.
 
-rescue: includes a full complement of system repair utilities,
-        including mdadm, lvm2, testdisk, foremost, etc.
+rescue:
+  includes a full complement of system repair utilities,including
+  mdadm, lvm2, testdisk, foremost, etc. 
+  - requires ~250M for buildd, and produces a 51M initramfs.
 
-xkiosk: run a simple clean GUI interface for public-access web
-	browsing (pass it the "browse=URL" boot parameter to specify
-	a startup URL).
+xkiosk:
+  run a simple clean GUI interface for public-access web browsing.
+  you can pass it the "browse=URL" boot parameter to specify a startup
+  URL. 
+  - requires ~600M for buildd, and produces a 127M initramfs.
 
 gzipped archives of these profiles are included with debirf in
 /usr/share/doc/debirf/example-profiles/.  Each of these profiles

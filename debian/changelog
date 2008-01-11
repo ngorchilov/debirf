@@ -7,8 +7,9 @@ debirf (0.14-1) unstable; urgency=low
   * remove build-debirf-kernel, since no longer needed
   * improved install-kernel module to only download need kernel package
     (closes CMRG #67)
+  * move bootstap.log to $DEBIRF_BUILDD/.bootstrap.log
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Thu, 10 Jan 2008 23:05:28 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 11 Jan 2008 10:51:22 -0500
 
 debirf (0.13-1) unstable; urgency=low
 
