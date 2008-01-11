@@ -3,7 +3,6 @@ profile:
 
 adduser
 apt
-apt-utils
 aptitude
 base-files
 base-passwd
