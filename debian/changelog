@@ -6,16 +6,16 @@ debirf (0.14-1) unstable; urgency=low
   * pruned more unnecessary packages
   * remove build-debirf-kernel, since no longer needed
   * improved install-kernel module to only download need kernel package
-    (closes #67)
+    (closes CMRG #67)
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Thu, 10 Jan 2008 23:05:28 -0500
 
 debirf (0.13-1) unstable; urgency=low
 
-  * example profiles are now tgz archives (closes #46)
+  * example profiles are now tgz archives (closes CMRG #46)
   * added new full devices.tar.gz to create fuller device tree, therefore
-    not requiring the install-udev module (closes #60)
-  * transition to non-native packaging (closes #26)
+    not requiring the install-udev module (closes CMRG #60)
+  * transition to non-native packaging (closes CMRG #26)
   * added exit-on-error to modules install run-parts
   * removed old useless create_initrd functions
   * fixed path problem for fakeroot_if_needed
@@ -46,10 +46,10 @@ debirf (0.11) unstable; urgency=low
 
 debirf (0.10) unstable; urgency=low
 
-  * moved all files to GPLv3 (closes #50)
+  * moved all files to GPLv3 (closes CMRG #50)
   * simplify kernel installation.  now will accept deb as command line
     parameter, or make-debirf will just figure out the kernel itself
-    (closes #48)
+    (closes CMRG #48)
   * updated man page
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Tue, 11 Dec 2007 15:31:22 -0500
