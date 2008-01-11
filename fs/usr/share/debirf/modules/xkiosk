@@ -77,7 +77,7 @@ EndSection
 EOF
 
 ### add guest user
-if ! grep -q '^guest:' "$DEBIRF_ROOT"/etc/passwd ; then
+if ! debirf_exec getent passwd guest >/dev/null 2>/dev/null ; then
     debirf_exec adduser --disabled-password --gecos "Kiosk User,,," guest
 fi
 
