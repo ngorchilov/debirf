@@ -11,8 +11,6 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-debirf_exec apt-get --assume-yes install debconf-utils
-
 # preseed.  helpful link:
 # http://blog.hjksolutions.com/articles/category/solutions
 debirf_exec debconf-set-selections <<EOF
@@ -37,5 +35,3 @@ EOF
 # courier-mta mailx bsd-mailx
 #debirf_exec apt-get --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools
 debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools courier-mta- mailx- bsd-mailx-
-
-debirf_exec apt-get --assume-yes remove --purge debconf-utils

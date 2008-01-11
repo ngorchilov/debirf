@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # debirf module: networking
 # setup default network interface configuration
@@ -15,7 +15,7 @@
 rm -f "${DEBIRF_ROOT}"/etc/udev/rules.d/*_persistent-net.rules
 
 # write /etc/network/interfaces
-cat > "${DEBIRF_ROOT}/etc/network/interfaces" <<EOF
+cat <<EOF > "${DEBIRF_ROOT}/etc/network/interfaces"
 # Used by ifup(8) and ifdown(8). See the interfaces(5) manpage or
 # /usr/share/doc/ifupdown/examples for more information.
 
@@ -31,7 +31,7 @@ EOF
 > "${DEBIRF_ROOT}/etc/resolv.conf"
 
 # add network note to /etc/motd.tail
-cat >> "${DEBIRF_ROOT}/etc/motd.tail" <<EOF
+cat <<EOF >> "${DEBIRF_ROOT}/etc/motd.tail"
 If you have a network interface (ie. "eth0"), you can bring it up with:
 ifup eth0=dhcp
 (you can list available network interfaces with 'ifconfig -a')

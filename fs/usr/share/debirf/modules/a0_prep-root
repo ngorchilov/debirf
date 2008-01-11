@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # debirf module: prep-root
 # prep the debirf root with various needed files and info
@@ -16,7 +16,7 @@
 
 # output info to the debirf.info file on the initramfs
 mkdir -p "${DEBIRF_ROOT}/etc/debirf"
-cat > "${DEBIRF_ROOT}/etc/debirf/debirf.info" <<EOF
+cat <<EOF > "${DEBIRF_ROOT}/etc/debirf/debirf.info"
 # debirf.info
 #
 # $DEBIRF_LABEL
@@ -39,7 +39,7 @@ echo proc /proc proc defaults 0 0 > "${DEBIRF_ROOT}/etc/fstab"
 echo "$DEBIRF_LABEL" > "${DEBIRF_ROOT}/etc/hostname"
 
 # write /etc/hosts
-cat > "${DEBIRF_ROOT}/etc/hosts" <<EOF
+cat <<EOF > "${DEBIRF_ROOT}/etc/hosts"
 127.0.0.1	localhost
 127.0.1.1       $DEBIRF_LABEL
 

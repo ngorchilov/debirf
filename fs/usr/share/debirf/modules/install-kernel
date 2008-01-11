@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh
 
 # debirf module: install-kernel
 # install a kernel package, indicated by the expected environment

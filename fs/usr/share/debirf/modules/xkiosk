@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # debirf module: xkiosk
 # create an graphical kiosk that starts x and a browser on boot.
@@ -18,13 +18,13 @@ debirf_exec apt-get install --assume-yes xorg runit matchbox-window-manager icew
 ### properly configure X
 # allow any user to start X (not just from command line):
 # ("debirf_exec dpkg-reconfigure x11-common")
-cat > "$DEBIRF_ROOT"/etc/X11/Xwrapper.config <<EOF
+cat <<EOF > "$DEBIRF_ROOT"/etc/X11/Xwrapper.config
 allowed_users=anybody
 nice_value=0
 EOF
 
 # make standard xorg.conf
-cat > "$DEBIRF_ROOT"/etc/X11/xorg.conf <<EOF
+cat <<EOF > "$DEBIRF_ROOT"/etc/X11/xorg.conf
 Section "Files"
 EndSection
 Section "InputDevice"
@@ -84,7 +84,7 @@ echo /home/guest > "$RUNIT_DIR_DEBIRF"/env/HOME
 
 # creat run script
 # guest users starts X
-cat > "$RUNIT_DIR_DEBIRF"/run <<EOF
+cat <<EOF > "$RUNIT_DIR_DEBIRF"/run
 #!/bin/sh
 exec 2>&1
 exec chpst -u guest:audio:video -e env /usr/bin/startx
@@ -92,7 +92,7 @@ EOF
 debirf_exec chmod a+x "$RUNIT_DIR"/run
 
 # create log run script
-cat > "$RUNIT_DIR_DEBIRF"/log/run <<EOF
+cat <<EOF > "$RUNIT_DIR_DEBIRF"/log/run
 #!/bin/sh
 exec chpst -u guest svlogd -tt ./main
 EOF
@@ -103,7 +103,7 @@ debirf_exec ln -s "$RUNIT_DIR" /var/service/
 
 ### make xinitrc
 # for guest user, loads window manager and browser
-cat > "$DEBIRF_ROOT"/home/guest/.xinitrc <<EOF
+cat <<EOF > "$DEBIRF_ROOT"/home/guest/.xinitrc
 #!/bin/sh
 xsetroot -solid blue
 matchbox-window-manager &
@@ -118,7 +118,7 @@ EOF
 debirf_exec chown -R guest:guest /home/guest
 
 ### configure network to come up automatically
-cat > "${DEBIRF_ROOT}/etc/network/interfaces" <<EOF
+cat <<EOF > "${DEBIRF_ROOT}/etc/network/interfaces"
 auto lo
 iface lo inet loopback
 auto eth0=dhcp
