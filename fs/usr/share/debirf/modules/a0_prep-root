@@ -52,5 +52,12 @@ ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 EOF
 
+# set debconf to noninteractive
+debirf_exec debconf-set-selections <<EOF
+# Interface to use:
+# Choices: Dialog, Readline, Gnome, Kde, Editor, Noninteractive
+debconf debconf/frontend select Noninteractive
+EOF
+
 # update apt
 debirf_exec apt-get update
