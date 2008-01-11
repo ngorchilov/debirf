@@ -32,8 +32,8 @@ ROOT_WARNING=true
 export DEVICE_ARCHIVE=/usr/share/debirf/devices.tar.gz
 
 # list of packages to include/exclude from debootstrap
-export INCLUDE=less
-export EXCLUDE=bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
+export INCLUDE=less,udhcpc
+export EXCLUDE=bsdmainutils,cron,ed,dhcp3-common,dhcp3-client,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
 ### FUNCTIONS
@@ -61,9 +61,7 @@ EOF
 usage_profile() {
     cat <<EOF
 It looks like your profile is not correctly formed.  Please refer to the
-README file included with this package.
-On Debian, unpack one of the example profiles from the debirf docs:
-tar xzvf /usr/share/doc/debirf/example-profiles/<profile-name>.tgz 
+README file included with this package on how to setup a profile.
 EOF
 }
 
@@ -281,22 +279,22 @@ fi
 if [ -f "$DEBIRF_CONF" ] ; then
     source "$DEBIRF_CONF"
 else
-    echo "$DEBIRF_CONF not found."
+    echo "Configuration file '$DEBIRF_CONF' not found."
     usage_profile
     exit 1
 fi
 
 # check modules directory
-if [ ! -d "$DEBIRF_MODULES" ] ; then
-    echo "$DEBIRF_MODULES does not exist."
+if [ ! -d "$DEBIRF_MODULES" ] || [ -z "$(ls "$DEBIRF_MODULES")" ] ; then
+    echo "Modules directoy '$DEBIRF_MODULES' does not exist or is empty."
     usage_profile
     exit 1
 fi
-if [ $(ls "$DEBIRF_MODULES" -1 | wc -l) = 0 ] ; then
-    echo "$DEBIRF_MODULES is empty."
-    usage_profile
-    exit 1
-fi
+for MODULE in $(find "$DEBIRF_MODULES") ; do
+    if [ ! -s "$MODULE" ] ; then
+	failure "Module '$MODULE' is a broken link or empty file."
+    fi
+done
 
 # check buildd
 if [ -z "$DEBIRF_BUILDD" ] ; then
@@ -331,7 +329,7 @@ if [ "$STAGE_ROOT" = 'true' ] ; then
 
 # determine write mode
 if [ -d "$DEBIRF_ROOT" ] ; then
-    echo "Debirf root '$DEBIRF_ROOT' already exists."
+    echo "Debirf root already exists."
     if [ -z "$WRITE_MODE" ] ; then
 	echo "Select one of the following:"
 	CASE1='new: delete the old root and create a new one'

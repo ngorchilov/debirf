@@ -11,9 +11,12 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
-# why does aptitude not seem to be recognizing --without-recommends option?
-# currently requires explicitly not installing:
+# why does apt-get insist on pulling recommends?  something is strange.
+# using aptitude for now, which is also ignoring --without-recommends for
+# some reason, but which can at least be told explicitly to ignore 
+# unneeded packages:
 # courier-mta mailx bsd-mailx
+#debirf_exec apt-get --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools
 debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools courier-mta- mailx- bsd-mailx-
 
 debirf_exec /etc/init.d/mdadm stop

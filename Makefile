@@ -30,13 +30,11 @@ install: build-profiles
 	install -d $(PREFIX)/share/doc/debirf/example-profiles
 	install -d $(PREFIX)/share/man/man1
 	install fs/usr/bin/debirf $(PREFIX)/bin/debirf
-	install fs/usr/bin/build-debirf-kernel $(PREFIX)/bin/build-debirf-kernel
 	install fs/usr/share/debirf/common $(PREFIX)/share/debirf/
 	install -m 0644 fs/usr/share/debirf/debirf.conf.defaults $(PREFIX)/share/debirf/
 	install fs/usr/share/debirf/modules/* $(PREFIX)/share/debirf/modules/
 	install -m 0644 fs/usr/share/debirf/devices.tar.gz $(PREFIX)/share/debirf/
 	install -m 0644 fs/usr/share/man/man1/debirf.1 $(PREFIX)/share/man/man1/debirf.1
-	install -m 0644 fs/usr/share/man/man1/build-debirf-kernel.1 $(PREFIX)/share/man/man1/build-debirf-kernel.1
 	install -m 0644 docs/example-profiles/*.tgz $(PREFIX)/share/doc/debirf/example-profiles/
 
 release: 
