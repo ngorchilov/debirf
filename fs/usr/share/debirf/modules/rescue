@@ -15,12 +15,16 @@ debirf_exec apt-get --assume-yes install debconf-utils
 
 # preseed.  helpful link:
 # http://blog.hjksolutions.com/articles/category/solutions
-cat <<EOF | debirf_exec debconf-set-selections
+debirf_exec debconf-set-selections <<EOF
+# Do you want to start MD arrays automatically?
 mdadm mdadm/autostart boolean false
+# MD arrays needed for the root filesystem:
 mdadm mdadm/initrdstart string none
 # Proceed with starting arrays not listed in mdadm.conf?
 mdadm mdadm/initrdstart_notinconf boolean false
+# Do you want to start the MD monitoring daemon?
 mdadm mdadm/start_daemon boolean false
+# Recipient for email notifications:
 mdadm mdadm/mail_to string root
 # Should mdadm run monthly redundancy checks of the MD arrays?
 mdadm mdadm/autocheck boolean false
