@@ -11,6 +11,21 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
+debirf_exec apt-get --assume-yes install debconf-utils
+
+# preseed.  helpful link:
+# http://blog.hjksolutions.com/articles/category/solutions
+cat <<EOF | debirf_exec debconf-set-selections
+mdadm mdadm/autostart boolean false
+mdadm mdadm/initrdstart string none
+# Proceed with starting arrays not listed in mdadm.conf?
+mdadm mdadm/initrdstart_notinconf boolean false
+mdadm mdadm/start_daemon boolean false
+mdadm mdadm/mail_to string root
+# Should mdadm run monthly redundancy checks of the MD arrays?
+mdadm mdadm/autocheck boolean false
+EOF
+
 # why does apt-get insist on pulling recommends?  something is strange.
 # using aptitude for now, which is also ignoring --without-recommends for
 # some reason, but which can at least be told explicitly to ignore 
@@ -19,4 +34,4 @@
 #debirf_exec apt-get --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools
 debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools courier-mta- mailx- bsd-mailx-
 
-debirf_exec /etc/init.d/mdadm stop
+debirf_exec apt-get --assume-yes remove --purge debconf-utils
