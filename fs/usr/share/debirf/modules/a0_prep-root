@@ -61,3 +61,5 @@ EOF
 
 # update apt
 debirf_exec apt-get update
+# make sure aptitude is installed, since some modules require it
+debirf_exec apt-get --assume-yes install aptitude

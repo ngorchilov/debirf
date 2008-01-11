@@ -77,7 +77,9 @@ EndSection
 EOF
 
 ### add guest user
-debirf_exec adduser --disabled-password --gecos "Kiosk User,,," guest
+if ! grep -q '^guest:' "$DEBIRF_ROOT"/etc/passwd ; then
+    debirf_exec adduser --disabled-password --gecos "Kiosk User,,," guest
+fi
 
 ### configure runit service dir to start X session
 RUNIT_DIR=/srv/xkiosk
@@ -107,7 +109,7 @@ EOF
 debirf_exec chmod a+x "$RUNIT_DIR"/log/run
 
 # link in service dir
-debirf_exec ln -s "$RUNIT_DIR" /var/service/
+debirf_exec ln -sf "$RUNIT_DIR" /var/service/
 
 ### make xinitrc
 # for guest user, loads window manager and browser
