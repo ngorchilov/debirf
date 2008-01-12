@@ -134,7 +134,7 @@ create_initrd_nested() {
 
     # copy needed executables into nest
     cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
-    for util in sh mkdir mount ls gunzip grep awk free ; do
+    for util in sh mkdir mount ls gunzip grep awk free grep umount; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
@@ -151,14 +151,29 @@ create_initrd_nested() {
     # create nest init
     cat > "$NEST_ROOT"/init <<EOF
 #!/bin/sh
+mkdir /proc
+mount -t proc proc /proc
+if (grep -q break=top /proc/cmdline); then
+  echo "honoring break=top kernel arg"
+  /bin/sh
+fi
 mkdir /newroot
 MEMSIZE=\$(free | grep 'Mem:' | awk '{ print \$2 }')
 mount -t tmpfs -o size=\${MEMSIZE}k tmpfs /newroot
+if (grep -q break=preunpack /proc/cmdline); then
+  echo "honoring break=preunpack kernel arg"
+  /bin/sh
+fi
 cd /newroot
 echo unpacking rootfs...
 # specify /bin/cpio so that it gets used instead of the busybox builtin
 # busybox cpio returns "need to fix this" when unpacking hard links
 gunzip - < /rootfs.cgz | /bin/cpio -i
+if (grep -q break=bottom /proc/cmdline); then
+  echo "honoring break=bottom kernel arg"
+  /bin/sh
+fi
+umount /proc
 echo running /sbin/init...
 exec /bin/run-init . /sbin/init < ./dev/console > ./dev/console
 EOF
