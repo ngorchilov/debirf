@@ -41,23 +41,23 @@ export EXCLUDE=apt-utils,bsdmainutils,cron,ed,dhcp3-common,dhcp3-client,info,log
 usage() {
     cat <<EOF
 Usage: $CMD <subcommand> [options] [args]
-Create a debirf kernel and initramfs.  The 'profile' is a path to a debirf
-profile directory.
+Debirf system tool.
 
 subcommands:
-  make (m) PROFILE        build debirf profile
-    -c|--check-vars         check variables before make
-    -n|--new                create new root, even if old one exists
-    -o|--overwrite          debootstrap on top of old root if it exists
-    -s|--skip               skip debootstrap step if old root exists
-    -r|--root-build         use real chroot to build instead of fakechroot
-                            (requires superuser privileges or CAP_SYS_CHROOT)
-    -w|--no-warning         skip superuser warning
-    -i|--no-initrd          do not make initramfs
-    -d|--initrd-only        just remake initramfs from existing root
-    -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
-  enter (e) PROFILE       enter debirf profile to make manual changes
-  help (h,?)              this help
+  make (m) PROFILE          build debirf profile (make kernel and initramfs)
+    -c|--check-vars           check variables before make
+    -n|--new                  create new root, even if old one exists
+    -o|--overwrite            debootstrap on top of old root if it exists
+    -s|--skip                 skip debootstrap step if old root exists
+    -r|--root-build           use real chroot to build instead of fakechroot
+                              (requires superuser privileges or CAP_SYS_CHROOT)
+    -w|--no-warning           skip superuser warning
+    -i|--no-initrd            do not make initramfs
+    -d|--initrd-only          just remake initramfs from existing root
+    -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
+  enter (e) PROFILE [CMDS]  enter shell in debirf profile root changes
+                            (optional execute CMDS in root and exit)
+  help (h,?)                this help
 
 EOF
 }
