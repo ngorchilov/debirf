@@ -2,6 +2,8 @@
 
 # debirf module: xkiosk
 # create an graphical kiosk that starts x and a browser on boot.
+# 
+# note: This depends on the install-runit module.
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -12,16 +14,9 @@
 # version 3 or later.
 
 ### download needed packages
-# # need to prep inittab for runit so that runit.postinst doesn't think
-# # it needs to HUP init
-# cat <<EOF >> "$DEBIRF_ROOT"/etc/inittab
-# #-- runit begin
-# SV:123456:respawn:/usr/sbin/runsvdir-start
-# #-- runit end
-# EOF
 
 # could maybe pick and choose xorg packages if hardware known
-debirf_exec apt-get install --assume-yes xorg runit matchbox-window-manager iceweasel
+debirf_exec apt-get install --assume-yes xorg matchbox-window-manager iceweasel
 
 ### properly configure X
 # allow any user to start X (not just from command line):

@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+# debirf module: install-runit
+# Set up the runit package supervisory process.
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# Copyright 2008, and are all released under the GPL, version 3 or
+# later.
+
+## The runit debian postinst script expects to be run as the real
+## superuser, and to be able to signal PID 1 to trigger a reread of
+## /etc/inittab.
+##
+## Under debootstrap, that behavior is not desirable, because the the
+## PID 1 that gets signalled is not actually reading the
+## newly-modified etc/inittab inside the debootstrap.
+##
+## Under fakeroot, that signal is actually impossible, since PID 1 is
+## owned by the real superuser.
+##
+## since debirf is a fakerooted debootstrapped environment, we have to
+## jump through the hoops below, suggested by Gerrit Pape at:
+## http://bugs.debian.org/306390#msg32
+
+fix_and_retry_runit_installation() {
+    echo "install-runit: attempting to repair runit installation." 
+
+    # get rid of the kill -s HUP 1 line in runit postinst
+    local postinst="$DEBIRF_ROOT"/var/lib/dpkg/info/runit.postinst
+    mv "$postinst"  "$postinst".orig
+    <"$postinst".orig grep -v 'kill -s HUP 1' >"$postinst"
+    rm "$postinst".orig
+
+    # remove the busted extra lines from inittab:
+    local inittab="$DEBIRF_ROOT"/etc/inittab
+    mv "$inittab" "$inittab".orig
+    <"$inittab".orig grep -v '^#-- runit' | grep -v '^SV:' >"$inittab"
+    rm "$inittab".orig
+
+    # complete the aborted configuration process
+    debirf_exec dpkg --configure runit
+}
+
+debirf_exec apt-get --assume-yes install runit || \
+    fix_and_retry_runit_installation
