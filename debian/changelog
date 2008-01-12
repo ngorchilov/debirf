@@ -11,8 +11,8 @@ debirf (0.14-1) unstable; urgency=low
   * set debconf frontend to Noninteractive in prep-root module
   * now handling break={top,preunpack,bottom} kernel parameters in nest
     (closes CMRG #55)
-  * jump through hoops to make the runit postinst script happy (closes
-    CMRG #71)
+  * new install-runit module, jumps through hoops to overcome limitations
+    of runit postinst script (closes CMRG #71)
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 11 Jan 2008 15:35:26 -0500
 
