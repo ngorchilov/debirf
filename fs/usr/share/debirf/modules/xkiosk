@@ -14,7 +14,6 @@
 # version 3 or later.
 
 ### download needed packages
-
 # could maybe pick and choose xorg packages if hardware known
 debirf_exec apt-get install --assume-yes xorg matchbox-window-manager iceweasel
 
