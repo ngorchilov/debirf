@@ -1,9 +1,11 @@
 debirf (0.14-1) unstable; urgency=low
 
   * changed name of main build script to 'debirf' from 'make-debirf'
+  * added subcommand architecture (make, enter, help) (closes CMRG #65)
+  * and "enter" subcommand to enter root (closes CMRG #73)
   * removed separate specification of debirf root directory
   * added install-manpages module (no longer installing manpages by default)
-  * pruned more unnecessary packages
+  * pruned more unnecessary packages from make
   * remove build-debirf-kernel, since no longer needed
   * improved install-kernel module to only download need kernel package
     (closes CMRG #67)
@@ -13,8 +15,9 @@ debirf (0.14-1) unstable; urgency=low
     (closes CMRG #55)
   * new install-runit module, jumps through hoops to overcome limitations
     of runit postinst script (closes CMRG #71)
+  * added "no-initrd" option to make subcommand
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 11 Jan 2008 15:35:26 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Sat, 12 Jan 2008 11:49:45 -0500
 
 debirf (0.13-1) unstable; urgency=low
 

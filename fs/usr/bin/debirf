@@ -40,21 +40,25 @@ export EXCLUDE=apt-utils,bsdmainutils,cron,ed,dhcp3-common,dhcp3-client,info,log
 
 usage() {
     cat <<EOF
-Usage: $CMD [options] profile
+Usage: $CMD <subcommand> [options] [args]
 Create a debirf kernel and initramfs.  The 'profile' is a path to a debirf
 profile directory.
 
-options:
-  -h|--help               this help message
-  -c|--check-vars         check variables before make
-  -n|--new                create new root, even if old one exists
-  -o|--overwrite          debootstrap on top of old root if it exists
-  -s|--skip               skip debootstrap step if old root exists
-  -r|--root-build         use real chroot to build instead of fakechroot
-                          (requires superuser privileges or CAP_SYS_CHROOT)
-  -w|--no-warning         skip superuser warning
-  -i|--initrd-only        remake initramfs from existing root
-  -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
+subcommands:
+  make (m) PROFILE        build debirf profile
+    -c|--check-vars         check variables before make
+    -n|--new                create new root, even if old one exists
+    -o|--overwrite          debootstrap on top of old root if it exists
+    -s|--skip               skip debootstrap step if old root exists
+    -r|--root-build         use real chroot to build instead of fakechroot
+                            (requires superuser privileges or CAP_SYS_CHROOT)
+    -w|--no-warning         skip superuser warning
+    -i|--no-initrd          do not make initramfs
+    -d|--initrd-only        just remake initramfs from existing root
+    -k|--kernel=KERNEL      install KERNEL .deb, instead of default kernel
+  enter (e) PROFILE       enter debirf profile to make manual changes
+  help (h,?)              this help
+
 EOF
 }
 
@@ -187,253 +191,300 @@ EOF
     fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$DEBIRF_INITRD"
 }
 
-###############################################################
-### MAIN
+# setup profile environment
+setup_environment() {
+    # source debirf.conf defaults
+    source /usr/share/debirf/debirf.conf.defaults
+    
+    # check profile
+    if [ -d "$DEBIRF_PROFILE" ] ; then
+	echo "Loading profile '$DEBIRF_PROFILE'..."
+	DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
+	DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
+    else
+	echo "Profile '$DEBIRF_PROFILE' not found."
+	usage_profile
+	exit 1
+    fi
+    
+    # source profile debirf.conf
+    if [ -f "$DEBIRF_CONF" ] ; then
+	source "$DEBIRF_CONF"
+    else
+	echo "Configuration file '$DEBIRF_CONF' not found."
+	usage_profile
+	exit 1
+    fi
 
-# option parsing
-TEMP=$(getopt --options -hcnosrwik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,initrd-only,kernel: -n "$CMD" -- "$@")
+    # check modules directory
+    if [ ! -d "$DEBIRF_MODULES" ] || [ -z "$(ls "$DEBIRF_MODULES")" ] ; then
+	echo "Modules directoy '$DEBIRF_MODULES' does not exist or is empty."
+	usage_profile
+	exit 1
+    fi
+    for MODULE in $(find "$DEBIRF_MODULES") ; do
+	if [ ! -s "$MODULE" ] ; then
+	    failure "Module '$MODULE' is a broken link or empty file."
+	fi
+    done
+    
+    # check buildd
+    if [ -z "$DEBIRF_BUILDD" ] ; then
+	failure "DEBIRF_BUILDD is not set."
+    fi
 
-if [ $? != 0 ] ; then
-    echo "Invalid options." >&2 
-    usage
-    exit 1
-fi
+    # set root directory
+    DEBIRF_ROOT="$DEBIRF_BUILDD/root"
 
-# Note the quotes around `$TEMP': they are essential!
-eval set -- "$TEMP"
+    # set fakechroot save file
+    DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
+    if [ "$ROOT_BUILD" != 'true' ] ; then
+	> "$DEBIRF_FAKEROOT_STATE"
+    fi
+    
+    # check variables
+    if [ "$CHECK_VARS" ] ; then
+	echo "Debirf variables:"
+	for var in ${!DEBIRF_*}; do
+	    if [ $var ] ; then
+		export $var
+	    else
+		failure "Variable '$var' not properly set."
+	    fi
+	done
+	env | /bin/grep "^DEBIRF_"
+	read -p "enter to continue: " OK
+    fi
+}
 
-while true ; do
-    case "$1" in
-        -h|--help)
-	    usage
-	    exit 0
-            ;;
-        -c|--check-vars)
-            CHECK_VARS=true
-            shift 1
-            ;;
-        -n|--new)
-            WRITE_MODE=rewrite
-            shift 1
-            ;;
-        -o|--overwrite)
-            WRITE_MODE=overwrite
-            shift 1
-            ;;
-        -s|--skip)
-            WRITE_MODE=skip
-            shift 1
-            ;;
-        -r|--root-build)
-	    ROOT_BUILD=true
-            shift 1
-            ;;
-        -w|--no-warning)
-	    ROOT_WARNING=false
-	    shift 1
-	    ;;
-	-i|--initrd-only)
-	    STAGE_ROOT=false
-	    STAGE_MODULES=false
-	    shift 1
-	    ;;
-	-k|--kernel)
-	    DEBIRF_KERNEL_PACKAGE="$2"
-	    shift 2
-	    ;;
-        --)
-            shift
-            ;;
-        *)
-	    if (( $# < 1 )) ; then
-		echo "Improper number of input arguments."
-		usage
-		exit 1
-            fi
-	    DEBIRF_PROFILE="$1"
-            break
-            ;;
-    esac
-done
+# make profile
+make() {
+    # option parsing
+    TEMP=$(getopt --options -hcnosrwidk: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,no-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
 
-if [ $(id -u) = '0' ] ; then
-    cat <<EOF
+    if [ $? != 0 ] ; then
+	echo "Invalid options." >&2 
+	usage
+	exit 1
+    fi
+    
+    # Note the quotes around `$TEMP': they are essential!
+    eval set -- "$TEMP"
+
+    while true ; do
+	case "$1" in
+            -c|--check-vars)
+		CHECK_VARS=true
+		shift 1
+		;;
+            -n|--new)
+		WRITE_MODE=rewrite
+		shift 1
+		;;
+            -o|--overwrite)
+		WRITE_MODE=overwrite
+		shift 1
+		;;
+            -s|--skip)
+		WRITE_MODE=skip
+		shift 1
+		;;
+            -r|--root-build)
+		ROOT_BUILD=true
+		shift 1
+		;;
+            -w|--no-warning)
+		ROOT_WARNING=false
+		shift 1
+		;;
+	    -i|--no-initrd)
+		STAGE_INITRD=false
+		shift 1
+		;;
+	    -d|--initrd-only)
+		STAGE_ROOT=false
+		STAGE_MODULES=false
+		shift 1
+		;;
+	    -k|--kernel)
+		DEBIRF_KERNEL_PACKAGE="$2"
+		shift 2
+		;;
+            --)
+		shift
+		;;
+            *)
+		if (( $# < 1 )) ; then
+		    echo "Improper number of input arguments."
+		    usage
+		    exit 1
+		fi
+		DEBIRF_PROFILE="$1"
+		break
+		;;
+	esac
+    done
+    
+    if [ $(id -u) = '0' ] ; then
+	cat <<EOF
 Warning: You are running debirf as root.  There is a potential
 for improperly written modules to damage your system.
 EOF
-    if [ "$ROOT_WARNING" = 'true' ] ; then
-	read -p "Are you sure you wish to continue? [y|N]: " OK; OK=${OK:=N}
-	if [ "${OK/y/Y}" != 'Y' ] ; then
-	    failure "aborting."
+	if [ "$ROOT_WARNING" = 'true' ] ; then
+	    read -p "Are you sure you wish to continue? [y|N]: " OK; OK=${OK:=N}
+	    if [ "${OK/y/Y}" != 'Y' ] ; then
+		failure "aborting."
+	    fi
 	fi
     fi
-fi
 
-if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-	echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
-    else
-	failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
-    fi
-fi
+    setup_environment
 
-# source debirf.conf defaults
-source /usr/share/debirf/debirf.conf.defaults
-
-# check profile
-if [ -d "$DEBIRF_PROFILE" ] ; then
-    echo "Loading profile '$DEBIRF_PROFILE'..."
-    DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
-    DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
-else
-    echo "Profile '$DEBIRF_PROFILE' not found."
-    usage_profile
-    exit 1
-fi
-
-# source profile debirf.conf
-if [ -f "$DEBIRF_CONF" ] ; then
-    source "$DEBIRF_CONF"
-else
-    echo "Configuration file '$DEBIRF_CONF' not found."
-    usage_profile
-    exit 1
-fi
-
-# check modules directory
-if [ ! -d "$DEBIRF_MODULES" ] || [ -z "$(ls "$DEBIRF_MODULES")" ] ; then
-    echo "Modules directoy '$DEBIRF_MODULES' does not exist or is empty."
-    usage_profile
-    exit 1
-fi
-for MODULE in $(find "$DEBIRF_MODULES") ; do
-    if [ ! -s "$MODULE" ] ; then
-	failure "Module '$MODULE' is a broken link or empty file."
-    fi
-done
-
-# check buildd
-if [ -z "$DEBIRF_BUILDD" ] ; then
-    failure "DEBIRF_BUILDD is not set."
-fi
-
-# set root directory
-DEBIRF_ROOT="$DEBIRF_BUILDD/root"
-
-# set fakechroot save file
-DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
-if [ "$ROOT_BUILD" != 'true' ] ; then
-    > "$DEBIRF_FAKEROOT_STATE"
-fi
-
-# check variables
-if [ "$CHECK_VARS" ] ; then
-    echo "Debirf variables:"
-    for var in ${!DEBIRF_*}; do
-	if [ $var ] ; then
-	    export $var
+    if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
+	if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
+	    echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
 	else
-	    failure "Variable '$var' not properly set."
+	    failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
 	fi
+    fi
+    
+    ### BUILD ROOT
+    if [ "$STAGE_ROOT" = 'true' ] ; then
+	
+        # determine write mode
+	if [ -d "$DEBIRF_ROOT" ] ; then
+	    echo "Debirf root already exists."
+	    if [ -z "$WRITE_MODE" ] ; then
+		echo "Select one of the following:"
+		CASE1='new: delete the old root and create a new one'
+		CASE2='overwrite: leave the old root and debootstrap on top of it'
+		CASE3='skip: skip building the root and go right to installing modules'
+		CASE4='exit'
+		select CASE in "$CASE1" "$CASE2" "$CASE3" "$CASE4" ; do
+		    case "$REPLY" in
+			1)
+			    WRITE_MODE=rewrite
+			    ;;
+			2)
+			    WRITE_MODE=overwrite
+			    ;;
+			3)
+			    WRITE_MODE=skip
+			    ;;
+			*)
+			    failure "aborting."
+			    ;;
+		    esac
+		    break
+		done
+	    fi
+	else
+	    WRITE_MODE=new
+	fi
+	case "$WRITE_MODE" in
+	    'new')
+		msg "creating debirf root..."
+		create_debootstrap
+		;;
+	    'rewrite')
+		msg "clearing old debirf root..."
+		rm -rf "$DEBIRF_ROOT"
+		msg "creating debirf root..."
+		create_debootstrap
+		;;
+	    'overwrite')
+		msg "overwriting old debirf root..."
+		create_debootstrap
+		;;
+	    'skip')
+		msg "skipping debootstrap..."
+		;;
+	    *)
+		failure "aborting."
+		;;
+	esac
+	
+        # fix the dev tree if running as non-priv user (fakechroot debootstrap)
+	fix_dev
+	
+    else
+	echo "Not building root."
+    fi
+    ### END BUILD ROOT
+    
+    ### RUN MODULES
+    if [ "$STAGE_MODULES" = 'true' ] ; then
+	msg "executing modules..."
+	run_modules
+	msg "modules complete."
+    else
+	echo "Not running modules."
+    fi
+    ### END RUN MODULES
+
+    ### BUILD INITRD
+    if [ "$STAGE_INITRD" = 'true' ] ; then
+	if [ ! -d "$DEBIRF_ROOT" ] ; then
+	    failure "Debirf root '$DEBIRF_ROOT' not found."
+	fi
+        # determine initrd name
+	KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+	DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
+	
+	msg "creating debirf initrd ('$DEBIRF_METHOD')..."
+	create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
+	
+        # final output
+	DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
+	msg "debirf initrd created."
+	if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
+	    msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
+	fi
+	msg "initrd: $DEBIRF_INITRD"
+    else
+	echo "Not creating initramfs."
+    fi
+    ### END BUILD INITRD
+}
+
+# enter profile root
+enter() {
+    DEBIRF_PROFILE="$1"
+    shift
+
+    setup_environment
+
+    # export all the DEBIRF_* environment variables:
+    for var in ${!DEBIRF_*}; do
+	export $var
     done
-    env | /bin/grep "^DEBIRF_"
-    read -p "enter to continue: " OK
-fi
 
-### BUILD ROOT
-if [ "$STAGE_ROOT" = 'true' ] ; then
-
-# determine write mode
-if [ -d "$DEBIRF_ROOT" ] ; then
-    echo "Debirf root already exists."
-    if [ -z "$WRITE_MODE" ] ; then
-	echo "Select one of the following:"
-	CASE1='new: delete the old root and create a new one'
-	CASE2='overwrite: leave the old root and debootstrap on top of it'
-	CASE3='skip: skip building the root and go right to installing modules'
-	CASE4='exit'
-	select CASE in "$CASE1" "$CASE2" "$CASE3" "$CASE4" ; do
-	    case "$REPLY" in
-		1)
-		    WRITE_MODE=rewrite
-		    ;;
-		2)
-		    WRITE_MODE=overwrite
-		    ;;
-		3)
-		    WRITE_MODE=skip
-		    ;;
-		*)
-		    failure "aborting."
-		    ;;
-	    esac
-	    break
-	done
+    if [ "$1" ] ; then
+	fakeroot_if_needed debirf_exec "$@"
+    else
+	fakeroot_if_needed debirf_exec bash
     fi
-else
-    WRITE_MODE=new
-fi
-case "$WRITE_MODE" in
-    'new')
-	msg "creating debirf root..."
-	create_debootstrap
-	;;
-    'rewrite')
-	msg "clearing old debirf root..."
-	rm -rf "$DEBIRF_ROOT"
-	msg "creating debirf root..."
-	create_debootstrap
-	;;
-    'overwrite')
-	msg "overwriting old debirf root..."
-	create_debootstrap
-	;;
-    'skip')
-	msg "skipping debootstrap..."
-	;;
+}
+
+###############################################################
+### MAIN
+
+COMMAND="$1"
+[ "$COMMAND" ] || failure "Type '$CMD help' for usage."
+shift
+
+case $COMMAND in
+    'make'|'m')
+        make "$@"
+        ;;
+    'enter'|'e')
+        enter "$@"
+        ;;
+    'help'|'h'|'?')
+        usage
+        ;;
     *)
-	failure "aborting."
-	;;
+        failure "Unknown command: '$COMMAND'
+Type '$CMD help' for usage."
+        ;;
 esac
-
-# fix the dev tree if running as non-priv user (fakechroot debootstrap)
-fix_dev
-
-else
-    echo "Not building root."
-fi
-### END BUILD ROOT
-
-### RUN MODULES
-if [ "$STAGE_MODULES" = 'true' ] ; then
-    msg "executing modules..."
-    run_modules
-    msg "modules complete."
-else
-    echo "Not running modules."
-fi
-### END RUN MODULES
-
-### BUILD INITRD
-if [ "$STAGE_INITRD" = 'true' ] ; then
-    if [ ! -d "$DEBIRF_ROOT" ] ; then
-	failure "Debirf root '$DEBIRF_ROOT' not found."
-    fi
-    # determine initrd name
-    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-    DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
-
-    msg "creating debirf initrd ('$DEBIRF_METHOD')..."
-    create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
-
-    # final output
-    DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
-    msg "debirf initrd created."
-    if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
-	msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
-    fi
-    msg "initrd: $DEBIRF_INITRD"
-else
-    echo "Not creating initramfs."
-fi
-### END BUILD INITRD
