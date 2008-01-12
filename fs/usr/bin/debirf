@@ -202,9 +202,7 @@ setup_environment() {
 	DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
 	DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
     else
-	echo "Profile '$DEBIRF_PROFILE' not found."
-	usage_profile
-	exit 1
+	failure "Profile '$DEBIRF_PROFILE' not found."
     fi
     
     # source profile debirf.conf
