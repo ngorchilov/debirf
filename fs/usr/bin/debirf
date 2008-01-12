@@ -134,7 +134,7 @@ create_initrd_nested() {
 
     # copy needed executables into nest
     cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
-    for util in sh mkdir mount ls gunzip grep awk free grep umount; do
+    for util in sh mkdir mount ls gunzip grep awk free umount; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
