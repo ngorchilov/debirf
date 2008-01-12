@@ -44,7 +44,7 @@ Usage: $CMD <subcommand> [options] [args]
 Debirf system tool.
 
 subcommands:
-  make (m) PROFILE          build debirf profile (make kernel and initramfs)
+  make [options] PROFILE    build debirf profile (make kernel and initramfs)
     -c|--check-vars           check variables before make
     -n|--new                  create new root, even if old one exists
     -o|--overwrite            debootstrap on top of old root if it exists
@@ -55,9 +55,9 @@ subcommands:
     -i|--no-initrd            do not make initramfs
     -d|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
-  enter (e) PROFILE [CMDS]  enter shell in debirf profile root changes
+  enter PROFILE [CMDS]      enter shell in debirf profile root changes
                             (optional execute CMDS in root and exit)
-  help (h,?)                this help
+  help                      this help
 
 EOF
 }
