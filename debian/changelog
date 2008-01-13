@@ -16,8 +16,11 @@ debirf (0.14-1) unstable; urgency=low
   * new install-runit module, jumps through hoops to overcome limitations
     of runit postinst script (closes CMRG #71)
   * added "no-initrd" option to make subcommand
+  * added "network-dhcp" module to automatically bring up nic dhcp (added
+    it to dependency list of xkiosk module) (closes CMRG #78)
+  * changed old "networking" module to "network"
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Sat, 12 Jan 2008 11:49:45 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 13 Jan 2008 15:02:45 -0500
 
 debirf (0.13-1) unstable; urgency=low
 

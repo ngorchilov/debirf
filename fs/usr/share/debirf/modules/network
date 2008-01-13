@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# debirf module: networking
+# debirf module: network
 # setup default network interface configuration
 #
 # The debirf scripts were written by

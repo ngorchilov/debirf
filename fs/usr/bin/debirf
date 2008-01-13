@@ -81,7 +81,7 @@ create_debootstrap() {
     else
 	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
-    mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
+    fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
 
 # fix the device tree in the debirf root if fakechroot variant was 
@@ -100,7 +100,6 @@ fix_dev() {
 	fakeroot_if_needed sh -c "mknod $DEBIRF_ROOT/dev/console c 5 1; chmod 0600 $DEBIRF_ROOT/dev/console"
     fi
 }
-export -f fix_dev
 
 run_modules() {
     # export all the DEBIRF_* environment variables:
@@ -253,6 +252,11 @@ setup_environment() {
 	env | /bin/grep "^DEBIRF_"
 	read -p "enter to continue: " OK
     fi
+
+    # export all the DEBIRF_* environment variables:
+    for var in ${!DEBIRF_*}; do
+	export $var
+    done
 }
 
 # make profile
@@ -348,12 +352,10 @@ EOF
     
     ### BUILD ROOT
     if [ "$STAGE_ROOT" = 'true' ] ; then
-	
         # determine write mode
 	if [ -d "$DEBIRF_ROOT" ] ; then
-	    echo "Debirf root already exists."
 	    if [ -z "$WRITE_MODE" ] ; then
-		echo "Select one of the following:"
+		echo "Debirf root already exists.  Select one of the following:"
 		CASE1='new: delete the old root and create a new one'
 		CASE2='overwrite: leave the old root and debootstrap on top of it'
 		CASE3='skip: skip building the root and go right to installing modules'
@@ -452,15 +454,10 @@ enter() {
 
     setup_environment
 
-    # export all the DEBIRF_* environment variables:
-    for var in ${!DEBIRF_*}; do
-	export $var
-    done
-
     if [ "$1" ] ; then
 	fakeroot_if_needed debirf_exec "$@"
     else
-	fakeroot_if_needed debirf_exec bash
+	fakeroot_if_needed debirf_exec bash -i
     fi
 }
 

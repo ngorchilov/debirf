@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# debirf module: network-dhcp
+# setup network interface to automatically come up with dhcp
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
+#
+# They are Copyright 2007, and are all released under the GPL,
+# version 3 or later.
+
+# reset default udev persistent-net rule
+rm -f "${DEBIRF_ROOT}"/etc/udev/rules.d/*_persistent-net.rules
+
+### configure network to come up automatically
+cat <<EOF > "${DEBIRF_ROOT}/etc/network/interfaces"
+auto lo
+iface lo inet loopback
+auto eth0=dhcp
+iface dhcp inet dhcp
+EOF
+
+# reset /etc/resolv.conf
+> "${DEBIRF_ROOT}/etc/resolv.conf"

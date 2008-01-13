@@ -3,7 +3,7 @@
 # debirf module: xkiosk
 # create an graphical kiosk that starts x and a browser on boot.
 # 
-# note: This depends on the install-runit module.
+# Depends: network-dhcp module, install-runit module
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -120,14 +120,3 @@ EOF
 
 # set permissions on /home/guest, just in case
 debirf_exec chown -R guest:guest /home/guest
-
-### configure network to come up automatically
-cat <<EOF > "${DEBIRF_ROOT}/etc/network/interfaces"
-auto lo
-iface lo inet loopback
-auto eth0=dhcp
-iface dhcp inet dhcp
-EOF
-
-# reset default udev persistent-net rule
-rm -f "$DEBIRF_ROOT"/etc/udev/rules.d/*_persistent-net.rules
