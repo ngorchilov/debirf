@@ -11,4 +11,5 @@
 # They are Copyright 2007, and are all released under the GPL,
 # version 3 or later.
 
+echo "Set password for $DEBIRF_LABEL superuser:"
 debirf_exec passwd
