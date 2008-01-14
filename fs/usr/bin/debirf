@@ -101,11 +101,8 @@ fix_dev() {
     fi
 }
 
+# run modules in modules directory
 run_modules() {
-    # export all the DEBIRF_* environment variables:
-    for var in ${!DEBIRF_*}; do
-	export $var
-    done
     fakeroot_if_needed run-parts --verbose --exit-on-error "$DEBIRF_MODULES"
 }
 
@@ -235,28 +232,25 @@ setup_environment() {
 
     # set fakechroot save file
     DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
-    if [ "$ROOT_BUILD" != 'true' ] ; then
+    if [ "$ROOT_BUILD" != 'true' -a ! -e "$DEBIRF_FAKEROOT_STATE" ] ; then
 	> "$DEBIRF_FAKEROOT_STATE"
-    fi
-    
-    # check variables
-    if [ "$CHECK_VARS" ] ; then
-	echo "Debirf variables:"
-	for var in ${!DEBIRF_*}; do
-	    if [ $var ] ; then
-		export $var
-	    else
-		failure "Variable '$var' not properly set."
-	    fi
-	done
-	env | /bin/grep "^DEBIRF_"
-	read -p "enter to continue: " OK
     fi
 
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
-	export $var
+	if [ $var ] ; then
+	    export $var
+	else
+	    failure "Variable '$var' not properly set."
+	fi
     done
+    
+    # check variables
+    if [ "$CHECK_VARS" ] ; then
+	echo "Debirf variables:"
+	env | /bin/grep "^DEBIRF_"
+	read -p "enter to continue: " OK
+    fi
 }
 
 # make profile
