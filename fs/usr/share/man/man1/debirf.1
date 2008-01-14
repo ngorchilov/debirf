@@ -2,29 +2,38 @@
 .SH NAME
 debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
-.B debirf [options] profile
+.B debirf <subcommand> [options] [args]
 .SH DESCRIPTION
 .PP
 \fBdebirf\fP (DEBian on Initial Ram Filesystem) is a set of tools
 designed to create and prepare a kernel and initial ram filesystem
 that can run a full-blown Debian environment entirely from RAM.
 .PP
-\fBdebirf\fP takes as input the path to a debirf profile (see
-\fBPROFILES\fP), and then generates a debirf kernel and initramfs.
-.PP
-\fBdebirf\fP will try to pick the most up-to-date kernel for the
-suite you are installing (versions 2.6 only), with the arch determined
-by the kernel running on the host build system.
+\fBdebirf\fP has various subcommands (see \fBSUBCOMMANDS\fP) which act
+on a specified debirf profile (see \fBPROFILES\fP).
 .PP
 The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PD
-.SH OPTIONS
-.PP
+.SH SUBCOMMANDS
+\fBdebirf\fP takes various subcommands:
+.PD
 .TP
-\fB\-h\fR, \fB\-\-help\fR
-this help message
+.B make [options] PROFILE
+Create a debirf system based on profile PROFILE.  This will create the
+root for the profile, run all modules on the root, and then generate
+the kernel image (see \fBKERNEL\fP) and debirf initramfs.  This
+subcommand takes various options (see \fBOPTIONS\fP).
+.TP
+.B enter PROFILE
+Chroot into root of profile PROFILE, with full profile environment.
+.TP
+.B help
+Output a brief usage summary.
+.PD
+.SH OPTIONS (for make subcommand only)
+.PP
 .TP
 \fB\-c\fR, \fB\-\-check-vars\fR
 check variables before make
@@ -75,6 +84,13 @@ not yet been, run.  For instance, the module that cleans the debirf
 apt cache ("z1_clean_root") should be the last module run at the end
 of the module stage.
 .PD
+.SH KERNEL
+.PP
+The \fBdebirf\fP "install-kernel" module will try to pick the most
+up-to-date kernel for the suite you are installing (versions 2.6
+only), with the arch determined by the kernel running on the host
+build system.
+.PP
 .SH FUNCTIONS
 .PP
 A set of pre-defined bash shell functions are available to the modules to
