@@ -88,9 +88,24 @@ echo /home/guest > "$RUNIT_DIR_DEBIRF"/env/HOME
 
 # creat run script
 # guest users starts X
-cat <<EOF > "$RUNIT_DIR_DEBIRF"/run
+cat <<'EOF' > "$RUNIT_DIR_DEBIRF"/run
 #!/bin/sh
 exec 2>&1
+
+# only allow 5 attempts at starting up X each minute.  This gives
+# debirf admins a chance to fix from the console if there's repeated
+# failing invocations of the X server (see
+# http://cmrg.fifthhorseman.net/ticket/74)
+
+BUCKETDIR=./bucket
+mkdir -p "$BUCKETDIR"
+find "$BUCKETDIR" -type f '!' -cmin 1 -delete
+if [ $(find "$BUCKETDIR" -type f | wc -l ) -ge 5 ]; then
+    echo "5 or more retries in the last minute.  Waiting a minute..."
+    sleep 60
+fi
+touch "$BUCKETDIR"/$(date +%s)
+
 exec chpst -u guest:audio:video -e env /usr/bin/startx
 EOF
 debirf_exec chmod a+x "$RUNIT_DIR"/run

@@ -20,6 +20,10 @@ debirf (0.14-1) unstable; urgency=low
     it to dependency list of xkiosk module) (closes CMRG #78)
   * changed old "networking" module to "network"
   * added root-passwd module, and added it to xkiosk profile.
+  * added Vcs-Svn, Vcs-Browser, and XS-Dm-Upload-Allowed fields to
+    debian/control
+  * make xkiosk back off if there are 5 restarts in under a minute 
+    (closes CMRG #74)
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 13 Jan 2008 22:01:57 -0500
 
