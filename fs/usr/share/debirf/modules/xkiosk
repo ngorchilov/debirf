@@ -48,7 +48,6 @@ EndSection
 Section "Device"
 	Identifier	"Generic Video Card"
 	Driver		"vesa"
-	BusID		"PCI:1:0:0"
 EndSection
 Section "Monitor"
 	Identifier "VGA"

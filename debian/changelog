@@ -24,6 +24,8 @@ debirf (0.14-1) unstable; urgency=low
     debian/control
   * make xkiosk back off if there are 5 restarts in under a minute 
     (closes CMRG #74)
+  * remove PCI device ID from default xorg.conf (autodetection seems to
+    work better)
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 13 Jan 2008 22:01:57 -0500
 
