@@ -232,9 +232,6 @@ setup_environment() {
 
     # set fakechroot save file
     DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
-    if [ "$ROOT_BUILD" != 'true' -a ! -e "$DEBIRF_FAKEROOT_STATE" ] ; then
-	> "$DEBIRF_FAKEROOT_STATE"
-    fi
 
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
@@ -378,12 +375,14 @@ EOF
 	case "$WRITE_MODE" in
 	    'new')
 		msg "creating debirf root..."
+		> "$DEBIRF_FAKEROOT_STATE"
 		create_debootstrap
 		;;
 	    'rewrite')
 		msg "clearing old debirf root..."
 		rm -rf "$DEBIRF_ROOT"
 		msg "creating debirf root..."
+		> "$DEBIRF_FAKEROOT_STATE"
 		create_debootstrap
 		;;
 	    'overwrite')
