@@ -6,6 +6,9 @@ Uploaders: Jameson Rollins <jrollins@fifthhorseman.net>
 Build-Depends: debhelper (>= 4)
 Standards-Version: 3.7.3
 Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
+Vcs-Svn: http://cmrg.fifthhorseman.net/svn/trunk/debirf
+Vcs-Browser: http://cmrg.fifthhorseman.net/browser/trunk/debirf
+XS-Dm-Upload-Allowed: yes
 
 Package: debirf
 Architecture: all
