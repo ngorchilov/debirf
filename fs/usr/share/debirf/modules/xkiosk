@@ -86,7 +86,6 @@ echo guest > "$RUNIT_DIR_DEBIRF"/env/GID
 echo /home/guest > "$RUNIT_DIR_DEBIRF"/env/HOME
 
 # creat run script
-# guest users starts X
 cat <<'EOF' > "$RUNIT_DIR_DEBIRF"/run
 #!/bin/sh
 exec 2>&1
@@ -105,9 +104,18 @@ if [ $(find "$BUCKETDIR" -type f | wc -l ) -ge 5 ]; then
 fi
 touch "$BUCKETDIR"/$(date +%s)
 
-exec chpst -u guest:audio:video -e env /usr/bin/startx
+exec chpst -u guest:guest:audio:video -e env /usr/bin/startx
 EOF
 debirf_exec chmod a+x "$RUNIT_DIR"/run
+
+# create finish script
+cat <<'EOF' > "$RUNIT_DIR_DEBIRF"/finish
+#!/bin/sh
+rm -rf ~guest
+cp -r /etc/skel ~guest
+chown -R guest:guest ~guest
+EOF
+debirf_exec chmod a+x "$RUNIT_DIR"/finish
 
 # create log run script
 cat <<EOF > "$RUNIT_DIR_DEBIRF"/log/run
@@ -119,13 +127,12 @@ debirf_exec chmod a+x "$RUNIT_DIR"/log/run
 # link in service dir
 debirf_exec ln -sf "$RUNIT_DIR" /var/service/
 
-### make xinitrc
-# for guest user, loads window manager and browser
-cat <<EOF > "$DEBIRF_ROOT"/home/guest/.xinitrc
+### make system xinitrc
+cat <<EOF > "$DEBIRF_ROOT"/etc/X11/xinit/xinitrc
 #!/bin/sh
 xsetroot -solid blue
 matchbox-window-manager &
-TARG=http://cmrg.fifthhorseman.net/wiki/debirf
+TARG=file://$RUNIT_DIR/index.html
 if (grep -q 'browse=' </proc/cmdline) ; then
   TARG=\$( sed 's/.*browse=\([^[:space:]]*\).*/\1/' </proc/cmdline)
 fi
@@ -134,3 +141,22 @@ EOF
 
 # set permissions on /home/guest, just in case
 debirf_exec chown -R guest:guest /home/guest
+
+### make start page
+cat <<EOF > "$RUNIT_DIR_DEBIRF"/index.html
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
+<title>debirf - xkiosk</title>
+</head>
+<body>
+<h1>Welcome to <a href="http://cmrg.fifthhorseman.net/wiki/debirf">debirf</a> xkiosk.</h1>
+<p>To quit the session and purge all session history:
+<ul>
+  <li>quit the browser by selecting "Quit" from the "File" menu.
+  <li>close all open windows by clicking the "x" in the upper right corner.
+</ul>
+</body>
+</html>
+EOF
