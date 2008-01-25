@@ -1,6 +1,7 @@
 debirf (0.16-1) unstable; urgency=low
 
   * have xkiosk module purge session on restart (closes CMRG #83)
+  * added partimage to rescue module
 
  -- Jameson Rollins <jrollins@fifthhorseman.net>  Thu, 24 Jan 2008 14:28:05 -0500
 
