@@ -57,6 +57,8 @@ subcommands:
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
   enter PROFILE [CMDS]      enter shell in debirf profile root changes
                             (optional execute CMDS in root and exit)
+  makeiso PROFILE           create a bootable ISO using the given profile
+                            (requires GRUB)
   help                      this help
 
 EOF
@@ -454,6 +456,43 @@ enter() {
     fi
 }
 
+# create an ISO from the given kernel and initramfs (requires GRUB,
+# see:
+# http://www.gnu.org/software/grub/manual/html_node/Making-a-GRUB-bootable-CD-ROM.html)
+makeiso() {
+    DEBIRF_PROFILE="$1"
+    shift
+    [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
+
+    local KERNEL=${KERNEL:-$(echo "vmlinu"*)}
+    local INITRAMFS=${INITRAMFS:-$(echo "debirf-"*.cgz)}
+
+    # FIXME: it would be best to pull the name of the architecture
+    # exactly instead of using shell globbing to guess at it:
+    local GRUB_ELTORITO=${GRUB_ELTORITO:-"/usr/lib/grub/"*"-pc/stage2_eltorito"}
+
+    ls -l "$KERNEL" > /dev/null || failure "Failed to find a single kernel in '$DEBIRF_PROFILE'"
+    ls -l "$INITRAMFS" > /dev/null || failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'"
+    [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader."
+
+    mkdir -p iso/boot/grub
+    ln -s "../$KERNEL" iso/
+    ln -s "../$INITRAMFS" iso/
+    ln -s "$GRUB_ELTORITO" iso/boot/grub/
+    cat >iso/boot/grub/menu.lst <<EOF
+serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
+terminal --timeout=10 serial console
+
+title        Debirf ($DEBIRF_PROFILE) (created $(date -R))
+kernel       /$KERNEL
+initrd       /$INITRAMFS
+EOF
+
+    mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "debirf-$DEBIRF_PROFILE.iso" -f iso
+    # do we need to clean up the iso/ directory so that this can be run again?    
+}
+
+
 ###############################################################
 ### MAIN
 
@@ -464,6 +503,9 @@ shift
 case $COMMAND in
     'make'|'m')
         make "$@"
+        ;;
+    'makeiso'|'i')
+        makeiso "$@"
         ;;
     'enter'|'e')
         enter "$@"
