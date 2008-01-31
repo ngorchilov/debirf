@@ -13,6 +13,7 @@ XS-Dm-Upload-Allowed: yes
 Package: debirf
 Architecture: all
 Depends: debootstrap, cpio, apt, fakeroot, fakechroot, busybox, klibc-utils
+Recommends: mkisofs, grub
 Suggests: linux-patch-inittmpfs
 Description: build a kernel and initrd to run Debian from RAM
  debirf (DEBian on Initial Ram Filesystem) is a set of tools designed
