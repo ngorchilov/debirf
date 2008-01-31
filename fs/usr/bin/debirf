@@ -462,6 +462,8 @@ enter() {
 makeiso() {
     DEBIRF_PROFILE="$1"
     shift
+    (which mkisofs > /dev/null) || failure "mkisofs is not in your path.  Maybe you need to install it?"
+
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
     cd "$DEBIRF_PROFILE" || failure "Could not enter profile directory '$DEBIRF_PROFILE'."
