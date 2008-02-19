@@ -80,16 +80,16 @@ failure() {
 
 create_debootstrap() {
     mkdir -p "$DEBIRF_ROOT"
-    local KROPT
     if [ "$DEBIRF_KEYRING" != 'noverify' ] ; then
 	[ -r "$DEBIRF_KEYRING" ] || failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
+	local DEBIRF_KROPT="--keyring=$DEBIRF_KEYRING"
     else
-	KROPT=--keyring=$DEBIRF_KEYRING
+	unset -v DEBIRF_KROPT
     fi
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap --exclude="$EXCLUDE" ${KROPT+"$KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	/usr/sbin/debootstrap --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" ${KROPT+"$KROPT"} --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
@@ -263,7 +263,7 @@ setup_environment() {
 # make profile
 make() {
     # option parsing
-    TEMP=$(getopt --options -hcnosrwgdik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,gpg-keyringno-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
+    TEMP=$(getopt --options -hcnosrwg:dik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,gpg-keyring:,no-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
 
     if [ $? != 0 ] ; then
 	echo "Invalid options." >&2 
