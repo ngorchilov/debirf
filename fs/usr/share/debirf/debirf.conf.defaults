@@ -14,3 +14,6 @@ DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/debian"}
 
 # what distribution should debirf be built from?
 DEBIRF_DISTRO=${DEBIRF_DISTRO:-"lenny"}
+
+# what keyring should be used to verify the debootstrap?
+DEBIRF_KEYRING=${DEBIRF_KEYRING:-"/usr/share/keyrings/debian-archive-keyring.gpg"}

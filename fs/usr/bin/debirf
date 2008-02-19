@@ -52,6 +52,8 @@ subcommands:
     -r|--root-build           use real chroot to build instead of fakechroot
                               (requires superuser privileges or CAP_SYS_CHROOT)
     -w|--no-warning           skip superuser warning
+    -g|--gpg-keyring=KEYRING  keyring to verify Releases during debootstrap
+                              (if 'noverify', don't verify Releases)           
     -d|--no-initrd            do not make initramfs
     -i|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
@@ -78,10 +80,16 @@ failure() {
 
 create_debootstrap() {
     mkdir -p "$DEBIRF_ROOT"
-    if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    local KROPT
+    if [ "$DEBIRF_KEYRING" != 'noverify' ] ; then
+	[ -r "$DEBIRF_KEYRING" ] || failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	KROPT=--keyring=$DEBIRF_KEYRING
+    fi
+    if [ "$ROOT_BUILD" = 'true' ] ; then
+	/usr/sbin/debootstrap --exclude="$EXCLUDE" ${KROPT+"$KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+    else
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" ${KROPT+"$KROPT"} --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
@@ -255,7 +263,7 @@ setup_environment() {
 # make profile
 make() {
     # option parsing
-    TEMP=$(getopt --options -hcnosrwdik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,no-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
+    TEMP=$(getopt --options -hcnosrwgdik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,gpg-keyringno-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
 
     if [ $? != 0 ] ; then
 	echo "Invalid options." >&2 
@@ -291,6 +299,10 @@ make() {
             -w|--no-warning)
 		ROOT_WARNING=false
 		shift 1
+		;;
+            -g|--gpg-keyring)
+		DEBIRF_KEYRING="$2"
+		shift 2
 		;;
 	    -d|--no-initrd)
 		STAGE_INITRD=false
