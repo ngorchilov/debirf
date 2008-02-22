@@ -79,18 +79,21 @@ failure() {
 }
 
 create_debootstrap() {
-    mkdir -p "$DEBIRF_ROOT"
+    local OPTS="--include=$INCLUDE --exclude=$EXCLUDE $DEBIRF_DISTRO $DEBIRF_ROOT $DEBIRF_MIRROR"
+
     if [ "$DEBIRF_KEYRING" != 'noverify' ] ; then
 	[ -r "$DEBIRF_KEYRING" ] || failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
-	local DEBIRF_KROPT="--keyring=$DEBIRF_KEYRING"
-    else
-	unset -v DEBIRF_KROPT
+	OPTS="--keyring=$DEBIRF_KEYRING $OPTS"
     fi
+
+    mkdir -p "$DEBIRF_ROOT"
+
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	/usr/sbin/debootstrap $OPTS
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot $OPTS
     fi
+
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
 
