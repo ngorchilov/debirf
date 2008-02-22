@@ -1,3 +1,9 @@
+debirf (0.17-1) unstable; urgency=low
+
+  * cleaned up options to debootstrap in create_debootstrap function.
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 22 Feb 2008 17:48:32 -0500
+
 debirf (0.16-1) unstable; urgency=low
 
   * have xkiosk module purge session on restart (closes CMRG #83)
