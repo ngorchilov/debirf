@@ -1,8 +1,13 @@
 debirf (0.17-1) unstable; urgency=low
 
-  * cleaned up options to debootstrap in create_debootstrap function.
+  * actually release really stupid bugs in getopt code associated with 
+    gpg debootstrap verification.
+  * edited README to align with new debirf verbs, and to make the examples
+    more concrete.
+  * made error messages a bit friendlier.
+  * gpg verification of debootstrap can now use relative paths.
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 22 Feb 2008 17:48:32 -0500
+ -- Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>  Thu, 28 Feb 2008 19:00:29 -0500
 
 debirf (0.16-1) unstable; urgency=low
 
