@@ -56,9 +56,9 @@ a CD image first.  Following the above example:
 $ cd ~/debirf
 $ debirf makeiso minimal
 
-There should now be a bootable ISO image stored at:
-~/debirf/minimal/debirf-minimal.iso, which you can burn using a tool
-like wodim.
+If this run is successful, there should be a bootable ISO image stored
+at ~/debirf/minimal/debirf-minimal.iso.  You can burn this to a CD
+using a tool like wodim.
 
 Have fun!  Create new modules and profiles for your specific needs.
 If you think your module or profile would be generally useful, please
