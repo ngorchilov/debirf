@@ -63,10 +63,10 @@ privileges or CAP_SYS_CHROOT)
 skip superuser warning
 .TP
 \fB\-g\fR, \fB\-\-gpg-keyring=KEYRING\fR
-Verify the debootstrap stage against the GPG keyring KEYRING (which
-should be specified by an absolute path).  By default, the keyring
-used is /usr/share/keyrings/debian-archive-keyring.gpg.  If you want
-to skip verification entirely (not recommended!), you should use
+Verify the debootstrap stage against the GPG keyring in the file
+KEYRING.  By default, the keyring used is
+/usr/share/keyrings/debian-archive-keyring.gpg.  If you want to skip
+verification entirely (not recommended!), you should use
 --gpg-keyring=noverify.
 .TP
 \fB\-i\fR, \fB\-\-initrd-only\fR

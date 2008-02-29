@@ -52,8 +52,8 @@ subcommands:
     -r|--root-build           use real chroot to build instead of fakechroot
                               (requires superuser privileges or CAP_SYS_CHROOT)
     -w|--no-warning           skip superuser warning
-    -g|--gpg-keyring=KEYRING  keyring to verify Releases during debootstrap
-                              (if 'noverify', don't verify Releases)           
+    -g|--gpg-keyring=KEYRING  keyring file for debootstrap verification
+                              (if 'noverify', don't verify during debootstrap)
     -d|--no-initrd            do not make initramfs
     -i|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
@@ -87,9 +87,9 @@ create_debootstrap() {
 	unset -v DEBIRF_KROPT
     fi
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	/usr/sbin/debootstrap  --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} --exclude="$EXCLUDE" "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
@@ -302,6 +302,11 @@ make() {
 		;;
             -g|--gpg-keyring)
 		DEBIRF_KEYRING="$2"
+		# if it's not a full path (starts with a /),
+		if [ "${DEBIRF_KEYRING#/}" = "$DEBIRF_KEYRING" ]; then
+		    # make it a full path
+		    DEBIRF_KEYRING="$(pwd)/$DEBIRF_KEYRING"
+		fi
 		shift 2
 		;;
 	    -d|--no-initrd)
@@ -486,9 +491,9 @@ makeiso() {
     # exactly instead of using shell globbing to guess at it:
     local GRUB_ELTORITO=${GRUB_ELTORITO:-$(echo "/usr/lib/grub/"*"-pc/stage2_eltorito")}
 
-    ls -l "$KERNEL" > /dev/null || failure "Failed to find a single kernel in '$DEBIRF_PROFILE'"
-    ls -l "$INITRAMFS" > /dev/null || failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'"
-    [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader."
+    ls -l "$KERNEL" > /dev/null || failure "Failed to find a single kernel in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+    ls -l "$INITRAMFS" > /dev/null || failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+    [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
 
     # get rid of the "iso" directory if it exists.
     rm -rf iso
