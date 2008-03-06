@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # debirf module: prep-root
 # prep the debirf root with various needed files and info

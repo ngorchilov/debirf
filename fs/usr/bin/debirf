@@ -15,21 +15,22 @@
 
 CMD=$(basename $0)
 
-DEBIRF_COMMON=${DEBIRF_COMMON:-"/usr/share/debirf/common"}
+DEBIRF_COMMON=${DEBIRF_COMMON:-/usr/share/debirf/common}
 source "$DEBIRF_COMMON"
 
 # default build type
 export ROOT_BUILD=false
 
 # stages to run by default
-STAGE_ROOT=true
-STAGE_MODULES=true
-STAGE_INITRD=true
+STAGE_ROOT=${STAGE_ROOT:-true}
+STAGE_MODULES=${STAGE_MODULES:-true}
+STAGE_INITRD=${STAGE_INITRD:-true}
 
+# warn if running as root
 ROOT_WARNING=true
 
 # location of devices.tar.gz file
-export DEVICE_ARCHIVE=/usr/share/debirf/devices.tar.gz
+export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 
 # list of packages to include/exclude from debootstrap
 export INCLUDE=less,udhcpc
