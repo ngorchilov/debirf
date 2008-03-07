@@ -266,11 +266,6 @@ setup_environment() {
 	fi
     done
     
-    # check buildd
-    if [ -z "$DEBIRF_BUILDD" ] ; then
-	failure "DEBIRF_BUILDD is not set."
-    fi
-
     # set/check buildd
     DEBIRF_BUILDD=${DEBIRF_BUILDD:-"$DEBIRF_PROFILE"}
     if [ ! -d "$DEBIRF_BUILDD" ] ; then
