@@ -33,8 +33,8 @@ ROOT_WARNING=true
 export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 
 # list of packages to include/exclude from debootstrap
-export INCLUDE=less,udhcpc
-export EXCLUDE=apt-utils,bsdmainutils,cron,ed,dhcp3-common,dhcp3-client,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
+export INCLUDE=less
+export EXCLUDE=apt-utils,bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
 ### FUNCTIONS

@@ -4,8 +4,10 @@ debirf (0.18-1) unstable; urgency=low
     bashism in script.
   * add DEBIRF_KEYRING variable to debirf.conf files.
   * change DISTRO to SUITE (closes CMRG #89)
+  * go back to default dhcp client (dhcp3-client instead of udhcpd)
+    (closes CMRG #88)
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Wed, 05 Mar 2008 19:12:33 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 07 Mar 2008 11:04:37 -0500
 
 debirf (0.17-1) unstable; urgency=low
 
