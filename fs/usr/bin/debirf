@@ -18,6 +18,12 @@ CMD=$(basename $0)
 DEBIRF_COMMON=${DEBIRF_COMMON:-/usr/share/debirf/common}
 source "$DEBIRF_COMMON"
 
+# default label
+DEBIRF_LABEL=${DEBIRF_LABEL:-debirf}
+
+# default debirf boot method
+DEBIRF_METHOD=${DEBIRF_METHOD:-nested}
+
 # default build type
 export ROOT_BUILD=false
 
@@ -53,8 +59,6 @@ subcommands:
     -r|--root-build           use real chroot to build instead of fakechroot
                               (requires superuser privileges or CAP_SYS_CHROOT)
     -w|--no-warning           skip superuser warning
-    -g|--gpg-keyring=KEYRING  keyring file for debootstrap verification
-                              (if 'noverify', don't verify during debootstrap)
     -d|--no-initrd            do not make initramfs
     -i|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
@@ -80,18 +84,20 @@ failure() {
 }
 
 create_debootstrap() {
+    local OPTS="--include=$INCLUDE --exclude=$EXCLUDE $DEBIRF_SUITE $DEBIRF_ROOT $DEBIRF_MIRROR"
+
+    if [ "$DEBIRF_KEYRING" ] ; then
+        OPTS="--keyring='$DEBIRF_KEYRING' $OPTS"
+    fi
+
     mkdir -p "$DEBIRF_ROOT"
-    if [ "$DEBIRF_KEYRING" != 'noverify' ] ; then
-	[ -r "$DEBIRF_KEYRING" ] || failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
-	local DEBIRF_KROPT="--keyring=$DEBIRF_KEYRING"
-    else
-	unset -v DEBIRF_KROPT
-    fi
+
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap  --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_SUITE" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	eval "/usr/sbin/debootstrap $OPTS"
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_SUITE" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	eval "fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot $OPTS"
     fi
+
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
 
@@ -198,11 +204,38 @@ EOF
     fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$DEBIRF_INITRD"
 }
 
+# determine what the host system distro is, and set debirf build defaults
+# accordingly
+set_distro() {
+    RUN_DISTRO=$(head -1 /etc/issue | awk '{ print $1 }' | tr "[:upper:]" "[:lower:]")
+    case "$RUN_DISTRO" in
+ubuntu)
+    DEBIRF_SUITE=${DEBIRF_SUITE:-"hoary"}
+    ;;
+*)
+    DEBIRF_SUITE=${DEBIRF_SUITE:-"lenny"}
+    ;;
+    esac
+
+    case "$DEBIRF_SUITE" in
+breezy|dapper|edgy|feisty|gutsy|hardy|hoary)
+    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"ubuntu"}
+    ;;
+*)
+    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"debian"}
+    ;;
+    esac
+
+    DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/${DEBIRF_DISTRO}"}
+    DEBIRF_KEYRING=${DEBIRF_KEYRING:-"/usr/share/keyrings/${DEBIRF_DISTRO}-archive-keyring.gpg"}
+
+    if ! [ -f "$DEBIRF_KEYRING" -a -r "$DEBIRF_KEYRING" ] ; then
+failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
+    fi
+}
+
 # setup profile environment
 setup_environment() {
-    # source debirf.conf defaults
-    source /usr/share/debirf/debirf.conf.defaults
-    
     # check profile
     if [ -d "$DEBIRF_PROFILE" ] ; then
 	echo "Loading profile '$DEBIRF_PROFILE'..."
@@ -238,11 +271,20 @@ setup_environment() {
 	failure "DEBIRF_BUILDD is not set."
     fi
 
+    # set/check buildd
+    DEBIRF_BUILDD=${DEBIRF_BUILDD:-"$DEBIRF_PROFILE"}
+    if [ ! -d "$DEBIRF_BUILDD" ] ; then
+	failure "Could not find build directory '$DEBIRF_BUILDD'."
+    fi
+
     # set root directory
     DEBIRF_ROOT="$DEBIRF_BUILDD/root"
 
     # set fakechroot save file
     DEBIRF_FAKEROOT_STATE="$DEBIRF_BUILDD/.fakeroot-state.${DEBIRF_LABEL}"
+
+    # set the debirf distro variables based on host distro
+    set_distro
 
     # export all the DEBIRF_* environment variables:
     for var in ${!DEBIRF_*}; do
@@ -264,7 +306,7 @@ setup_environment() {
 # make profile
 make() {
     # option parsing
-    TEMP=$(getopt --options -hcnosrwg:dik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,gpg-keyring:,no-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
+    TEMP=$(getopt --options -hcnosrwdik: --longoptions help,check-vars,new,overwrite,skip,root-build,no-warning,no-initrd,initrd-only,kernel: -n "$CMD" -- "$@")
 
     if [ $? != 0 ] ; then
 	echo "Invalid options." >&2 
@@ -301,15 +343,6 @@ make() {
 		ROOT_WARNING=false
 		shift 1
 		;;
-            -g|--gpg-keyring)
-		DEBIRF_KEYRING="$2"
-		# if it's not a full path (starts with a /),
-		if [ "${DEBIRF_KEYRING#/}" = "$DEBIRF_KEYRING" ]; then
-		    # make it a full path
-		    DEBIRF_KEYRING="$(pwd)/$DEBIRF_KEYRING"
-		fi
-		shift 2
-		;;
 	    -d|--no-initrd)
 		STAGE_INITRD=false
 		shift 1
@@ -332,7 +365,7 @@ make() {
 		    usage
 		    exit 1
 		fi
-		DEBIRF_PROFILE="$1"
+		DEBIRF_PROFILE=$(dirname "$1"/x)
 		break
 		;;
 	esac

@@ -6,8 +6,13 @@ debirf (0.18-1) unstable; urgency=low
   * change DISTRO to SUITE (closes CMRG #89)
   * go back to default dhcp client (dhcp3-client instead of udhcpd)
     (closes CMRG #88)
+  * smarter determination of default suite, distro, mirror, and keyring.
+    better defaults for Ubuntu (closes CMRG #87)
+  * change to smarter option setting for debootstrap in the
+    create_debootstrap function that actually works now (works for
+    files with spaces in them).
 
- -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 07 Mar 2008 11:04:37 -0500
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Fri, 07 Mar 2008 17:19:22 -0500
 
 debirf (0.17-1) unstable; urgency=low
 

@@ -1,4 +1,4 @@
-.TH DEBIRF "1" "March 2007" "debirf 0.1" "User Commands"
+.TH DEBIRF "1" "March 2008" "debirf 0.18" "User Commands"
 .SH NAME
 debirf \- build an initrd to boot a full Debian system entirely from RAM
 .SH SYNOPSIS
@@ -61,13 +61,6 @@ privileges or CAP_SYS_CHROOT)
 .TP
 \fB\-w\fR, \fB\-\-no-warning\fR
 skip superuser warning
-.TP
-\fB\-g\fR, \fB\-\-gpg-keyring=KEYRING\fR
-Verify the debootstrap stage against the GPG keyring in the file
-KEYRING.  By default, the keyring used is
-/usr/share/keyrings/debian-archive-keyring.gpg.  If you want to skip
-verification entirely (not recommended!), you should use
---gpg-keyring=noverify.
 .TP
 \fB\-i\fR, \fB\-\-initrd-only\fR
 remake initramfs from existing root (skip debootstrap and module
@@ -139,11 +132,17 @@ debirf label (default: debirf)
 .B DEBIRF_BUILDD
 where to build the debirf (default: ./)
 .TP
-.B DEBIRF_MIRROR
-Debian mirror (default: http://mirrors.kernel.org/debian)
+.B DEBIRF_SUITE
+suite to build from (default "hardy" on Ubuntu, "lenny" otherwise)
 .TP
 .B DEBIRF_DISTRO
-debirf build distribution (default: lenny)
+distro for suite (default determined by DEBIRF_SUITE)
+.TP
+.B DEBIRF_MIRROR
+mirror to pull suite (default determined by DEBIRF_DISTRO)
+.TP
+.B DEBIRF_KEYRING
+keyring to verify debootstrap (default determined by DEBIRF_DISTRO)
 .TP
 .B GRUB_ELTORITO
 absolute path to grub's stage2_eltorito image when using \fBdebirf
@@ -153,13 +152,15 @@ probably don't need to specify this)
 .SH FILES
 .PD 1
 .TP
-debirf.conf
-Debirf profile configuration file.  Usually contains values for the
-various debirf environment variables (see \fBENVIRONMENT\fP).
+$DEBIRF_PROFILE/debirf.conf
+Debirf profile configuration file.  Contains values for the various
+debirf environment variables (see \fBENVIRONMENT\fP).  Variables
+specified in the debirf.conf override those specified on the command
+line.
 .TP
 $DEBIRF_ROOT/etc/debirf/debirf.info
-File that stores various information about the debirf build.  This is a
-bash-sourceable file.
+File that stores various information about the debirf build.  This is
+a bash-sourceable file.
 .PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
