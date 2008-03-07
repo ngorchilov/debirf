@@ -88,9 +88,9 @@ create_debootstrap() {
 	unset -v DEBIRF_KROPT
     fi
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	/usr/sbin/debootstrap  --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	/usr/sbin/debootstrap  --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_SUITE" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     else
-	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_DISTRO" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
+	fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot --include="$INCLUDE" --exclude="$EXCLUDE" ${DEBIRF_KROPT+"$DEBIRF_KROPT"} "$DEBIRF_SUITE" "$DEBIRF_ROOT" "$DEBIRF_MIRROR"
     fi
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
@@ -442,7 +442,7 @@ EOF
 	fi
         # determine initrd name
 	KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-	DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_DISTRO}_${KERNEL_VERS}.cgz"
+	DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.cgz"
 	
 	msg "creating debirf initrd ('$DEBIRF_METHOD')..."
 	create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
