@@ -1,3 +1,9 @@
+debirf (0.18-2) unstable; urgency=low
+
+  * change Depends: to allow for busybox-static.
+
+ -- Jameson Rollins <jrollins@fifthhorseman.net>  Sun, 30 Mar 2008 12:50:29 -0400
+
 debirf (0.18-1) unstable; urgency=low
 
   * fix shebang in a0_prep-root to call bash instead of sh, because of
