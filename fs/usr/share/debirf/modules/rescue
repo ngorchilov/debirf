@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# debirf module: apt-get
-# remove/install extra packages with apt-get
+# debirf module: rescue
+# remove/install extra packages for disk rescue with apt-get
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
@@ -34,4 +34,4 @@ EOF
 # unneeded packages:
 # courier-mta mailx bsd-mailx
 #debirf_exec apt-get --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools
-debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm partimage pciutils testdisk foremost mdadm smartmontools courier-mta- mailx- bsd-mailx-
+debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm partimage pciutils testdisk foremost mdadm smartmontools eject wodim courier-mta- mailx- bsd-mailx-
