@@ -34,4 +34,4 @@ EOF
 # unneeded packages:
 # courier-mta mailx bsd-mailx
 #debirf_exec apt-get --assume-yes install lvm2 lsof hdparm pciutils testdisk foremost mdadm smartmontools
-debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm partimage pciutils testdisk foremost mdadm smartmontools eject wodim courier-mta- mailx- bsd-mailx-
+debirf_exec aptitude --without-recommends --assume-yes install lvm2 lsof hdparm partimage pciutils testdisk foremost mdadm smartmontools eject wodim ddrescue courier-mta- mailx- bsd-mailx-
