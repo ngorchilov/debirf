@@ -1,10 +1,11 @@
 debirf (0.19-1) unstable; urgency=low
 
-  * use genisoimage instead of the now-obsolete mkisofs.
+  * use genisoimage, instead of the now-obsolete mkisofs, to make iso's,
+    and fixed some small bugs in iso generation.
   * update standards version to 3.8.0.
   * add cryptsetup to resuce module.
 
- -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 15:37:25 -0400
+ -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 16:12:50 -0400
 
 debirf (0.18-2) unstable; urgency=low
 

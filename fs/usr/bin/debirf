@@ -209,28 +209,28 @@ EOF
 set_distro() {
     RUN_DISTRO=$(head -1 /etc/issue | awk '{ print $1 }' | tr "[:upper:]" "[:lower:]")
     case "$RUN_DISTRO" in
-ubuntu)
-    DEBIRF_SUITE=${DEBIRF_SUITE:-"hoary"}
-    ;;
-*)
-    DEBIRF_SUITE=${DEBIRF_SUITE:-"lenny"}
-    ;;
+	ubuntu)
+	    DEBIRF_SUITE=${DEBIRF_SUITE:-"hoary"}
+	    ;;
+	*)
+	    DEBIRF_SUITE=${DEBIRF_SUITE:-"lenny"}
+	    ;;
     esac
 
     case "$DEBIRF_SUITE" in
-breezy|dapper|edgy|feisty|gutsy|hardy|hoary)
-    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"ubuntu"}
-    ;;
-*)
-    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"debian"}
-    ;;
+	breezy|dapper|edgy|feisty|gutsy|hardy|hoary)
+	    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"ubuntu"}
+	    ;;
+	*)
+	    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"debian"}
+	    ;;
     esac
 
     DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/${DEBIRF_DISTRO}"}
     DEBIRF_KEYRING=${DEBIRF_KEYRING:-"/usr/share/keyrings/${DEBIRF_DISTRO}-archive-keyring.gpg"}
 
     if ! [ -f "$DEBIRF_KEYRING" -a -r "$DEBIRF_KEYRING" ] ; then
-failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
+	failure "Cannot read keyring '$DEBIRF_KEYRING' for debootstrap verification."
     fi
 }
 
@@ -508,6 +508,9 @@ enter() {
 makeiso() {
     DEBIRF_PROFILE="$1"
     shift
+
+    setup_environment
+
     (which genisoimage > /dev/null) || failure "genisoimage is not in your path.  Maybe you need to install it?"
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
@@ -520,8 +523,28 @@ makeiso() {
     # exactly instead of using shell globbing to guess at it:
     local GRUB_ELTORITO=${GRUB_ELTORITO:-$(echo "/usr/lib/grub/"*"-pc/stage2_eltorito")}
 
-    ls -l "$KERNEL" > /dev/null || failure "Failed to find a single kernel in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
-    ls -l "$INITRAMFS" > /dev/null || failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+    case $(ls -l $KERNEL 2> /dev/null | wc -l) in
+	0)
+	    failure "Failed to find a kernel in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    ;;
+	1)
+	    true
+	    ;;
+	*)
+	    failure "Multiple kernels found in '$DEBIRF_PROFILE'.  Please clear out all but the desired kernel."
+	    ;;
+    esac
+    case $(ls -l $INITRAMFS 2> /dev/null | wc -l) in
+	0)
+	    failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    ;;
+	1)
+	    true
+	    ;;
+	*)
+	    failure "Multiple initramfs found in '$DEBIRF_PROFILE'.  Please clear out all but the desired initramfs."
+	    ;;
+    esac
     [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
 
     # get rid of the "iso" directory if it exists.
@@ -540,12 +563,16 @@ makeiso() {
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 terminal --timeout=10 serial console
 
-title        Debirf ($DEBIRF_PROFILE) (created $(date -R))
+title        Debirf ($DEBIRF_LABEL) (created $(date -R))
 kernel       /$KERNEL
 initrd       /$INITRAMFS
 EOF
 
-    genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "debirf-$DEBIRF_PROFILE.iso" iso
+    # determine iso name
+    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+    DEBIRF_ISO="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.iso"
+
+    genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "$DEBIRF_ISO" iso
     # do we need to clean up the iso/ directory so that this can be run again?    
 }
 
