@@ -1,8 +1,9 @@
 debirf (0.18-3) unstable; urgency=low
 
   * change Recommends: from the obsolete mkisofs to genisoimage.
+  * update standards version to 3.8.0
 
- -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 13:09:44 -0400
+ -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 13:34:26 -0400
 
 debirf (0.18-2) unstable; urgency=low
 
