@@ -508,7 +508,7 @@ enter() {
 makeiso() {
     DEBIRF_PROFILE="$1"
     shift
-    (which mkisofs > /dev/null) || failure "mkisofs is not in your path.  Maybe you need to install it?"
+    (which genisoimage > /dev/null) || failure "genisoimage is not in your path.  Maybe you need to install it?"
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
@@ -528,7 +528,7 @@ makeiso() {
     rm -rf iso
     mkdir -p iso/boot/grub
 
-    # use hard links to avoid massive copying time and mkisofs's
+    # use hard links to avoid massive copying time and genisoimage's
     # warning about -f (we're almost certainly on the same filesystem):
     ln "$KERNEL" iso/ || failure "Failed to link kernel into iso"
     ln "$INITRAMFS" iso/ || failure "Failed to link initramfs into iso"
@@ -545,7 +545,7 @@ kernel       /$KERNEL
 initrd       /$INITRAMFS
 EOF
 
-    mkisofs -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "debirf-$DEBIRF_PROFILE.iso" iso
+    genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "debirf-$DEBIRF_PROFILE.iso" iso
     # do we need to clean up the iso/ directory so that this can be run again?    
 }
 
