@@ -1,8 +1,15 @@
+debirf (0.19-3) unstable; urgency=low
+
+  * update debhelper version, and remove unused debhelper scripts.
+  * add more info to 0.19-2 changelog entry.
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 29 Oct 2008 15:39:38 -0400
+
 debirf (0.19-2) unstable; urgency=low
 
-  * Closes: #503625
+  * closes ITP bug with wnpp (Closes: #503625)
 
- -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 21:30:28 -0400
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 27 Oct 2008 21:30:28 -0400
 
 debirf (0.19-1) unstable; urgency=low
 
@@ -11,7 +18,7 @@ debirf (0.19-1) unstable; urgency=low
   * update standards version to 3.8.0.
   * add cryptsetup to resuce module.
 
- -- Jameson Graef Rollins <jrollins@phys.columbia.edu>  Mon, 27 Oct 2008 16:12:50 -0400
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 27 Oct 2008 16:12:50 -0400
 
 debirf (0.18-2) unstable; urgency=low
 
