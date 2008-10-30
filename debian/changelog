@@ -2,8 +2,9 @@ debirf (0.19-3) unstable; urgency=low
 
   * update debhelper version, and remove unused debhelper scripts.
   * add more info to 0.19-2 changelog entry.
+  * fix Uploader info (email address).
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 29 Oct 2008 15:39:38 -0400
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Thu, 30 Oct 2008 00:00:27 -0400
 
 debirf (0.19-2) unstable; urgency=low
 
