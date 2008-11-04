@@ -1,17 +1,17 @@
 VERSION = `head -n1 debian/changelog | sed 's/.*(\([^-]*\)-.*/\1/'`
 
-PROF_DIR = docs/example-profiles
+PROF_DIR = doc/example-profiles
 
 PREFIX ?= /usr
 MANPREFIX ?= $(PREFIX)/share/man
 
 tarball: clean
 	rm -rf debirf-$(VERSION)
-	mkdir -p debirf-$(VERSION)/docs/example-profiles
-	ln -s ../../docs/README ../../docs/default-package-list debirf-$(VERSION)/docs
-	(cd $(PROF_DIR) && tar c --exclude='*~' minimal/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/minimal.tgz
-	(cd $(PROF_DIR) && tar c --exclude='*~' rescue/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/rescue.tgz
-	(cd $(PROF_DIR) && tar c --exclude='*~' xkiosk/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/xkiosk.tgz
+	mkdir -p debirf-$(VERSION)/doc/example-profiles
+	ln -s ../../doc/README ../../doc/default-package-list debirf-$(VERSION)/doc
+	(cd $(PROF_DIR) && tar c --exclude='*~' minimal/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/minimal.tgz
+	(cd $(PROF_DIR) && tar c --exclude='*~' rescue/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/rescue.tgz
+	(cd $(PROF_DIR) && tar c --exclude='*~' xkiosk/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/xkiosk.tgz
 	ln -s ../COPYING ../Makefile ../man ../src debirf-$(VERSION)
 	tar ch --exclude='*~' debirf-$(VERSION) | gzip -n > debirf_$(VERSION).orig.tar.gz
 	rm -rf debirf-$(VERSION)
@@ -23,10 +23,14 @@ debian-package: tarball
 	rm -rf debirf-$(VERSION)
 
 install: installman
-	mkdir -p $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/share/debirf $(DESTDIR)$(PREFIX)/share/doc/debirf
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/debirf/example-profiles
+	mkdir -p $(DESTDIR)$(PREFIX)/share/debirf/modules
 	install src/debirf $(DESTDIR)$(PREFIX)/bin
-	install src/common src/devices.tar.gz src/modules $(DESTDIR)$(PREFIX)/share/debirf
-	install doc/* $(DESTDIR)$(PREFIX)/share/doc/monkeysphere
+	install src/common src/devices.tar.gz $(DESTDIR)$(PREFIX)/share/debirf
+	install src/modules/* $(DESTDIR)$(PREFIX)/share/debirf/modules
+	install doc/README doc/default-package-list $(DESTDIR)$(PREFIX)/share/doc/debirf
+	install doc/example-profiles/* $(DESTDIR)$(PREFIX)/share/doc/debirf/example-profiles
 
 installman:
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
