@@ -5,6 +5,9 @@ PROF_DIR = doc/example-profiles
 PREFIX ?= /usr
 MANPREFIX ?= $(PREFIX)/share/man
 
+build:
+	
+
 tarball: clean
 	rm -rf debirf-$(VERSION)
 	mkdir -p debirf-$(VERSION)/doc/example-profiles
@@ -42,4 +45,4 @@ installman:
 clean:
 	rm -f debirf_*
 
-.PHONY: tarball debian-package install installman clean
+.PHONY: build tarball debian-package install installman clean
