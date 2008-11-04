@@ -1,3 +1,10 @@
+debirf (0.20-1) unstable; urgency=low
+
+  * new upstream packaging/build system.  all-inclusive makefile, and
+    simplified debhelper rules.
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 04 Nov 2008 15:30:13 -0500
+
 debirf (0.19-3) unstable; urgency=low
 
   * update debhelper version, and remove unused debhelper scripts.
