@@ -18,7 +18,7 @@ tarball: clean
 
 debian-package: tarball
 	tar xzf debirf_$(VERSION).orig.tar.gz
-	rsync -a --exclude '*~' --exclude '*.svn*' debian debirf-$(VERSION)
+	tar c --exclude='*~' --exclude='*.svn*' debian | tar x -C debirf-$(VERSION)
 	(cd debirf-$(VERSION) && debuild -uc -us)
 	rm -rf debirf-$(VERSION)
 
