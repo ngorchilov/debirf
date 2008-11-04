@@ -1,48 +1,40 @@
-#!/usr/bin/make -f
+VERSION = `head -n1 debian/changelog | sed 's/.*(\([^-]*\)-.*/\1/'`
 
-# (c) 2007 Jameson Rollins <jrollins@fifthhorseman.net>
-# Licensed under GPL v3 or later
+PROF_DIR = docs/example-profiles
 
-# this makefile is used to build the archives of the example 
-# profile directories
+PREFIX ?= /usr
+MANPREFIX ?= $(PREFIX)/share/man
 
-PREFIX=/usr
+tarball: clean
+	rm -rf debirf-$(VERSION)
+	mkdir -p debirf-$(VERSION)/docs/example-profiles
+	ln -s ../../docs/README ../../docs/default-package-list debirf-$(VERSION)/docs
+	(cd $(PROF_DIR) && tar c --exclude='*~' minimal/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/minimal.tgz
+	(cd $(PROF_DIR) && tar c --exclude='*~' rescue/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/rescue.tgz
+	(cd $(PROF_DIR) && tar c --exclude='*~' xkiosk/) | gzip -n > debirf-$(VERSION)/docs/example-profiles/xkiosk.tgz
+	ln -s ../COPYING ../Makefile ../man ../src debirf-$(VERSION)
+	tar ch --exclude='*~' debirf-$(VERSION) | gzip -n > debirf_$(VERSION).orig.tar.gz
+	rm -rf debirf-$(VERSION)
 
-PROF_DIR=docs/example-profiles
+debian-package: tarball
+	tar xzf debirf_$(VERSION).orig.tar.gz
+	cp -a debian debirf-$(VERSION)
+	(cd debirf-$(VERSION) && debuild -uc -us)
+	rm -rf debirf-$(VERSION)
 
-all:
-	echo "debirf is composed of scripts, so no compilation is necessary"
+install: installman
+	mkdir -p $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/share/debirf $(DESTDIR)$(PREFIX)/share/doc/debirf
+	install src/debirf $(DESTDIR)$(PREFIX)/bin
+	install src/common src/devices.tar.gz src/modules $(DESTDIR)$(PREFIX)/share/debirf
+	install doc/* $(DESTDIR)$(PREFIX)/share/doc/monkeysphere
 
-$(PROF_DIR)/minimal.tgz:
-	cd $(PROF_DIR) && tar czf minimal.tgz minimal/
-
-$(PROF_DIR)/rescue.tgz:
-	cd $(PROF_DIR) && tar czf rescue.tgz rescue/
-
-$(PROF_DIR)/xkiosk.tgz:
-	cd $(PROF_DIR) && tar czf xkiosk.tgz xkiosk/
-
-build-profiles: $(PROF_DIR)/minimal.tgz $(PROF_DIR)/rescue.tgz $(PROF_DIR)/xkiosk.tgz
-
-install: build-profiles
-	install -d $(PREFIX)/bin
-	install -d $(PREFIX)/share/debirf/modules
-	install -d $(PREFIX)/share/doc/debirf/example-profiles
-	install -d $(PREFIX)/share/man/man1
-	install fs/usr/bin/debirf $(PREFIX)/bin/debirf
-	install fs/usr/share/debirf/common $(PREFIX)/share/debirf/
-	install fs/usr/share/debirf/modules/* $(PREFIX)/share/debirf/modules/
-	install -m 0644 fs/usr/share/debirf/devices.tar.gz $(PREFIX)/share/debirf/
-	install -m 0644 fs/usr/share/man/man1/debirf.1 $(PREFIX)/share/man/man1/debirf.1
-	install -m 0644 docs/example-profiles/*.tgz $(PREFIX)/share/doc/debirf/example-profiles/
-
-release: 
-	mkdir -p build/upstream
-	ln -s ../.. build/upstream/debirf-$(VERSION)
-	(cd build/upstream && tar czf ../debirf_$(VERSION).tar.gz --exclude=.svn --exclude=*~ debirf-$(VERSION)/{fs,COPYING,Makefile,docs})
-	rm -f build/upstream/debirf-$(VERSION)
+installman:
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	gzip -n man/*/*
+	install man/man1/* $(DESTDIR)$(MANPREFIX)/man1
+	gzip -d man/*/*
 
 clean:
-	rm $(PROF_DIR)/minimal.tgz
-	rm $(PROF_DIR)/rescue.tgz
-	rm $(PROF_DIR)/xkiosk.tgz
+	rm -f debirf_*
+
+.PHONY: tarball debian-package install installman clean

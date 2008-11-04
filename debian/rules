@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+<<<<<<< HEAD:debian/rules
 # -*- makefile -*-
 # debirf makefile for debian packaging
 #
@@ -45,3 +46,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	dh_clean 
+=======
+%:
+	dh $@
+>>>>>>> Completely new repo layout and build process.:debian/rules
