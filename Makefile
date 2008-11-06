@@ -22,7 +22,7 @@ tarball: clean
 debian-package: tarball
 	tar xzf debirf_$(VERSION).orig.tar.gz
 	tar c --exclude='*~' --exclude='*.svn*' debian | tar x -C debirf-$(VERSION)
-	(cd debirf-$(VERSION) && debuild)
+	(cd debirf-$(VERSION) && debuild -us -uc)
 	rm -rf debirf-$(VERSION)
 
 install: installman
