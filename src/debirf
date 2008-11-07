@@ -133,14 +133,7 @@ pack_rootfs() {
 export -f pack_rootfs
 
 
-## create_initrd functions
-# stupid simple method
-create_initrd_stupid_simple() {
-    fakeroot_if_needed ln -sf /sbin/init "$DEBIRF_ROOT/init"
-    pack_rootfs "$DEBIRF_INITRD"
-}
-
-# nested cpio archives
+# create nested cpio archives
 create_initrd_nested() {
     local util lib
     local NEST_ROOT="$DEBIRF_BUILDD"/nest
