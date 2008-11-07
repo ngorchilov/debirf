@@ -1,4 +1,4 @@
-debirf (0.21-1) UNRELEASED; urgency=low
+debirf (0.21~pre-1) UNRELEASED; urgency=low
 
   [ Daniel Kahn Gillmor ]
   * fixing makeiso image name generation
