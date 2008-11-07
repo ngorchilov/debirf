@@ -1,3 +1,11 @@
+debirf (0.21-1) UNRELEASED; urgency=low
+
+  [ Daniel Kahn Gillmor ]
+  * fixing makeiso image name generation
+  * placing serial-console boot stanza in menu.lst for ISO
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Thu, 06 Nov 2008 21:19:03 -0500
+
 debirf (0.20-1) unstable; urgency=low
 
   * new upstream packaging/build system.  all-inclusive makefile, and

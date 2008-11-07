@@ -515,6 +515,8 @@ makeiso() {
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
+    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+
     cd "$DEBIRF_PROFILE" || failure "Could not enter profile directory '$DEBIRF_PROFILE'."
     local KERNEL=${KERNEL:-$(echo "vmlinu"*)}
     local INITRAMFS=${INITRAMFS:-$(echo "debirf-"*.cgz)}
@@ -563,13 +565,16 @@ makeiso() {
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 terminal --timeout=10 serial console
 
-title        Debirf ($DEBIRF_LABEL) (created $(date -R))
-kernel       /$KERNEL
-initrd       /$INITRAMFS
+title Debirf ($DEBIRF_LABEL) (created $(date -R)) serial console
+kernel /$KERNEL console=ttyS0,115200n8
+initrd /$INITRAMFS
+
+title Debirf ($DEBIRF_LABEL) (created $(date -R)) video console
+kernel /$KERNEL console=tty0
+initrd /$INITRAMFS
 EOF
 
     # determine iso name
-    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
     DEBIRF_ISO="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.iso"
 
     genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "$DEBIRF_ISO" iso
