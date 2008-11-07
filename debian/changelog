@@ -4,7 +4,10 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   * fixing makeiso image name generation
   * placing serial-console boot stanza in menu.lst for ISO
 
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Thu, 06 Nov 2008 21:19:03 -0500
+  [ Jameson Graef Rollins ]
+  * canonicalize paths in makeiso function
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Thu, 06 Nov 2008 23:30:12 -0500
 
 debirf (0.20-1) unstable; urgency=low
 

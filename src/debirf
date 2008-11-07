@@ -132,10 +132,18 @@ pack_rootfs() {
 }
 export -f pack_rootfs
 
+# initrd method: stupid simple
+# takes path to initrd as first input
+create_initrd_stupid_simple() {
+    fakeroot_if_needed ln -sf /sbin/init "$DEBIRF_ROOT/init"
+    pack_rootfs "$1"
+}
 
-# create nested cpio archives
+# initrd method: nested cpio archives
+# takes path to initrd as first input
 create_initrd_nested() {
     local util lib
+    local INITRD="$1"
     local NEST_ROOT="$DEBIRF_BUILDD"/nest
 
     # make the nested root
@@ -194,7 +202,7 @@ EOF
     pack_rootfs "$NEST_ROOT"/rootfs.cgz
 
     msg "creating wrapper cgz..."
-    fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$DEBIRF_INITRD"
+    fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$INITRD"
 }
 
 # determine what the host system distro is, and set debirf build defaults
@@ -461,20 +469,20 @@ EOF
 	if [ ! -d "$DEBIRF_ROOT" ] ; then
 	    failure "Debirf root '$DEBIRF_ROOT' not found."
 	fi
-        # determine initrd name
-	KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
-	DEBIRF_INITRD="${DEBIRF_BUILDD}/${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.cgz"
+        # determine initramfs name
+	local KERNEL_VERS=$(ls -1 "${DEBIRF_ROOT}/lib/modules" | head -n1)
+	local INITRD="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.cgz"
 	
 	msg "creating debirf initrd ('$DEBIRF_METHOD')..."
-	create_initrd_${DEBIRF_METHOD} "$DEBIRF_INITRD"
+	create_initrd_${DEBIRF_METHOD} "${DEBIRF_BUILDD}/${INITRD}"
 	
         # final output
-	DEBIRF_KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
+	local KERNEL=$(ls "$DEBIRF_BUILDD" | grep "vmlinu" | grep "$KERNEL_VERS$")
 	msg "debirf initrd created."
-	if [ "$DEBIRF_BUILDD/$DEBIRF_KERNEL" ] ; then
-	    msg "kernel: $DEBIRF_BUILDD/$DEBIRF_KERNEL"
+	if [ "${DEBIRF_BUILDD}/${KERNEL}" ] ; then
+	    msg "kernel: ${DEBIRF_BUILDD}/${KERNEL}"
 	fi
-	msg "initrd: $DEBIRF_INITRD"
+	msg "initrd: ${DEBIRF_BUILDD}/${INITRD}"
     else
 	echo "Not creating initramfs."
     fi
@@ -508,11 +516,14 @@ makeiso() {
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
-    KERNEL_VERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+    # determine iso name
+    local KERNEL_VERS=$(ls -1 "${DEBIRF_ROOT}/lib/modules" | head -n1)
+    local ISO="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.iso"
 
-    cd "$DEBIRF_PROFILE" || failure "Could not enter profile directory '$DEBIRF_PROFILE'."
-    local KERNEL=${KERNEL:-$(echo "vmlinu"*)}
-    local INITRAMFS=${INITRAMFS:-$(echo "debirf-"*.cgz)}
+    msg "creating debirf iso..."
+
+    local KERNEL=${KERNEL:-$(echo "${DEBIRF_BUILDD}/vmlinu"*)}
+    local INITRAMFS=${INITRAMFS:-$(echo "${DEBIRF_BUILDD}/debirf-"*.cgz)}
 
     # FIXME: it would be best to pull the name of the architecture
     # exactly instead of using shell globbing to guess at it:
@@ -543,18 +554,19 @@ makeiso() {
     [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
 
     # get rid of the "iso" directory if it exists.
-    rm -rf iso
-    mkdir -p iso/boot/grub
+    local ISODIR="${DEBIRF_BUILDD}/iso"
+    rm -rf "$ISODIR"
+    mkdir -p "$ISODIR"/boot/grub
 
     # use hard links to avoid massive copying time and genisoimage's
     # warning about -f (we're almost certainly on the same filesystem):
-    ln "$KERNEL" iso/ || failure "Failed to link kernel into iso"
-    ln "$INITRAMFS" iso/ || failure "Failed to link initramfs into iso"
+    ln "$KERNEL" "$ISODIR"/ || failure "Failed to link kernel into iso"
+    ln "$INITRAMFS" "$ISODIR"/ || failure "Failed to link initramfs into iso"
 
     # this file is very likely not on the same filesystem (and it's
     # likely to be small) so copying it makes more sense than linking:
-    cp "$GRUB_ELTORITO" iso/boot/grub/
-    cat >iso/boot/grub/menu.lst <<EOF
+    cp "$GRUB_ELTORITO" "$ISODIR"/boot/grub/
+    cat >"$ISODIR"/boot/grub/menu.lst <<EOF
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 terminal --timeout=10 serial console
 
@@ -567,11 +579,11 @@ kernel /$KERNEL console=tty0
 initrd /$INITRAMFS
 EOF
 
-    # determine iso name
-    DEBIRF_ISO="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.iso"
+    genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "${DEBIRF_BUILDD}/${ISO}" "$ISODIR"
+    # do we need to clean up the iso/ directory so that this can be run again?
 
-    genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o "$DEBIRF_ISO" iso
-    # do we need to clean up the iso/ directory so that this can be run again?    
+    msg "debirf iso created."
+    msg "iso: ${DEBIRF_BUILDD}/${ISO}"
 }
 
 
