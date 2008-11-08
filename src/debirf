@@ -3,7 +3,7 @@
 # debirf: script to build debirf system.
 #
 # The debirf scripts were written by
-# Jameson Rollins <jrollins@fifthhorseman.net>
+# Jameson Graef Rollins <jrollins@finestructure.net>
 # and
 # Daniel Kahn Gillmor <dkg-debian.org@fifthhorseman.net>.
 #
@@ -491,7 +491,7 @@ EOF
 
 # enter profile root
 enter() {
-    DEBIRF_PROFILE="$1"
+    DEBIRF_PROFILE=$(dirname "$1"/x)
     shift
 
     setup_environment
@@ -507,7 +507,7 @@ enter() {
 # see:
 # http://www.gnu.org/software/grub/manual/html_node/Making-a-GRUB-bootable-CD-ROM.html)
 makeiso() {
-    DEBIRF_PROFILE="$1"
+    DEBIRF_PROFILE=$(dirname "$1"/x)
     shift
 
     setup_environment
