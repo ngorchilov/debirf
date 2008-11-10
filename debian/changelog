@@ -3,6 +3,8 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   [ Daniel Kahn Gillmor ]
   * fixing makeiso image name generation
   * placing serial-console boot stanza in menu.lst for ISO
+  * debian/control: swapped Maintainer and Uploader, updated my e-mail
+    address.
 
   [ Jameson Graef Rollins ]
   * canonicalize paths in makeiso function
