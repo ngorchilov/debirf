@@ -361,7 +361,7 @@ make() {
 		    usage
 		    exit 1
 		fi
-		DEBIRF_PROFILE=$(dirname "$1"/x)
+		DEBIRF_PROFILE=${1%%/}
 		break
 		;;
 	esac
@@ -491,7 +491,7 @@ EOF
 
 # enter profile root
 enter() {
-    DEBIRF_PROFILE=$(dirname "$1"/x)
+    DEBIRF_PROFILE=${1%%/}
     shift
 
     setup_environment
@@ -507,7 +507,7 @@ enter() {
 # see:
 # http://www.gnu.org/software/grub/manual/html_node/Making-a-GRUB-bootable-CD-ROM.html)
 makeiso() {
-    DEBIRF_PROFILE=$(dirname "$1"/x)
+    DEBIRF_PROFILE=${1%%/}
     shift
 
     setup_environment
@@ -522,33 +522,33 @@ makeiso() {
 
     msg "creating debirf iso..."
 
-    local KERNEL=${KERNEL:-$(echo "${DEBIRF_BUILDD}/vmlinu"*)}
-    local INITRAMFS=${INITRAMFS:-$(echo "${DEBIRF_BUILDD}/debirf-"*.cgz)}
+    local KERNEL=${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
+    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 debirf-*.cgz)}
 
     # FIXME: it would be best to pull the name of the architecture
     # exactly instead of using shell globbing to guess at it:
     local GRUB_ELTORITO=${GRUB_ELTORITO:-$(echo "/usr/lib/grub/"*"-pc/stage2_eltorito")}
 
-    case $(ls -l $KERNEL 2> /dev/null | wc -l) in
+    case $(echo "$KERNEL" | wc -l) in
 	0)
-	    failure "Failed to find a kernel in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
 	1)
 	    true
 	    ;;
 	*)
-	    failure "Multiple kernels found in '$DEBIRF_PROFILE'.  Please clear out all but the desired kernel."
+	    failure "Multiple kernels found.  Please clear out all but the desired kernel."
 	    ;;
     esac
-    case $(ls -l $INITRAMFS 2> /dev/null | wc -l) in
+    case $(echo "$INITRAMFS" | wc -l) in
 	0)
-	    failure "Failed to find a single initramfs in '$DEBIRF_PROFILE'.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
 	1)
 	    true
 	    ;;
 	*)
-	    failure "Multiple initramfs found in '$DEBIRF_PROFILE'.  Please clear out all but the desired initramfs."
+	    failure "Multiple initramfs found.  Please clear out all but the desired initramfs."
 	    ;;
     esac
     [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
@@ -560,8 +560,8 @@ makeiso() {
 
     # use hard links to avoid massive copying time and genisoimage's
     # warning about -f (we're almost certainly on the same filesystem):
-    ln "$KERNEL" "$ISODIR"/ || failure "Failed to link kernel into iso"
-    ln "$INITRAMFS" "$ISODIR"/ || failure "Failed to link initramfs into iso"
+    ln "${DEBIRF_BUILDD}/${KERNEL}" "${ISODIR}/" || failure "Failed to link kernel into iso"
+    ln "${DEBIRF_BUILDD}/${INITRAMFS}" "${ISODIR}/" || failure "Failed to link initramfs into iso"
 
     # this file is very likely not on the same filesystem (and it's
     # likely to be small) so copying it makes more sense than linking:
@@ -570,11 +570,11 @@ makeiso() {
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 terminal --timeout=10 serial console
 
-title Debirf ($DEBIRF_LABEL) (created $(date -R)) serial console
+title Debirf: $DEBIRF_LABEL, serial console (created $(date -R)) 
 kernel /$KERNEL console=ttyS0,115200n8
 initrd /$INITRAMFS
 
-title Debirf ($DEBIRF_LABEL) (created $(date -R)) video console
+title Debirf: $DEBIRF_LABEL, video console (created $(date -R)) 
 kernel /$KERNEL console=tty0
 initrd /$INITRAMFS
 EOF

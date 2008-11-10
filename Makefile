@@ -1,9 +1,16 @@
-VERSION := `head -n1 debian/changelog | sed 's/.*(\([^-]*\)-.*/\1/'`
+#!/usr/bin/make -f
 
-PROF_DIR = doc/example-profiles
+# Makefile for debirf
+
+# (c) 2008 Jameson Graef Rollins <jrollins@finestructure.net>
+# Licensed under GPL v3 or later
+
+VERSION := `head -n1 debian/changelog | sed 's/.*(\([^-]*\)-.*/\1/'`
 
 PREFIX ?= /usr
 MANPREFIX ?= $(PREFIX)/share/man
+
+PROF_DIR = doc/example-profiles
 
 build:
 	
