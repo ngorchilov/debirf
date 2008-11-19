@@ -5,6 +5,8 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   * placing serial-console boot stanza in menu.lst for ISO
   * debian/control: swapped Maintainer and Uploader, updated my e-mail
     address.
+  * xkiosk uses modern runit controls instead of explicitly symlinking
+    servicedirs
 
   [ Jameson Graef Rollins ]
   * canonicalize paths in makeiso function

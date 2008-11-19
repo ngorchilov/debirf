@@ -125,7 +125,7 @@ EOF
 debirf_exec chmod a+x "$RUNIT_DIR"/log/run
 
 # link in service dir
-debirf_exec ln -sf "$RUNIT_DIR" /var/service/
+debirf_exec update-service --add "$RUNIT_DIR"
 
 ### make system xinitrc
 cat <<EOF > "$DEBIRF_ROOT"/etc/X11/xinit/xinitrc
