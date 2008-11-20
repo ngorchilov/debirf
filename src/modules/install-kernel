@@ -23,15 +23,19 @@ rm -rf "$DEBIRF_ROOT/lib/modules"
 
 # download/copy in kernel package
 if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
-    # otherwise, try to figure out the kernel to install
-    # assume arch of build host
-    KARCH=$(uname -r | tr '-' '\n' | tail -1)
+    # determine kernel to install. assume arch of build host.
 
-    # old method, uses apt-get, but downloads dependencies too
-    #debirf_exec apt-get --assume-yes --download-only install linux-image-2.6-"$KARCH"
+    # determine kernel arch.  need everything after the kernel version
+    # and debian version
+    KARCH=$(uname -r | cut -d- -f3-)
 
-    # new method, uses aptitude, but downloads only needed kernel package
+    # determine the full kernel version from the dependency of the
+    # generic 2.6-ARCH package in the debirf root (since it may be
+    # different than what is installed on the build host)
     KNAME=$(debirf_exec apt-cache show linux-image-2.6-"$KARCH" | grep '^Depends: ' | sed 's/^Depends: //')
+
+    # download only the desired kernel package directly into the apt
+    # cache for dpkg extraction
     debirf_exec sh -c "cd /var/cache/apt/archives/ && aptitude download \"$KNAME\""
 
 else
@@ -48,11 +52,11 @@ debirf_exec dpkg --extract /var/cache/apt/archives/"$KPKG" /
 debirf_exec apt-get --assume-yes install module-init-tools
 
 # depmod to create module list
-KVERS=$(ls -1 "$DEBIRF_ROOT/lib/modules" | head -n1)
+KVERS=$(ls -1 -t "$DEBIRF_ROOT/lib/modules" | head -n1)
 echo "generating modules.dep..."
 debirf_exec depmod -a "$KVERS"
 
-# extract kernel and debian stock initrd:
+# extract kernel and debian stock initrd from the build root:
 mv "$DEBIRF_ROOT"/boot/vmlinu* "$DEBIRF_BUILDD"
 
 # remove kernel symlinks

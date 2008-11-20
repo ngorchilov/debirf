@@ -12,8 +12,9 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   * canonicalize paths in makeiso function
   * strip tailing slashes off of profile names to avoid weird problems
     with fakechroot when entering a debirf profile.
+  * fix kernel arch determination.
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Sat, 08 Nov 2008 13:49:40 -0500
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 19 Nov 2008 23:39:45 -0500
 
 debirf (0.20-1) unstable; urgency=low
 
