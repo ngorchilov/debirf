@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # debirf module: network-dhcp
 # setup network interface to automatically come up with dhcp

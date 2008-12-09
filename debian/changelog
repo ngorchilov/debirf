@@ -13,8 +13,17 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   * strip tailing slashes off of profile names to avoid weird problems
     with fakechroot when entering a debirf profile.
   * fix kernel arch determination.
+  * change shebang line for all modules that call debirf_exec to
+    /bin/bash, so they will work properly when /bin/sh is not /bin/bash.
+    this also includes changes to enter subcommand to compensate (closes
+    CMRG #99).
+  * add -e to all module shebang lines as well, so all errors are properly
+    caught.
+  * fix path in fakeroot_if_needed to not include $PATH, to bypass
+    problems with the path of the calling user.
+  * have setup_environment handle setup of DEBIRF_PROFILE variable.
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 19 Nov 2008 23:39:45 -0500
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 09 Dec 2008 17:35:12 -0500
 
 debirf (0.20-1) unstable; urgency=low
 

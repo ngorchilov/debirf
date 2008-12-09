@@ -237,9 +237,16 @@ set_distro() {
 
 # setup profile environment
 setup_environment() {
+    # get the debirf profile path
+    # FIXME: should we canonicalize DEBIRF_PROFILE to an absolute
+    # path?
+    DEBIRF_PROFILE=${1%%/}
+
+    DEBIRF_PROFILE_NAME=$(cd "$DEBIRF_PROFILE" && basename $(pwd))
+
     # check profile
     if [ -d "$DEBIRF_PROFILE" ] ; then
-	echo "Loading profile '$DEBIRF_PROFILE'..."
+	echo "Loading profile '$DEBIRF_PROFILE_NAME'..."
 	DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
 	DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
     else
@@ -361,7 +368,6 @@ make() {
 		    usage
 		    exit 1
 		fi
-		DEBIRF_PROFILE=${1%%/}
 		break
 		;;
 	esac
@@ -380,7 +386,8 @@ EOF
 	fi
     fi
 
-    setup_environment
+    setup_environment "$1"
+    shift
 
     if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
 	if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
@@ -491,15 +498,13 @@ EOF
 
 # enter profile root
 enter() {
-    DEBIRF_PROFILE=${1%%/}
+    setup_environment "$1"
     shift
 
-    setup_environment
-
     if [ "$1" ] ; then
-	fakeroot_if_needed debirf_exec "$@"
+        fakeroot_if_needed bash -c ". $DEBIRF_COMMON && debirf_exec $@"
     else
-	fakeroot_if_needed debirf_exec bash -i
+        fakeroot_if_needed bash -c ". $DEBIRF_COMMON && debirf_exec bash -i"
     fi
 }
 
@@ -507,10 +512,8 @@ enter() {
 # see:
 # http://www.gnu.org/software/grub/manual/html_node/Making-a-GRUB-bootable-CD-ROM.html)
 makeiso() {
-    DEBIRF_PROFILE=${1%%/}
+    setup_environment "$1"
     shift
-
-    setup_environment
 
     (which genisoimage > /dev/null) || failure "genisoimage is not in your path.  Maybe you need to install it?"
 

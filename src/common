@@ -45,7 +45,7 @@ fakeroot_if_needed() {
  	    failure "Debirf fakeroot state file '$DEBIRF_FAKEROOT_STATE' does not exist."
  	fi
         # set up $PATH and $HOME as though we are superuser
-	HOME=/root PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
+	HOME=/root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin fakeroot -i "$DEBIRF_FAKEROOT_STATE" -s "$DEBIRF_FAKEROOT_STATE" "$@"
     fi
 }
 export -f fakeroot_if_needed
