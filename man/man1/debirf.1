@@ -81,9 +81,9 @@ to extend the capabilities of debirf.  Modules are bash shell scripts
 that are executed in alpha-numeric order by \fBrun-parts\fP in a
 chroot in the debirf root during the module stage of the debirf build.
 The module stage is right after the debirf debootstrap stage, and
-right before the initramfs archive is created.  All of the shell
-variables defined in the \fIdebirf.conf\fP file are available to the
-modules.
+right before the initramfs archive is created.  All shell variables
+begining with "DEBIRF_", including those defined in the
+\fIdebirf.conf\fP file, are available to the modules.
 .PP
 \fBNOTE:\fP Some modules are more important to the proper functioning
 of debirf than others, and the ordering of modules is important.  Some
