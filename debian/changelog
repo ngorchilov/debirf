@@ -1,4 +1,4 @@
-debirf (0.21~pre-1) UNRELEASED; urgency=low
+debirf (0.21-1) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]
   * fixing makeiso image name generation
@@ -16,7 +16,7 @@ debirf (0.21~pre-1) UNRELEASED; urgency=low
   * change shebang line for all modules that call debirf_exec to
     /bin/bash, so they will work properly when /bin/sh is not /bin/bash.
     this also includes changes to enter subcommand to compensate (closes
-    CMRG #99).
+    CMRG #99)  (Closes: #508041).
   * add -e to all module shebang lines as well, so all errors are properly
     caught.
   * fix path in fakeroot_if_needed to not include $PATH, to bypass
