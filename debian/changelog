@@ -1,3 +1,11 @@
+debirf (0.22-1~pre) UNRELEASED; urgency=low
+
+  * add DEBIRF_ARCH variable to allow for specifying different
+    architecture than default (thanks to Gary Kramlich for patch).
+  * fix initramfs determination in makeiso (thanks again Gary Kramlich).
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Sat, 20 Dec 2008 15:21:34 -0500
+
 debirf (0.21-1) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]

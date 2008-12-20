@@ -90,6 +90,10 @@ create_debootstrap() {
         OPTS="--keyring='$DEBIRF_KEYRING' $OPTS"
     fi
 
+    if [ "$DEBIRF_ARCH" ] ; then
+        OPTS="--arch='$DEBIRF_ARCH' $OPTS"
+    fi
+
     mkdir -p "$DEBIRF_ROOT"
 
     if [ "$ROOT_BUILD" = 'true' ] ; then
@@ -519,19 +523,8 @@ makeiso() {
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
-    # determine iso name
-    local KERNEL_VERS=$(ls -1 "${DEBIRF_ROOT}/lib/modules" | head -n1)
-    local ISO="${DEBIRF_LABEL}_${DEBIRF_SUITE}_${KERNEL_VERS}.iso"
-
-    msg "creating debirf iso..."
-
+    # find kernel
     local KERNEL=${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
-    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 debirf-*.cgz)}
-
-    # FIXME: it would be best to pull the name of the architecture
-    # exactly instead of using shell globbing to guess at it:
-    local GRUB_ELTORITO=${GRUB_ELTORITO:-$(echo "/usr/lib/grub/"*"-pc/stage2_eltorito")}
-
     case $(echo "$KERNEL" | wc -l) in
 	0)
 	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
@@ -543,6 +536,9 @@ makeiso() {
 	    failure "Multiple kernels found.  Please clear out all but the desired kernel."
 	    ;;
     esac
+
+    # find initramfs
+    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 "${DEBIRF_LABEL}"_*.cgz)}
     case $(echo "$INITRAMFS" | wc -l) in
 	0)
 	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
@@ -554,9 +550,20 @@ makeiso() {
 	    failure "Multiple initramfs found.  Please clear out all but the desired initramfs."
 	    ;;
     esac
-    [ -r "$GRUB_ELTORITO" ] || failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
 
-    # get rid of the "iso" directory if it exists.
+    # find GRUB
+    # FIXME: it would be best to pull the name of the architecture
+    # exactly instead of using shell globbing to guess at it:
+    local GRUB_ELTORITO=${GRUB_ELTORITO:-$(echo "/usr/lib/grub/"*"-pc/stage2_eltorito")}
+    [ -r "$GRUB_ELTORITO" ] || \
+	failure "Failed to find a grub El Torito stage2 loader at '$GRUB_ELTORITO'.  Try specifying it explicitly with the GRUB_ELTORITO environment variable"
+
+    msg "creating debirf iso..."
+
+    # determine the iso name from the initramfs
+    local ISO=$(basename "$INITRAMFS" .cgz).iso
+
+    # create clean iso directory
     local ISODIR="${DEBIRF_BUILDD}/iso"
     rm -rf "$ISODIR"
     mkdir -p "$ISODIR"/boot/grub
