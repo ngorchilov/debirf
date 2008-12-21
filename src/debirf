@@ -169,6 +169,9 @@ create_initrd_nested() {
 	echo -e "$lib\n$(readlink -f $lib)" | cpio --pass-through --make-directories "$NEST_ROOT"/
     done
     cp -f /lib/klibc-* "$NEST_ROOT"/lib/
+    if [ -L /lib64 ] && [ $(readlink /lib64) = /lib ] ; then
+	ln -s /lib "$NEST_ROOT"/lib64
+    fi
 
     # create nest init
     cat > "$NEST_ROOT"/init <<EOF
