@@ -1,5 +1,9 @@
-debirf (0.22-1~pre) UNRELEASED; urgency=low
+debirf (0.22-1) unstable; urgency=low
 
+  [ Daniel Kahn Gillmor ]
+  * fixed nest on 64-bit architectures (Closes: #509381).
+
+  [ Jameson Graef Rollins ]
   * add DEBIRF_ARCH variable to allow for specifying different
     architecture than default (thanks to Gary Kramlich for patch).
   * fix initramfs determination in makeiso (thanks again Gary Kramlich).
