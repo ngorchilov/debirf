@@ -162,7 +162,7 @@ create_initrd_nested() {
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
 
     # copy in needed libraries
-    for lib in $(ldd "$NEST_ROOT"/bin/* | egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8}\)$' | sed -r 's|.*[[:space:]](/[^[[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8}\)$|\1|' | sort -u) ; do
+    for lib in $(ldd "$NEST_ROOT"/bin/* | egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8,16}\)$' | sed -r 's|.*[[:space:]](/[^[[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8,16}\)$|\1|' | sort -u) ; do
 	# pull libraries from most basic place libraries can live
 	# (avoid arch change between build env and debirf)
 	lib=/lib/$(basename "$lib")
