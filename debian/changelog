@@ -8,8 +8,10 @@ debirf (0.23~pre-1) UNRELEASED; urgency=low
     MacOS filesystems with debirf.
   * added e2undel, recover, e2tools, reiserfstools to the rescue module to
     help recover Linux filesystems with debirf.
+  * added parted to rescue module for dealing with various kinds of
+    partition tables.
   
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Thu, 22 Jan 2009 22:56:03 -0500
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Mon, 26 Jan 2009 18:26:32 -0500
 
 debirf (0.22-1) unstable; urgency=low
 
