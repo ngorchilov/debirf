@@ -1,4 +1,4 @@
-debirf (0.23~pre-1) UNRELEASED; urgency=low
+debirf (0.23-1) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]
   * updated my e-mail address
@@ -14,7 +14,7 @@ debirf (0.23~pre-1) UNRELEASED; urgency=low
     (Closes: #509381)
   * bumped policy to 3.8.1 (no changes needed).
   
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 16 Jun 2009 09:28:11 -0400
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 16 Jun 2009 13:34:05 -0400
 
 debirf (0.22-1) unstable; urgency=low
 
