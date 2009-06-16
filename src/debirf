@@ -51,7 +51,7 @@ Usage: $CMD <subcommand> [options] [args]
 Debirf system tool.
 
 subcommands:
-  make [options] PROFILE    build debirf profile (make kernel and initramfs)
+  make [options] PROFILE    build debirf kernel and initramfs
     -c|--check-vars           check variables before make
     -n|--new                  create new root, even if old one exists
     -o|--overwrite            debootstrap on top of old root if it exists
@@ -62,7 +62,7 @@ subcommands:
     -d|--no-initrd            do not make initramfs
     -i|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
-  enter PROFILE [CMDS]      enter shell in debirf profile root changes
+  enter PROFILE [CMDS]      enter shell in debirf root
                             (optional execute CMDS in root and exit)
   makeiso PROFILE           create a bootable ISO using the given profile
                             (requires GRUB)
@@ -102,6 +102,8 @@ create_debootstrap() {
 	eval "fakeroot_if_needed fakechroot /usr/sbin/debootstrap --variant=fakechroot $OPTS"
     fi
 
+    # FIXME: should this be done in a trap so that the log
+    # debootstrap.log is retrieved from the root in case of failure?
     fakeroot_if_needed mv "$DEBIRF_ROOT"/var/log/bootstrap.log "$DEBIRF_BUILDD"/.bootstrap.log
 }
 
@@ -620,7 +622,7 @@ case $COMMAND in
     'enter'|'e')
         enter "$@"
         ;;
-    'help'|'h'|'?')
+    'help'|'h'|'?'|'-h'|'--help')
         usage
         ;;
     *)
