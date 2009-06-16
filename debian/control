@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jameson Graef Rollins <jrollins@finestructure.net>
 Uploaders: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
 Build-Depends: debhelper (>= 7.0)
-Standards-Version: 3.8.0.1
+Standards-Version: 3.8.1
 Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
 Vcs-Svn: http://cmrg.fifthhorseman.net/svn/trunk/debirf
 Vcs-Browser: http://cmrg.fifthhorseman.net/browser/trunk/debirf
@@ -12,7 +12,7 @@ Dm-Upload-Allowed: yes
 
 Package: debirf
 Architecture: all
-Depends: debootstrap, cpio, apt, fakeroot, fakechroot, busybox-static | busybox, klibc-utils
+Depends: debootstrap, cpio, apt, fakeroot, fakechroot, busybox-static | busybox, klibc-utils, ${misc:Depends}
 Recommends: genisoimage, grub
 Suggests: linux-patch-inittmpfs
 Description: build a kernel and initrd to run Debian from RAM

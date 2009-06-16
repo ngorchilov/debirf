@@ -7,7 +7,7 @@
 # and
 # Daniel Kahn Gillmor <dkg@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL,
+# They are Copyright 2007-2009, and are all released under the GPL,
 # version 3 or later.
 
 ###############################################################
@@ -162,7 +162,10 @@ create_initrd_nested() {
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
 
     # copy in needed libraries
-    for lib in $(ldd "$NEST_ROOT"/bin/* | egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8,16}\)$' | sed -r 's|.*[[:space:]](/[^[[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8,16}\)$|\1|' | sort -u) ; do
+    for lib in $(ldd "$NEST_ROOT"/bin/* | \
+	egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8,16}\)$' | \
+	sed -r 's|.*[[:space:]](/[^[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8,16}\)$|\1|' | \
+	sort -u) ; do
 	# pull libraries from most basic place libraries can live
 	# (avoid arch change between build env and debirf)
 	lib=/lib/$(basename "$lib")

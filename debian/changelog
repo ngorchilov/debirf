@@ -10,8 +10,11 @@ debirf (0.23~pre-1) UNRELEASED; urgency=low
     help recover Linux filesystems with debirf.
   * added parted to rescue module for dealing with various kinds of
     partition tables.
+  * fixed broken sed expression in nest library search (thanks, Guido Günther)
+    (Closes: #509381)
+  * bumped policy to 3.8.1 (no changes needed).
   
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Mon, 26 Jan 2009 18:26:32 -0500
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 16 Jun 2009 09:28:11 -0400
 
 debirf (0.22-1) unstable; urgency=low
 
