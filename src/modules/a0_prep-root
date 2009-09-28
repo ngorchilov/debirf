@@ -59,7 +59,9 @@ debirf_exec debconf-set-selections <<EOF
 debconf debconf/frontend select Noninteractive
 EOF
 
-# update apt
+# update/upgrade
 debirf_exec apt-get update
+debirf_exec apt-get upgrade
+
 # make sure aptitude is installed, since some modules require it
 debirf_exec apt-get -y install aptitude
