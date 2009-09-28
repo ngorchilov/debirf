@@ -292,6 +292,9 @@ setup_environment() {
 	failure "Could not find build directory '$DEBIRF_BUILDD'."
     fi
 
+    # "absolutize" the buildd path
+    DEBIRF_BUILDD=$(cd "$DEBIRF_BUILD" && pwd)
+
     # set root directory
     DEBIRF_ROOT="$DEBIRF_BUILDD/root"
 
