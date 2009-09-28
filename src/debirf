@@ -62,10 +62,8 @@ subcommands:
     -d|--no-initrd            do not make initramfs
     -i|--initrd-only          just remake initramfs from existing root
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
-  enter PROFILE [CMDS]      enter shell in debirf root
-                            (optional execute CMDS in root and exit)
+  enter PROFILE [CMDS]      enter shell in debirf root (or execute CMDS)
   makeiso PROFILE           create a bootable ISO using the given profile
-                            (requires GRUB)
   help                      this help
 
 EOF
