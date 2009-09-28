@@ -5,8 +5,9 @@ debirf (0.24-1) unstable; urgency=low
   * update makeiso to use new grub2 grub-pc grub-mkrescue utility, or
     isolinux from syslinux-common
   * bumped standards version to 3.8.3 (no changes needed).
-  
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 28 Sep 2009 18:34:12 +0200
+  * explicitly delete root passwd
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 28 Sep 2009 21:24:53 +0200
 
 debirf (0.23-1) unstable; urgency=low
 

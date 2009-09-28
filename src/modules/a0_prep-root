@@ -52,6 +52,9 @@ ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 EOF
 
+# purge root password
+debirf_exec passwd -d root
+
 # set debconf to noninteractive
 debirf_exec debconf-set-selections <<EOF
 # Interface to use:
