@@ -31,11 +31,11 @@ Chroot into root of profile PROFILE, with full profile environment.
 .TP
 .B makeiso PROFILE
 Create a bootable CD-ROM image from the kernel and initramfs in
-PROFILE.  This requires a copy of the GRUB El Torito bootloader to be
-available (it is pulled from the debian package's default location,
-but can an absolute path to the image can be supplied with the
-GRUB_ELTORITO environment variable).  "mkisofs" must be present in the
-user's path.
+PROFILE.  This requires an El Torito bootloader to be available.  If
+grub-pc is installed, then the grub-mkrescue utility from that package
+will be used.  If grub-mkrescue is not available, then isolinux from
+the syslinux-common can be used as long as genisoimage utility is also
+available.
 .TP
 .B help
 Output a brief usage summary.
