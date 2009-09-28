@@ -13,8 +13,7 @@ Dm-Upload-Allowed: yes
 Package: debirf
 Architecture: all
 Depends: debootstrap, cpio, apt, fakeroot, fakechroot, busybox-static | busybox, klibc-utils, ${misc:Depends}
-Recommends: genisoimage, grub-pc | syslinux-common
-Suggests: linux-patch-inittmpfs
+Recommends: genisoimage, grub-pc (>= 1.97~beta3) | syslinux-common
 Description: build a kernel and initrd to run Debian from RAM
  debirf (DEBian on Initial Ram Filesystem) is a set of tools designed
  to create and prepare a kernel and initial ram filesystem that can
