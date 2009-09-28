@@ -4,8 +4,9 @@ debirf (0.24-1) unstable; urgency=low
     (#548691)
   * update makeiso to use new grub2 grub-pc grub-mkrescue utility, or
     isolinux from syslinux-common
-
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 28 Sep 2009 18:14:29 +0200
+  * bumped standards version to 3.8.1 (no changes needed).
+  
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Mon, 28 Sep 2009 18:16:48 +0200
 
 debirf (0.23-1) unstable; urgency=low
 

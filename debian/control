@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jameson Graef Rollins <jrollins@finestructure.net>
 Uploaders: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
 Build-Depends: debhelper (>= 7.0)
-Standards-Version: 3.8.1
+Standards-Version: 3.8.3
 Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
 Vcs-Svn: http://cmrg.fifthhorseman.net/svn/trunk/debirf
 Vcs-Browser: http://cmrg.fifthhorseman.net/browser/trunk/debirf
