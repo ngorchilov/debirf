@@ -293,6 +293,8 @@ setup_environment() {
     fi
 
     # "absolutize" the buildd path
+    # This is needed because of trouble with fakechroot (see
+    # http://bugs.debian.org/548691)
     DEBIRF_BUILDD=$(cd "$DEBIRF_BUILDD" && pwd)
 
     # set root directory
