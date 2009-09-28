@@ -293,7 +293,7 @@ setup_environment() {
     fi
 
     # "absolutize" the buildd path
-    DEBIRF_BUILDD=$(cd "$DEBIRF_BUILD" && pwd)
+    DEBIRF_BUILDD=$(cd "$DEBIRF_BUILDD" && pwd)
 
     # set root directory
     DEBIRF_ROOT="$DEBIRF_BUILDD/root"
