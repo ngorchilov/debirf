@@ -32,10 +32,10 @@ Chroot into root of profile PROFILE, with full profile environment.
 .B makeiso PROFILE
 Create a bootable CD-ROM image from the kernel and initramfs in
 PROFILE.  This requires an El Torito bootloader to be available.  If
-grub-pc is installed, then the grub-mkrescue utility from that package
-will be used.  If grub-mkrescue is not available, then isolinux from
-the syslinux-common can be used as long as genisoimage utility is also
-available.
+the syslinux-common package is installed, then isolinux is used.  If
+not, and grub-pc is installed, then the grub-mkrescue utility from
+that package will be used.  You may use the \fBDEBIRF_ELTORITO\fP
+environment variable to specify manually (see below).
 .TP
 .B help
 Output a brief usage summary.
@@ -148,10 +148,12 @@ mirror to pull suite (default determined by DEBIRF_DISTRO)
 .B DEBIRF_KEYRING
 keyring to verify debootstrap (default determined by DEBIRF_DISTRO)
 .TP
-.B GRUB_ELTORITO
-absolute path to grub's stage2_eltorito image when using \fBdebirf
-makeiso\fR (default: standard location from debian grub package -- you
-probably don't need to specify this)
+.B DEBIRF_ELTORITO
+whether to use "isolinux" or "grub" as eltorito bootloader for
+\fBdebirf makeiso\fR.  if not specified, "isolinux" is the default.
+when specifying "grub" you may also specify the grub i/o as either the
+serial port or video console with "grub:serial" or "grub:console"
+(default is serial).
 .PD
 .SH FILES
 .PD 1

@@ -566,12 +566,12 @@ makeiso() {
 
     # determine which eltorito boot loader we're using
     if [ -z "$DEBIRF_ELTORITO" ] ; then
-	if which grub-mkrescue >/dev/null ; then
-	    local DEBIRF_ELTORITO=grub
-	elif [ -f /usr/lib/syslinux/isolinux.bin ] ; then
+	if [ -f /usr/lib/syslinux/isolinux.bin ] ; then
 	    local DEBIRF_ELTORITO=isolinux
+	elif which grub-mkrescue >/dev/null ; then
+	    local DEBIRF_ELTORITO=grub
 	else
-	    failure "Suitable El Torito boot loader not found.  Please install grub-pc or syslinux-common."
+	    failure "Suitable El Torito boot loader not found.  Please install syslinux-common or grub-pc."
 	fi
     fi
 
@@ -586,8 +586,8 @@ makeiso() {
     mkdir -p "$ISODIR"
 
     case "$DEBIRF_ELTORITO" in
-	grub)
-	    msg "using grub as bootloader..."
+	grub|grub:serial|grub:console)
+	    msg "using $DEBIRF_ELTORITO as bootloader..."
 
 	    # use hard links to avoid massive copying time and genisoimage's
 	    # warning about -f (we're almost certainly on the same filesystem):
@@ -596,31 +596,50 @@ makeiso() {
 
 	    # make grub.cfg
 	    mkdir -p "$ISODIR"/boot/grub/
-	    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
+	    case "$DEBIRF_ELTORITO" in
+		grub|grub:serial)
+		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 if terminal_input serial ; then true ; else
   # For backward compatibility with versions of terminal.mod that don't
   # understand terminal_input
-  terminal --timeout=10 serial console
+  terminal serial
 fi
 if terminal_output serial ; then true ; else
   # For backward compatibility with versions of terminal.mod that don't
   # understand terminal_output
-  terminal --timeout=10 serial console
+  terminal serial
 fi
+EOF
+		    ;;
+		grub:console)
+		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
+if terminal_input console ; then true ; else
+  # For backward compatibility with versions of terminal.mod that don't
+  # understand terminal_input
+  terminal console
+fi
+if terminal_output console ; then true ; else
+  # For backward compatibility with versions of terminal.mod that don't
+  # understand terminal_output
+  terminal console
+fi
+EOF
+		    ;;
+	    esac
+	    cat >>"$ISODIR"/boot/grub/grub.cfg <<EOF
 menuentry "Debirf: $DEBIRF_LABEL, serial console (created $(date -R))" {
-        linux   /$KERNEL console=ttyS0,115200n8
+        linux   /$KERNEL console=tty0 console=ttyS0,115200n8
         initrd  /$INITRAMFS
 }
 menuentry "Debirf: $DEBIRF_LABEL, video console (created $(date -R))" {
-        linux   /$KERNEL console=tty0
+        linux   /$KERNEL console=ttyS0,115200n8 console=tty0
         initrd  /$INITRAMFS
 }
 EOF
 
 	    # make the iso
     	    grub-mkrescue --image-type=cdrom --overlay="$ISODIR" "${DEBIRF_BUILDD}/${ISO}"
-    
 	    ;;
 
 	isolinux)
@@ -641,23 +660,31 @@ EOF
 serial 0 115200
 prompt 1
 timeout 0
-display isolinux.cfg
+display menu
 default serial
-
-# DebIRF: $DEBIRF_LABEL
-# kernel: $KERNEL
-# initramfs: $INITRAMFS
-# created: $(date -R)
 
 # serial console
 label serial
   kernel vmlinuz
-  append initrd=debirf.cfg console=ttyS0,115200n8
+  append initrd=debirf.cfg console=tty0 console=ttyS0,115200n8
 
 # video console
 label video
   kernel vmlinuz
-  append initrd=debirf.cfg console=tty0
+  append initrd=debirf.cfg console=ttyS0,115200n8 console=tty0
+
+EOF
+	    cat >"$ISODIR"/menu <<EOF
+
+Welcome to debirf: DEBian on InitRamFs
+
+label: $DEBIRF_LABEL
+kernel: $KERNEL
+initramfs: $INITRAMFS
+created: $(date -R)
+
+type 'serial' for serial console i/o (default)
+type 'video' for video console i/o
 
 EOF
 
