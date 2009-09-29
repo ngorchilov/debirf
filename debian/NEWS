@@ -1,0 +1,9 @@
+debirf (0.24-1) unstable; urgency=low
+
+  * Due to incompatibilities between squeeze and lenny, it is currently
+    not possible to build a lenny debirf image on a squeeze or newer
+    system.  Squeeze is now the default distro for debirf images.  For
+    more info, see: http://cmrg.fifthhorseman.net/ticket/105
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 29 Sep 2009 18:03:27 +0200
+
