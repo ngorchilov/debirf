@@ -1,0 +1,163 @@
+# Choose a Terminal (serial vs. graphical consle) from GRUB
+
+# Author: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+# Date: 2009-09-29 12:44:06-0400
+
+# this is a grub config file that offers 5 alternating 1-second
+# chances to hit ESC in either the serial console or the
+# graphical console to select which console to use for grub.
+
+# it is ridiculously long right now because grub
+# currently (2009-09-29) does not support any looping constructs,
+# so i've pasted them all together within the ABSURD LOOP
+# comments.
+
+# if looping constructs were possible, the ideal would be to have
+# this cycle through all possible terminal_input and
+# terminal_output choices (what if they don't match?)
+
+# You can load this file with a line in /boot/grub/grub.cfg like:
+
+# configfile /boot/grub/grub2-terminal-chooser
+
+insmod echo
+insmod sleep
+insmod test
+insmod serial
+serial --unit=0 --speed=115200
+
+echo "checking for alternate inputs"
+
+## BEGIN ABSURD LOOP
+
+if test $chosen_console == "" ; then 
+ if terminal_input serial ; then true ; else
+  terminal serial
+ fi
+ if terminal_output serial ; then true ; else
+  terminal serial
+ fi
+ echo "hit ESC to use serial..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=serial
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input console ; then true ; else
+  terminal console
+ fi
+ if terminal_output console ; then true ; else
+  terminal console
+ fi
+ echo "hit ESC to use graphical console..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=console
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input serial ; then true ; else
+  terminal serial
+ fi
+ if terminal_output serial ; then true ; else
+  terminal serial
+ fi
+ echo "hit ESC to use serial..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=serial
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input console ; then true ; else
+  terminal console
+ fi
+ if terminal_output console ; then true ; else
+  terminal console
+ fi
+ echo "hit ESC to use graphical console..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=console
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input serial ; then true ; else
+  terminal serial
+ fi
+ if terminal_output serial ; then true ; else
+  terminal serial
+ fi
+ echo "hit ESC to use serial..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=serial
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input console ; then true ; else
+  terminal console
+ fi
+ if terminal_output console ; then true ; else
+  terminal console
+ fi
+ echo "hit ESC to use graphical console..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=console
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input serial ; then true ; else
+  terminal serial
+ fi
+ if terminal_output serial ; then true ; else
+  terminal serial
+ fi
+ echo "hit ESC to use serial..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=serial
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input console ; then true ; else
+  terminal console
+ fi
+ if terminal_output console ; then true ; else
+  terminal console
+ fi
+ echo "hit ESC to use graphical console..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=console
+ fi
+fi
+
+if test $chosen_console == "" ; then 
+ if terminal_input serial ; then true ; else
+  terminal serial
+ fi
+ if terminal_output serial ; then true ; else
+  terminal serial
+ fi
+ echo "hit ESC to use serial..."
+ if sleep --interruptible 1 ; then true; else
+  chosen_console=serial
+ fi
+fi
+
+## END ABSURD LOOP
+
+# else we default to using the graphical console:
+
+echo "using graphical console"
+
+if terminal_input console ; then true ; else
+ terminal console
+fi
+if terminal_output console ; then true ; else
+ terminal console
+fi
+
+echo "using graphical console"
