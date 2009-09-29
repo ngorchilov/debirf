@@ -82,6 +82,8 @@ failure() {
 }
 
 create_debootstrap() {
+    msg "distro/suite: ${DEBIRF_DISTRO}/${DEBIRF_SUITE}"
+
     local OPTS="--include=$INCLUDE --exclude=$EXCLUDE $DEBIRF_SUITE $DEBIRF_ROOT $DEBIRF_MIRROR"
 
     if [ "$DEBIRF_KEYRING" ] ; then
@@ -224,7 +226,7 @@ set_distro() {
 	    DEBIRF_SUITE=${DEBIRF_SUITE:-"hoary"}
 	    ;;
 	*)
-	    DEBIRF_SUITE=${DEBIRF_SUITE:-"lenny"}
+	    DEBIRF_SUITE=${DEBIRF_SUITE:-"squeeze"}
 	    ;;
     esac
 
@@ -256,7 +258,7 @@ setup_environment() {
 
     # check profile
     if [ -d "$DEBIRF_PROFILE" ] ; then
-	echo "Loading profile '$DEBIRF_PROFILE_NAME'..."
+	msg "loading profile '$DEBIRF_PROFILE_NAME'..."
 	DEBIRF_CONF="$DEBIRF_PROFILE/debirf.conf"
 	DEBIRF_MODULES="$DEBIRF_PROFILE/modules"
     else
@@ -274,7 +276,7 @@ setup_environment() {
 
     # check modules directory
     if [ ! -d "$DEBIRF_MODULES" ] || [ -z "$(ls "$DEBIRF_MODULES")" ] ; then
-	echo "Modules directoy '$DEBIRF_MODULES' does not exist or is empty."
+	echo "Modules directory '$DEBIRF_MODULES' does not exist or is empty."
 	usage_profile
 	exit 1
     fi
@@ -315,7 +317,7 @@ setup_environment() {
     
     # check variables
     if [ "$CHECK_VARS" ] ; then
-	echo "Debirf variables:"
+	msg "debirf variables:"
 	env | /bin/grep "^DEBIRF_"
 	read -p "enter to continue: " OK
     fi
@@ -406,7 +408,7 @@ EOF
 
     if [ "$DEBIRF_KERNEL_PACKAGE" ] ; then
 	if [ -f "$DEBIRF_KERNEL_PACKAGE" ] ; then
-	    echo "Using kernel package '$DEBIRF_KERNEL_PACKAGE'."
+	    msg "using kernel package '$DEBIRF_KERNEL_PACKAGE'"
 	else
 	    failure "Kernel package '$DEBIRF_KERNEL_PACKAGE' not found."
 	fi
@@ -417,7 +419,7 @@ EOF
         # determine write mode
 	if [ -d "$DEBIRF_ROOT" ] ; then
 	    if [ -z "$WRITE_MODE" ] ; then
-		echo "Debirf root already exists.  Select one of the following:"
+		msg "debirf root already exists.  select one of the following:"
 		CASE1='new: delete the old root and create a new one'
 		CASE2='overwrite: leave the old root and debootstrap on top of it'
 		CASE3='skip: skip building the root and go right to installing modules'
@@ -472,7 +474,7 @@ EOF
 	fix_dev
 	
     else
-	echo "Not building root."
+	msg "not building root"
     fi
     ### END BUILD ROOT
     
@@ -480,9 +482,9 @@ EOF
     if [ "$STAGE_MODULES" = 'true' ] ; then
 	msg "executing modules..."
 	run_modules
-	msg "modules complete."
+	msg "modules complete"
     else
-	echo "Not running modules."
+	msg "not running modules"
     fi
     ### END RUN MODULES
 
@@ -506,7 +508,7 @@ EOF
 	fi
 	msg "initrd: ${DEBIRF_BUILDD}/${INITRD}"
     else
-	echo "Not creating initramfs."
+	msg "not creating initramfs."
     fi
     ### END BUILD INITRD
 }
