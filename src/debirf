@@ -566,10 +566,10 @@ makeiso() {
 
     # determine which eltorito boot loader we're using
     if [ -z "$DEBIRF_ELTORITO" ] ; then
-	if [ -f /usr/lib/syslinux/isolinux.bin ] ; then
-	    local DEBIRF_ELTORITO=isolinux
-	elif which grub-mkrescue >/dev/null ; then
+	if which grub-mkrescue >/dev/null ; then
 	    local DEBIRF_ELTORITO=grub
+	elif [ -f /usr/lib/syslinux/isolinux.bin ] ; then
+	    local DEBIRF_ELTORITO=isolinux
 	else
 	    failure "Suitable El Torito boot loader not found.  Please install syslinux-common or grub-pc."
 	fi
@@ -597,7 +597,16 @@ makeiso() {
 	    # make grub.cfg
 	    mkdir -p "$ISODIR"/boot/grub/
 	    case "$DEBIRF_ELTORITO" in
-		grub|grub:serial)
+		# use fancy grub serial/console chooser
+		grub)
+		    cp /usr/share/debirf/grub2-terminal-chooser "$ISODIR"/boot/grub/
+		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
+insmod configfile
+configfile /boot/grub/grub2-terminal-chooser
+EOF
+		    ;;
+		# use just serial console
+		grub:serial)
 		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 if terminal_input serial ; then true ; else
@@ -612,6 +621,7 @@ if terminal_output serial ; then true ; else
 fi
 EOF
 		    ;;
+		# use just graphical console
 		grub:console)
 		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
 if terminal_input console ; then true ; else
@@ -627,6 +637,7 @@ fi
 EOF
 		    ;;
 	    esac
+	    # write the rest of the menu entries
 	    cat >>"$ISODIR"/boot/grub/grub.cfg <<EOF
 menuentry "Debirf: $DEBIRF_LABEL, serial console (created $(date -R))" {
         linux   /$KERNEL console=tty0 console=ttyS0,115200n8

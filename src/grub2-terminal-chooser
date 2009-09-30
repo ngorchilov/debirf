@@ -27,7 +27,7 @@ insmod test
 insmod serial
 serial --unit=0 --speed=115200
 
-echo "checking for alternate inputs"
+echo "checking for alternate consoles"
 
 ## BEGIN ABSURD LOOP
 
@@ -38,7 +38,7 @@ if test $chosen_console == "" ; then
  if terminal_output serial ; then true ; else
   terminal serial
  fi
- echo "hit ESC to use serial..."
+ echo "hit ESC to use grub serial console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=serial
  fi
@@ -51,7 +51,7 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
- echo "hit ESC to use graphical console..."
+ echo "hit ESC to use grub graphical console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=console
  fi
@@ -64,7 +64,7 @@ if test $chosen_console == "" ; then
  if terminal_output serial ; then true ; else
   terminal serial
  fi
- echo "hit ESC to use serial..."
+ echo "hit ESC to use grub serial console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=serial
  fi
@@ -77,7 +77,7 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
- echo "hit ESC to use graphical console..."
+ echo "hit ESC to use grub graphical console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=console
  fi
@@ -90,7 +90,7 @@ if test $chosen_console == "" ; then
  if terminal_output serial ; then true ; else
   terminal serial
  fi
- echo "hit ESC to use serial..."
+ echo "hit ESC to use grub serial console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=serial
  fi
@@ -103,7 +103,7 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
- echo "hit ESC to use graphical console..."
+ echo "hit ESC to use grub graphical console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=console
  fi
@@ -116,7 +116,7 @@ if test $chosen_console == "" ; then
  if terminal_output serial ; then true ; else
   terminal serial
  fi
- echo "hit ESC to use serial..."
+ echo "hit ESC to use grub serial console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=serial
  fi
@@ -129,7 +129,7 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
- echo "hit ESC to use graphical console..."
+ echo "hit ESC to use grub graphical console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=console
  fi
@@ -142,7 +142,7 @@ if test $chosen_console == "" ; then
  if terminal_output serial ; then true ; else
   terminal serial
  fi
- echo "hit ESC to use serial..."
+ echo "hit ESC to use grub serial console..."
  if sleep --interruptible 1 ; then true; else
   chosen_console=serial
  fi
@@ -153,7 +153,7 @@ fi
 # else we default to using the graphical console:
 
 if test $chosen_console == "" ; then 
- echo "using graphical console"
+ echo "using grub graphical console"
 
  if terminal_input console ; then true ; else
   terminal console
@@ -161,5 +161,5 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
- echo "using graphical console"
+ echo "using grub graphical console"
 fi

@@ -2,14 +2,13 @@ debirf (0.24-1) unstable; urgency=low
 
   * "absolutize" BUILDD path to get around bug in getcwd in fakechroot
     (#548691)
-  * update makeiso to use isolinux from syslinux-common as default
-    eltorito.  support for grub2 with the grub-pc grub-mkrescue utility is
-    also supported, but grub2 does not yet support simultaneous
-    serial/console terminal, so this is not the default (Closes: #548712).
+  * update makeiso to use grub-mkrescue from the grub2 grub-pc package.
+    support for using isolinux from the syslinux-common package is also
+    now included (Closes: #548712).
   * bumped standards version to 3.8.3 (no changes needed).
   * explicitly delete root passwd
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 29 Sep 2009 11:10:52 +0200
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 30 Sep 2009 09:24:14 +0200
 
 debirf (0.23-1) unstable; urgency=low
 
