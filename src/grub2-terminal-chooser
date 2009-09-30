@@ -152,13 +152,14 @@ fi
 
 # else we default to using the graphical console:
 
-echo "using graphical console"
+if test $chosen_console == "" ; then 
+ echo "using graphical console"
 
-if terminal_input console ; then true ; else
- terminal console
+ if terminal_input console ; then true ; else
+  terminal console
+ fi
+ if terminal_output console ; then true ; else
+  terminal console
+ fi
+ echo "using graphical console"
 fi
-if terminal_output console ; then true ; else
- terminal console
-fi
-
-echo "using graphical console"
