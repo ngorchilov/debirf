@@ -157,8 +157,8 @@ create_initrd_nested() {
     mkdir -p "$NEST_ROOT"/{bin,lib}
 
     # copy needed executables into nest
-    cp -f /bin/{busybox,cpio} "$NEST_ROOT"/bin/
-    for util in awk free grep gunzip ls mkdir mount sh umount ; do
+    cp -f /bin/busybox "$NEST_ROOT"/bin/
+    for util in awk cpio free grep gunzip ls mkdir mount rm sh umount ; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
@@ -196,9 +196,7 @@ if (grep -q break=preunpack /proc/cmdline); then
 fi
 cd /newroot
 echo unpacking rootfs...
-# specify /bin/cpio so that it gets used instead of the busybox builtin
-# busybox cpio returns "need to fix this" when unpacking hard links
-gunzip - < /rootfs.cgz | /bin/cpio -i
+gunzip - < /rootfs.cgz | cpio -i
 if (grep -q break=bottom /proc/cmdline); then
   echo "honoring break=bottom kernel arg"
   /bin/sh

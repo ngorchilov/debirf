@@ -1,3 +1,9 @@
+debirf (0.25-1) unstable; urgency=low
+
+  * use busybox cpio in nest now that's it's been fixed (closes CMRG: #54)
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Fri, 02 Oct 2009 21:01:12 +0200
+
 debirf (0.24-1) unstable; urgency=low
 
   * "absolutize" BUILDD path to get around bug in getcwd in fakechroot
