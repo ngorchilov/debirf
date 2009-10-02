@@ -161,5 +161,6 @@ if test $chosen_console == "" ; then
  if terminal_output console ; then true ; else
   terminal console
  fi
+ chosen_console=console
  echo "using grub graphical console"
 fi

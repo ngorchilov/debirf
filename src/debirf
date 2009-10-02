@@ -584,7 +584,7 @@ makeiso() {
     mkdir -p "$ISODIR"
 
     case "$DEBIRF_ELTORITO" in
-	grub|grub:serial|grub:console)
+	grub)
 	    msg "using $DEBIRF_ELTORITO as bootloader..."
 
 	    # use hard links to avoid massive copying time and genisoimage's
@@ -594,60 +594,26 @@ makeiso() {
 
 	    # make grub.cfg
 	    mkdir -p "$ISODIR"/boot/grub/
-	    case "$DEBIRF_ELTORITO" in
-		# use fancy grub serial/console chooser
-		grub)
-		    cp /usr/share/debirf/grub2-terminal-chooser "$ISODIR"/boot/grub/
-		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
-insmod configfile
-configfile /boot/grub/grub2-terminal-chooser
-EOF
-		    ;;
-		# use just serial console
-		grub:serial)
-		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
-serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
-if terminal_input serial ; then true ; else
-  # For backward compatibility with versions of terminal.mod that don't
-  # understand terminal_input
-  terminal serial
-fi
-if terminal_output serial ; then true ; else
-  # For backward compatibility with versions of terminal.mod that don't
-  # understand terminal_output
-  terminal serial
-fi
-EOF
-		    ;;
-		# use just graphical console
-		grub:console)
-		    cat >"$ISODIR"/boot/grub/grub.cfg <<EOF
-if terminal_input console ; then true ; else
-  # For backward compatibility with versions of terminal.mod that don't
-  # understand terminal_input
-  terminal console
-fi
-if terminal_output console ; then true ; else
-  # For backward compatibility with versions of terminal.mod that don't
-  # understand terminal_output
-  terminal console
-fi
-EOF
-		    ;;
-	    esac
-	    # write the rest of the menu entries
+	    cp /usr/share/debirf/grub2-terminal-chooser "$ISODIR"/boot/grub/grub.cfg
 	    cat >>"$ISODIR"/boot/grub/grub.cfg <<EOF
-menuentry "Debirf: $DEBIRF_LABEL, serial console (created $(date -R))" {
-        linux   /$KERNEL console=tty0 console=ttyS0,115200n8
-        initrd  /$INITRAMFS
-}
-menuentry "Debirf: $DEBIRF_LABEL, video console (created $(date -R))" {
-        linux   /$KERNEL console=ttyS0,115200n8 console=tty0
+
+## MENU
+
+if test \$chosen_console == "console" ; then
+ console=tty0
+fi
+if test \$chosen_console == "serial" ; then
+ console=ttyS0,115200n8
+fi
+set default=0
+set timeout=4
+menuentry "Debirf: $DEBIRF_LABEL, console=\$console (created $(date -R))" {
+        linux   /$KERNEL console=\$console
         initrd  /$INITRAMFS
 }
 EOF
 
-	    # make the iso
+	    # make the grub iso
     	    grub-mkrescue --image-type=cdrom --overlay="$ISODIR" "${DEBIRF_BUILDD}/${ISO}"
 	    ;;
 
@@ -670,7 +636,7 @@ serial 0 115200
 prompt 1
 timeout 0
 display menu
-default serial
+default video
 
 # serial console
 label serial
@@ -692,8 +658,8 @@ kernel: $KERNEL
 initramfs: $INITRAMFS
 created: $(date -R)
 
-type 'serial' for serial console i/o (default)
-type 'video' for video console i/o
+type 'video' for video console i/o (default)
+type 'serial' for serial console i/o
 
 EOF
 
@@ -706,7 +672,7 @@ EOF
 
 	*)
 
-	    failure "unknown iso build method '$METHOD'"
+	    failure "unknown iso build method '$DEBIRF_ELTORITO'"
 	    ;;
     esac
 
