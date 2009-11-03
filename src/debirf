@@ -76,11 +76,6 @@ README file included with this package on how to setup a profile.
 EOF
 }
 
-failure() {
-    echo "$1" >&2
-    exit ${2:-'1'}
-}
-
 create_debootstrap() {
     msg "distro/suite: ${DEBIRF_DISTRO}/${DEBIRF_SUITE}"
 
@@ -535,13 +530,13 @@ makeiso() {
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
     # find kernel
-    local KERNEL=${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
-    case $(echo "$KERNEL" | wc -l) in
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c 'vmlinu*') in
 	0)
 	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
 	1)
-	    true
+	    msg "kernel found."
+	    local KERNEL=${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
 	    ;;
 	*)
 	    failure "Multiple kernels found.  Please clear out all but the desired kernel."
@@ -549,13 +544,13 @@ makeiso() {
     esac
 
     # find initramfs
-    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 "${DEBIRF_LABEL}"_*.cgz)}
-    case $(echo "$INITRAMFS" | wc -l) in
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c "${DEBIRF_LABEL}_*.cgz") in
 	0)
 	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
 	1)
-	    true
+	    msg "initramfs found."
+	    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 "${DEBIRF_LABEL}"_*.cgz)}
 	    ;;
 	*)
 	    failure "Multiple initramfs found.  Please clear out all but the desired initramfs."
