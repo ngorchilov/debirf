@@ -50,10 +50,10 @@ the root fs is archived into an initramfs.
 The kernel and initramfs can be placed into a system boot partition,
 burnt to read-only media, or supplied by a netboot server.
 
-If you want to burn the debirf profile to a CD, you might want to make
-a CD image first.  Following the above example:
+You can also create a burnable CD image from your profile. After making a
+minimal debirf profile (following the example above), convert it into an iso
+image by running:
 
-$ cd ~/debirf
 $ debirf makeiso minimal
 
 If this run is successful, there should be a bootable ISO image stored
