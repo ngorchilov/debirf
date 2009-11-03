@@ -33,7 +33,7 @@ export -f failure
 
 # output debirf message to stdout
 msg() {
-    echo "debirf> $@"
+    echo "debirf> $@" >&2
 }
 export -f msg
 

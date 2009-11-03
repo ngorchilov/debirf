@@ -3,9 +3,10 @@ debirf (0.25-1) UNRELEASED; urgency=low
   * use busybox cpio in nest now that's it's been fixed (closes CMRG: #54)
   * remove no longer needed install-udev module (udev installed by default)
   * improve grub menu configuration (Closes: #544409)
-  * updated README (Closes: #554020)
+  * updated README, and makeiso checking (Closes: #554020)
+  * redirect log out to stderr
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Sat, 03 Oct 2009 01:54:18 +0200
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 03 Nov 2009 15:31:53 -0500
 
 debirf (0.24-1) unstable; urgency=low
 
