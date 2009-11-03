@@ -18,7 +18,7 @@ build:
 tarball: clean
 	rm -rf debirf-$(VERSION)
 	mkdir -p debirf-$(VERSION)/doc/example-profiles
-	ln -s ../../doc/README ../../doc/default-package-list debirf-$(VERSION)/doc
+	ln -s ../../doc/README debirf-$(VERSION)/doc
 	(cd $(PROF_DIR) && tar c --exclude='*~' --exclude='*.svn*' minimal/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/minimal.tgz
 	(cd $(PROF_DIR) && tar c --exclude='*~' --exclude='*.svn*' rescue/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/rescue.tgz
 	(cd $(PROF_DIR) && tar c --exclude='*~' --exclude='*.svn*' xkiosk/) | gzip -n > debirf-$(VERSION)/doc/example-profiles/xkiosk.tgz
