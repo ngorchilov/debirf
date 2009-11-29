@@ -4,6 +4,7 @@ debirf (0.25-1) UNRELEASED; urgency=low
   * remove no longer needed install-udev module (udev installed by default)
   * improve grub menu configuration (Closes: #544409)
   * updated README, and makeiso checking (Closes: #554020)
+  * ubuntu debirf installs now default to Karmic Koala.
   * redirect log out to stderr
   * use more generic kernel package name to find kernel name (LP: #474739)
 

@@ -216,7 +216,7 @@ set_distro() {
     RUN_DISTRO=$(head -1 /etc/issue | awk '{ print $1 }' | tr "[:upper:]" "[:lower:]")
     case "$RUN_DISTRO" in
 	ubuntu)
-	    DEBIRF_SUITE=${DEBIRF_SUITE:-"hoary"}
+	    DEBIRF_SUITE=${DEBIRF_SUITE:-"karmic"}
 	    ;;
 	*)
 	    DEBIRF_SUITE=${DEBIRF_SUITE:-"squeeze"}
@@ -224,7 +224,7 @@ set_distro() {
     esac
 
     case "$DEBIRF_SUITE" in
-	breezy|dapper|edgy|feisty|gutsy|hardy|hoary)
+	hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
 	    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"ubuntu"}
 	    ;;
 	*)
