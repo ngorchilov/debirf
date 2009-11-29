@@ -36,7 +36,8 @@ if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
 
     # download only the desired kernel package directly into the apt
     # cache for dpkg extraction
-    debirf_exec sh -c "cd /var/cache/apt/archives/ && aptitude download \"$KNAME\""
+    #debirf_exec sh -c "cd /var/cache/apt/archives/ && aptitude download \"$KNAME\""
+    debirf_exec sh -c "cd /var/cache/apt/archives/ && apt-get --download-only install \"$KNAME\""
 
 else
     # install kernel deb if given at command line

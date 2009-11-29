@@ -15,7 +15,8 @@
 
 ### download needed packages
 # could maybe pick and choose xorg packages if hardware known
-debirf_exec apt-get install --assume-yes xorg matchbox-window-manager iceweasel
+#debirf_exec apt-get install --assume-yes --no-install-recommends xorg matchbox-window-manager iceweasel
+debirf_exec apt-get install --assume-yes --no-install-recommends xserver-xorg xinit matchbox-window-manager arora
 
 ### properly configure X
 # allow any user to start X (not just from command line):
@@ -23,50 +24,6 @@ debirf_exec apt-get install --assume-yes xorg matchbox-window-manager iceweasel
 cat <<EOF > "$DEBIRF_ROOT"/etc/X11/Xwrapper.config
 allowed_users=anybody
 nice_value=0
-EOF
-
-# make standard xorg.conf
-cat <<EOF > "$DEBIRF_ROOT"/etc/X11/xorg.conf
-Section "Files"
-EndSection
-Section "InputDevice"
-	Identifier	"Generic Keyboard"
-	Driver		"kbd"
-	Option		"CoreKeyboard"
-	Option		"XkbRules"	"xorg"
-	Option		"XkbModel"	"pc104"
-	Option		"XkbLayout"	"us"
-EndSection
-Section "InputDevice"
-	Identifier	"Configured Mouse"
-	Driver		"mouse"
-	Option		"CorePointer"
-	Option		"Device"		"/dev/input/mice"
-	Option		"Protocol"		"ImPS/2"
-	Option		"Emulate3Buttons"	"true"
-EndSection
-Section "Device"
-	Identifier	"Generic Video Card"
-	Driver		"vesa"
-EndSection
-Section "Monitor"
-	Identifier "VGA"
-EndSection
-Section "Screen"
-	Identifier	"Default Screen"
-	Device		"Generic Video Card"
-	Monitor		"VGA"
-	DefaultDepth	24
-        SubSection "Display"
-                Modes           "1280x1024" "1024x768" "800x600"
-        EndSubSection
-EndSection
-Section "ServerLayout"
-	Identifier	"Default Layout"
-	Screen		"Default Screen"
-	InputDevice	"Generic Keyboard"
-	InputDevice	"Configured Mouse"
-EndSection
 EOF
 
 ### add guest user
@@ -130,13 +87,12 @@ debirf_exec update-service --add "$RUNIT_DIR"
 ### make system xinitrc
 cat <<EOF > "$DEBIRF_ROOT"/etc/X11/xinit/xinitrc
 #!/bin/sh
-xsetroot -solid blue
 matchbox-window-manager &
 TARG=file://$RUNIT_DIR/index.html
 if (grep -q 'browse=' </proc/cmdline) ; then
   TARG=\$( sed 's/.*browse=\([^[:space:]]*\).*/\1/' </proc/cmdline)
 fi
-iceweasel \$TARG
+arora \$TARG
 EOF
 
 # set permissions on /home/guest, just in case
