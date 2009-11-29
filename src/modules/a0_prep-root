@@ -67,4 +67,4 @@ debirf_exec apt-get --force-yes update
 debirf_exec apt-get --force-yes upgrade
 
 # make sure aptitude is installed, since some modules require it
-#debirf_exec apt-get -y install aptitude
+debirf_exec apt-get -y install aptitude
