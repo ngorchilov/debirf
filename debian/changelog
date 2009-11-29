@@ -5,8 +5,7 @@ debirf (0.25-1) UNRELEASED; urgency=low
   * improve grub menu configuration (Closes: #544409)
   * updated README, and makeiso checking (Closes: #554020)
   * redirect log out to stderr
-  * use more generic kernel package name to find kernel name
-    (Closes launchpad: #474739)
+  * use more generic kernel package name to find kernel name (LP: #474739)
 
  -- Jameson Graef Rollins <jrollins@finestructure.net>  Sun, 29 Nov 2009 16:34:03 -0500
 
