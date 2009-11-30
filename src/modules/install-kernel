@@ -32,7 +32,7 @@ if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
     # determine the full kernel version from the dependency of the
     # generic 2.6-ARCH package in the debirf root (since it may be
     # different than what is installed on the build host)
-    KNAME=$(debirf_exec apt-cache show linux-image-"$KARCH" | grep '^Depends: ' | head -1 | sed 's/^Depends: //')
+    KNAME=$(debirf_exec apt-cache show linux-image-"$KARCH" | grep '^Depends: ' | sed 's/^Depends: //' | tr ',' '\n' | tr -d ' ' | grep ^linux-image | sort -r | head -n1)
 
     # download only the desired kernel package directly into the apt
     # cache for dpkg extraction
