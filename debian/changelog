@@ -1,4 +1,4 @@
-debirf (0.25-1) UNRELEASED; urgency=low
+debirf (0.25-1) unstable; urgency=low
 
   * use busybox cpio in nest now that's it's been fixed (closes CMRG: #54)
   * remove no longer needed install-udev module (udev installed by default)
