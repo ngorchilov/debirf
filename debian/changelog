@@ -7,8 +7,9 @@ debirf (0.25-1) unstable; urgency=low
   * ubuntu debirf installs now default to Karmic Koala.
   * redirect log out to stderr
   * use more generic kernel package name to find kernel name (LP: #474739)
+  * formalize Debian copyright file
 
- -- Jameson Graef Rollins <jrollins@finestructure.net>  Sun, 29 Nov 2009 16:34:03 -0500
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Sun, 29 Nov 2009 21:41:13 -0500
 
 debirf (0.24-1) unstable; urgency=low
 
