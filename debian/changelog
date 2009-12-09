@@ -1,3 +1,9 @@
+debirf (0.26-1) unstable; urgency=low
+
+  * add cpio to deboostrap INCLUDE
+
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Wed, 09 Dec 2009 12:16:20 -0500
+
 debirf (0.25-1) unstable; urgency=low
 
   * use busybox cpio in nest now that's it's been fixed (closes CMRG: #54)

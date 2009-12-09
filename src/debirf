@@ -39,7 +39,7 @@ ROOT_WARNING=true
 export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 
 # list of packages to include/exclude from debootstrap
-export INCLUDE=gpgv,less
+export INCLUDE=cpio,gpgv,less
 export EXCLUDE=apt-utils,bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
