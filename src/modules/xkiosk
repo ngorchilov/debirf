@@ -15,8 +15,8 @@
 
 ### download needed packages
 # could maybe pick and choose xorg packages if hardware known
-#debirf_exec apt-get install --assume-yes --no-install-recommends xorg matchbox-window-manager iceweasel
-debirf_exec apt-get install --assume-yes --no-install-recommends xserver-xorg xinit matchbox-window-manager arora
+#debirf_exec apt-get install --assume-yes --no-install-recommends xserver-xorg xinit matchbox-window-manager xauth xfonts-base udev iceweasel
+debirf_exec apt-get install --assume-yes --no-install-recommends xserver-xorg xinit matchbox-window-manager xauth xfonts-base udev arora
 
 ### properly configure X
 # allow any user to start X (not just from command line):
