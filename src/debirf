@@ -530,7 +530,7 @@ makeiso() {
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
     # find kernel
-    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c 'vmlinu*') in
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c '^vmlinu.*$') in
 	0)
 	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
@@ -544,7 +544,7 @@ makeiso() {
     esac
 
     # find initramfs
-    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c "${DEBIRF_LABEL}_*.cgz") in
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c "^${DEBIRF_LABEL}"'_.*\.cgz$') in
 	0)
 	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
 	    ;;
