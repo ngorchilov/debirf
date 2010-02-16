@@ -525,8 +525,6 @@ makeiso() {
     setup_environment "$1"
     shift
 
-    (which genisoimage > /dev/null) || failure "genisoimage is not in your path.  Maybe you need to install it?"
-
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
     # find kernel
@@ -580,7 +578,7 @@ makeiso() {
 
     case "$DEBIRF_ELTORITO" in
 	grub)
-	    msg "using $DEBIRF_ELTORITO as bootloader..."
+	    msg "using GRUB as bootloader..."
 
 	    # use hard links to avoid massive copying time and genisoimage's
 	    # warning about -f (we're almost certainly on the same filesystem):
@@ -609,11 +607,14 @@ menuentry "Debirf: $DEBIRF_LABEL, console=\$console (created $(date -R))" {
 EOF
 
 	    # make the grub iso
-    	    grub-mkrescue --image-type=cdrom --overlay="$ISODIR" "${DEBIRF_BUILDD}/${ISO}"
+    	    grub-mkrescue --output="${DEBIRF_BUILDD}/${ISO}" "$ISODIR"
 	    ;;
 
 	isolinux)
 	    msg "using isolinux as bootloader..."
+
+            (which genisoimage > /dev/null) || failure "genisoimage is not in your path.  Maybe you need to install it?"
+
 
 	    # use hard links to avoid massive copying time and genisoimage's
 	    # warning about -f (we're almost certainly on the same filesystem):
