@@ -1,10 +1,10 @@
 Name: debirf
-Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Source: http://cmrg.fifthhorseman.net/wiki/debirf
 Maintainer: debirf developers <debirf@fifthhorseman.net>
 
 Files: *
-Copyright:  Copyright 2007,2008,2009 Jameson Rollins <jrollins@fifthhorseman.net>,
+Copyright:  Copyright 2007-2010 Jameson Rollins <jrollins@fifthhorseman.net>,
  Daniel Kahn Gillmor <dkg@fifthhorseman.net>,
 License: GPL-3+
 

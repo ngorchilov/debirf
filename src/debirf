@@ -556,11 +556,11 @@ makeiso() {
     esac
 
     # determine which eltorito boot loader we're using
-    if [ -z "$DEBIRF_ELTORITO" ] ; then
+    if [ -z "$DEBIRF_ISO_BOOTLOADER" ] ; then
 	if which grub-mkrescue >/dev/null ; then
-	    local DEBIRF_ELTORITO=grub
+	    local DEBIRF_ISO_BOOTLOADER=grub
 	elif [ -f /usr/lib/syslinux/isolinux.bin ] ; then
-	    local DEBIRF_ELTORITO=isolinux
+	    local DEBIRF_ISO_BOOTLOADER=isolinux
 	else
 	    failure "Suitable El Torito boot loader not found.  Please install syslinux-common or grub-pc."
 	fi
@@ -576,7 +576,7 @@ makeiso() {
     rm -rf "$ISODIR"
     mkdir -p "$ISODIR"
 
-    case "$DEBIRF_ELTORITO" in
+    case "$DEBIRF_ISO_BOOTLOADER" in
 	grub)
 	    msg "using GRUB as bootloader..."
 
@@ -668,7 +668,7 @@ EOF
 
 	*)
 
-	    failure "unknown iso build method '$DEBIRF_ELTORITO'"
+	    failure "unknown iso boot loader '$DEBIRF_ISO_BOOTLOADER'"
 	    ;;
     esac
 
