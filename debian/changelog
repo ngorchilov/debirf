@@ -1,4 +1,4 @@
-debirf (0.27-1~pre1) UNRELEASED; urgency=low
+debirf (0.27-1) unstable; urgency=low
 
   * New Upstream Release:
     - grub-mkrescue has changed, and is now arch-indep. adjust makeiso to
@@ -13,7 +13,7 @@ debirf (0.27-1~pre1) UNRELEASED; urgency=low
   * Bumped Standards-Version to 3.8.4 (no changes needed)
   * included revision number in debian/copyright for DEP5 
   
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 16 Feb 2010 10:49:59 -0500
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Wed, 17 Feb 2010 01:39:34 -0500
 
 debirf (0.26-1) unstable; urgency=low
 
