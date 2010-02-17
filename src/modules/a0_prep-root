@@ -63,8 +63,9 @@ debconf debconf/frontend select Noninteractive
 EOF
 
 # update/upgrade
-debirf_exec apt-get --force-yes update
-debirf_exec apt-get --force-yes upgrade
+debirf_exec apt-get --yes --force-yes update
+debirf_exec apt-get --yes --force-yes upgrade
 
-# make sure aptitude is installed, since some modules require it
+# make sure aptitude is installed, since some modules (like
+# install-kernel) require it
 debirf_exec apt-get -y install aptitude

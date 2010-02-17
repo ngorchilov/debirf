@@ -1,0 +1,29 @@
+#!/bin/sh -e
+
+# debirf module: add_security_repos
+#
+#  add security repositories
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg@fifthhorseman.net>.
+#
+# This script is Copyright 2010 and is released under the GPL,
+# version 3 or later.
+
+mkdir -p "${DEBIRF_ROOT}/etc/apt/sources.list.d"
+
+case "${DEBIRF_DISTRO}" in
+    debian)
+        cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/security_repos.list"
+deb http://security.debian.org/ ${DEBIRF_SUITE}/updates main contrib non-free
+EOF
+        ;;
+    ubuntu)
+        cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/security_repos.list"
+deb http://security.ubuntu.com/ubuntu ${DEBIRF_SUITE}-security main restricted universe multiverse
+EOF
+        ;;
+esac ## nothing to do for other distros.
+

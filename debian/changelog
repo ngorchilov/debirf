@@ -6,6 +6,10 @@ debirf (0.27-1~pre1) UNRELEASED; urgency=low
     - fix buggy selection of kernel and initramfs during makeiso.
     - use DEBIRF_ISO_BOOTLOADER instead of DEBIRF_ELTORITO, making way for
       other possible bootloaders (yaboot?) for makeiso subcommand.
+    - add security repositories for rescue and xkiosk
+    - enable extra repos to allow karmic rescue to work (closes CMRG: #108)
+    - don't require partimage for rescue image on ubuntu, since it is not
+      available on amd64 there (see LP 198724)
   * Bumped Standards-Version to 3.8.4 (no changes needed)
   * included revision number in debian/copyright for DEP5 
   

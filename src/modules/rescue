@@ -29,4 +29,10 @@ mdadm mdadm/autocheck boolean false
 EOF
 
 # install packages
-debirf_exec apt-get --no-install-recommends --assume-yes install lvm2 lsof hdparm partimage parted pciutils testdisk foremost mdadm smartmontools eject wodim ddrescue cryptsetup sdparm hfsprogs hfsutils hfsplus e2undel recover e2tools fatresize dosfstools tofrodos
+debirf_exec apt-get --no-install-recommends --assume-yes install lvm2 lsof hdparm parted pciutils testdisk foremost mdadm smartmontools eject wodim ddrescue cryptsetup sdparm hfsprogs hfsutils hfsplus e2undel recover e2tools fatresize dosfstools tofrodos
+
+# partimage is not available in amd64 on ubuntu at the moment -- we
+# should still be able to build a rescue image without it, if it comes
+# to that.
+
+debirf_exec apt-get --no-install-recommends --assume-yes install partimage || true

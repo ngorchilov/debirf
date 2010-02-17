@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+# debirf module: add_extra_repos
+#
+#  add extended repositories -- universe, restricted, and multiverse on ubuntu,
+#  non-free and contrib on debian
+#
+# The debirf scripts were written by
+# Jameson Rollins <jrollins@fifthhorseman.net>
+# and
+# Daniel Kahn Gillmor <dkg@fifthhorseman.net>.
+#
+# This script is Copyright 2010 and is released under the GPL,
+# version 3 or later.
+
+mkdir -p "${DEBIRF_ROOT}/etc/apt/sources.list.d"
+
+case "${DEBIRF_DISTRO}" in
+    debian)
+        cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/extra_repos.list"
+deb ${DEBIRF_MIRROR} ${DEBIRF_SUITE} non-free contrib
+EOF
+        ;;
+    ubuntu)
+        cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/extra_repos.list"
+deb ${DEBIRF_MIRROR} ${DEBIRF_SUITE} universe multiverse restricted
+EOF
+        ;;
+esac ## nothing to do for other distros.
+
