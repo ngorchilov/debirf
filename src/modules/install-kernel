@@ -6,6 +6,7 @@
 #  DEBIRF_PATH
 #  DEBIRF_ROOT
 #  DEBIRF_KERNEL_PACKAGE
+#  DEBIRF_KERNEL_FLAVOR
 #
 # *** REQUIRED MODULE ***
 # WARNING: this module is necessary for proper functioning of debirf.
@@ -27,7 +28,7 @@ if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
 
     # determine kernel arch.  need everything after the kernel version
     # and debian version
-    KARCH=$(uname -r | cut -d- -f3-)
+    KARCH=${DEBIRF_KERNEL_FLAVOR:-$(uname -r | cut -d- -f3-)}
 
     # determine the full kernel version from the dependency of the
     # generic 2.6-ARCH package in the debirf root (since it may be

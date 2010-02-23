@@ -149,6 +149,12 @@ mirror to pull suite (default determined by DEBIRF_DISTRO)
 .B DEBIRF_KEYRING
 keyring to verify debootstrap (default determined by DEBIRF_DISTRO)
 .TP
+.B DEBIRF_KERNEL_FLAVOR
+the flavor of kernel debirf should install.  Supply everything from a
+typical debian package name after the version number.  e.g. 486,
+vserver-686-bigmem, openvz-amd64. (default chosen based on
+currently-running kernel)
+.TP
 .B DEBIRF_ISO_BOOTLOADER
 whether to use "grub" or "isolinux" as the El Torito bootloader for
 \fBdebirf makeiso\fR.  if not specified, "grub" is the default.
