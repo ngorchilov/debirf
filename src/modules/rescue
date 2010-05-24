@@ -53,6 +53,9 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  fatresize \
  dosfstools \
  tofrodos \
+ mtd-utils \
+ uboot-envtools \
+ uboot-mkimage \
 
 
 # partimage is not available in amd64 on ubuntu at the moment -- we
