@@ -1,10 +1,11 @@
-debirf (0.28~pre1-1) UNRELEASED; urgency=low
+debirf (0.28-1) unstable; urgency=low
 
   * New Upstream Release:
    - enable passing kernel architecture.  Thanks, Guido Günther!
      (Closes: #570778)
+  * Bumped Standards-Version to 3.9.1 (no changes needed)
 
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 23 Feb 2010 00:16:40 -0500
+ -- Jameson Rollins <jrollins@finestructure.net>  Fri, 05 Nov 2010 11:11:28 -0400
 
 debirf (0.27-1) unstable; urgency=low
 
