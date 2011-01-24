@@ -32,7 +32,7 @@ fix_and_retry_runit_installation() {
     # get rid of the kill -s HUP 1 line in runit postinst
     local postinst="$DEBIRF_ROOT"/var/lib/dpkg/info/runit.postinst
     mv "$postinst"  "$postinst".orig
-    <"$postinst".orig grep -v 'kill -s HUP 1' >"$postinst"
+    <"$postinst".orig sed 's/kill -s HUP 1/:kill -s HUP 1/' >"$postinst"
     rm "$postinst".orig
 
     # remove the busted extra lines from inittab:
