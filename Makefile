@@ -26,7 +26,6 @@ install: installman profiles
 	install src/common $(DESTDIR)$(PREFIX)/share/debirf
 	install --mode=644 src/devices.tar.gz $(DESTDIR)$(PREFIX)/share/debirf
 	install src/modules/* $(DESTDIR)$(PREFIX)/share/debirf/modules
-	install --mode=644 src/grub2-terminal-chooser $(DESTDIR)$(PREFIX)/share/debirf
 	install doc/README $(DESTDIR)$(PREFIX)/share/doc/debirf
 	install doc/example-profiles/*.tgz $(DESTDIR)$(PREFIX)/share/doc/debirf/example-profiles
 

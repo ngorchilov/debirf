@@ -4,6 +4,8 @@ debirf (0.29~pre) unstable; urgency=low
   * mknod without absolute paths to work around #611156 (Closes: #618260)
   * added grub2 to the rescue image (Closes: #596708) (might need to
     change if the grub2 dummy package goes away)
+  * relying on grub2's better implementation of terminal choosing (Closes:
+    #606425)
 
  -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 22 Mar 2011 17:59:52 -0400
 
