@@ -56,6 +56,7 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  mtd-utils \
  uboot-envtools \
  uboot-mkimage \
+ grub2 \
 
 
 # partimage is not available in amd64 on ubuntu at the moment -- we
