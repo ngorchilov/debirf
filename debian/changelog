@@ -6,6 +6,7 @@ debirf (0.29~pre) unstable; urgency=low
     change if the grub2 dummy package goes away)
   * relying on grub2's better implementation of terminal choosing (Closes:
     #606425)
+  * do not add security repositories for sid/unstable (Closes: #619331)
 
  -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 22 Mar 2011 17:59:52 -0400
 

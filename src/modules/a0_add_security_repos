@@ -16,9 +16,16 @@ mkdir -p "${DEBIRF_ROOT}/etc/apt/sources.list.d"
 
 case "${DEBIRF_DISTRO}" in
     debian)
-        cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/security_repos.list"
+        case "$DEBIRF_SUITE" in
+            sid|unstable)
+                echo "not adding security repository for sid/unstable"
+                ;;
+            *)
+                cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/security_repos.list"
 deb http://security.debian.org/ ${DEBIRF_SUITE}/updates main contrib non-free
 EOF
+                ;;
+        esac
         ;;
     ubuntu)
         cat <<EOF > "${DEBIRF_ROOT}/etc/apt/sources.list.d/security_repos.list"
