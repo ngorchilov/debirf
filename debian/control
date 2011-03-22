@@ -6,8 +6,7 @@ Uploaders: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
 Build-Depends: debhelper (>= 7.0)
 Standards-Version: 3.9.1
 Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
-Vcs-Svn: http://cmrg.fifthhorseman.net/svn/trunk/debirf
-Vcs-Browser: http://cmrg.fifthhorseman.net/browser/trunk/debirf
+Vcs-Git: git://finestructure.net/debirf
 Dm-Upload-Allowed: yes
 
 Package: debirf

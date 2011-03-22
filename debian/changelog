@@ -1,3 +1,9 @@
+debirf (0.29~pre) unstable; urgency=low
+
+  * Switch to native packaging.
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 22 Mar 2011 17:59:52 -0400
+
 debirf (0.28-1) unstable; urgency=low
 
   * New Upstream Release:
