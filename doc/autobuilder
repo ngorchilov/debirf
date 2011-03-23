@@ -28,9 +28,16 @@ for DEBIRF_SUITE in stable unstable; do
 	if ! debirf make "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
 	    printf "Failed to make %s (%s)\n" "$profile" "$DEBIRF_SUITE"
 	    errors=$(( $errors + 1 ))
-	elif ! debirf makeiso "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso.log" 2>&1 ; then
-	    printf "Failed to makeiso %s (%s)\n" "$profile" "$DEBIRF_SUITE"
-	    errors=$(( $errors + 1 ))
+	else
+            for bootloader in grub isolinux; do
+                if ! DEBIRF_ISO_BOOTLOADER="$bootloader" debirf makeiso "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso-${bootloader}.log" 2>&1 ; then
+	            printf "Failed to makeiso[%s] %s (%s)\n" "$bootloader" "$profile" "$DEBIRF_SUITE"
+	            errors=$(( $errors + 1 ))
+                fi
+                # these files are quick to regenerate and they take a
+                # lot of space:
+                rm -rf "profiles/$DEBIRF_SUITE/$profile/"*iso
+            done
 	fi
     done
 done
