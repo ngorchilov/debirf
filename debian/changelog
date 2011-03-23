@@ -1,4 +1,4 @@
-debirf (0.29~pre) unstable; urgency=low
+debirf (0.29) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]
   * Switch to native packaging.
@@ -14,16 +14,16 @@ debirf (0.29~pre) unstable; urgency=low
   * clear TMPDIR when working in chroot
   * add scrub and wipe to rescue image
 
- -- Jameson Rollins <jrollins@finestructure.net>  Tue, 22 Mar 2011 19:11:36 -0700
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Tue, 22 Mar 2011 19:11:36 -0700
 
-debirf (0.28-1) unstable; urgency=low
+debirf (0.28-1) UNRELEASED; urgency=low
 
   * New Upstream Release:
    - enable passing kernel architecture.  Thanks, Guido Günther!
      (Closes: #570778)
   * Bumped Standards-Version to 3.9.1 (no changes needed)
 
- -- Jameson Rollins <jrollins@finestructure.net>  Fri, 05 Nov 2010 11:11:28 -0400
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Fri, 05 Nov 2010 11:11:28 -0400
 
 debirf (0.27-1) unstable; urgency=low
 
