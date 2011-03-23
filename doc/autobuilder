@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# automatically build each of the shipped example profiles, and log
+# the build process.
+
+# NOTE: this will take long time, and consume a lot of disk space.  i
+# advise pointing the http_proxy environment variable at a nearby
+# proxy.
+
+# Author: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+
+# Copyright 2011, released under the GPL version 3 or later.
+
+PROFILE_LOC=/usr/share/doc/debirf/example-profiles
+
+mkdir -p profiles logs
+
+errors=0
+
+for DEBIRF_SUITE in stable unstable; do
+    export DEBIRF_SUITE
+    for profile in $(cd "$PROFILE_LOC" && printf "%s " *.tgz); do
+	profile=$(basename "$profile" .tgz)
+
+	rm -rf "profiles/$profile"
+	tar xzf "$PROFILE_LOC"/${profile}.tgz -C profiles
+	if ! debirf make "profiles/$profile" > "logs/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
+	    printf "Failed to make %s (%s)\n" "$profile" "$DEBIRF_SUITE"
+	    errors=$(( $errors + 1 ))
+	elif ! debirf makeiso "profiles/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso.log" 2>&1 ; then
+	    printf "Failed to makeiso %s (%s)\n" "$profile" "$DEBIRF_SUITE"
+	    errors=$(( $errors + 1 ))
+	fi
+    done
+done
+
+if [ "$errors" -gt 0 ]; then
+    exit 1
+fi
