@@ -53,9 +53,9 @@ export -f fakeroot_if_needed
 # execute command in debirf system using chroot
 debirf_exec() {
     if [ "$ROOT_BUILD" = 'true' ] ; then
-	chroot "$DEBIRF_ROOT" "$@"
+	TMPDIR= chroot "$DEBIRF_ROOT" "$@"
     else
-	fakechroot chroot "$DEBIRF_ROOT" "$@"
+	TMPDIR= fakechroot chroot "$DEBIRF_ROOT" "$@"
     fi
 }
 export -f debirf_exec

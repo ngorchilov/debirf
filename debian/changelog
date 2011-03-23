@@ -1,5 +1,6 @@
 debirf (0.29~pre) unstable; urgency=low
 
+  [ Daniel Kahn Gillmor ]
   * Switch to native packaging.
   * mknod without absolute paths to work around #611156 (Closes: #618260)
   * added grub2 to the rescue image (Closes: #596708) (might need to
@@ -8,7 +9,10 @@ debirf (0.29~pre) unstable; urgency=low
     #606425)
   * do not add security repositories for sid/unstable (Closes: #619331)
 
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 22 Mar 2011 17:59:52 -0400
+  [ Jameson Rollins ]
+  * clear TMPDIR when working in chroot
+
+ -- Jameson Rollins <jrollins@finestructure.net>  Tue, 22 Mar 2011 18:52:19 -0700
 
 debirf (0.28-1) unstable; urgency=low
 
