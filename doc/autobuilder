@@ -19,15 +19,16 @@ errors=0
 
 for DEBIRF_SUITE in stable unstable; do
     export DEBIRF_SUITE
+    mkdir -p "profiles/$DEBIRF_SUITE"
     for profile in $(cd "$PROFILE_LOC" && printf "%s " *.tgz); do
 	profile=$(basename "$profile" .tgz)
 
-	rm -rf "profiles/$profile"
-	tar xzf "$PROFILE_LOC"/${profile}.tgz -C profiles
-	if ! debirf make "profiles/$profile" > "logs/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
+	rm -rf "profiles/$DEBIRF_SUITE/$profile"
+	tar xzf "$PROFILE_LOC"/${profile}.tgz -C "profiles/$DEBIRF_SUITE"
+	if ! debirf make "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
 	    printf "Failed to make %s (%s)\n" "$profile" "$DEBIRF_SUITE"
 	    errors=$(( $errors + 1 ))
-	elif ! debirf makeiso "profiles/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso.log" 2>&1 ; then
+	elif ! debirf makeiso "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso.log" 2>&1 ; then
 	    printf "Failed to makeiso %s (%s)\n" "$profile" "$DEBIRF_SUITE"
 	    errors=$(( $errors + 1 ))
 	fi
