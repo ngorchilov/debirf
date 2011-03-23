@@ -11,8 +11,9 @@ debirf (0.29~pre) unstable; urgency=low
 
   [ Jameson Rollins ]
   * clear TMPDIR when working in chroot
+  * add scrub and wipe to rescue image
 
- -- Jameson Rollins <jrollins@finestructure.net>  Tue, 22 Mar 2011 18:52:19 -0700
+ -- Jameson Rollins <jrollins@finestructure.net>  Tue, 22 Mar 2011 19:11:36 -0700
 
 debirf (0.28-1) unstable; urgency=low
 
