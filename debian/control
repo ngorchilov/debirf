@@ -21,7 +21,7 @@ Depends:
  klibc-utils,
  ${misc:Depends}
 Recommends:
- genisoimage, 
+ xorriso,
  grub-common (>= 1.98+20100804) | syslinux-common
 Description: build a kernel and initrd to run Debian from RAM
  debirf (DEBian on Initial Ram Filesystem) is a set of tools designed

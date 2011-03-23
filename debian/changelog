@@ -8,6 +8,7 @@ debirf (0.29~pre) unstable; urgency=low
   * relying on grub2's better implementation of terminal choosing (Closes:
     #606425)
   * do not add security repositories for sid/unstable (Closes: #619331)
+  * use xorriso instead of genisoimage
 
   [ Jameson Rollins ]
   * clear TMPDIR when working in chroot
