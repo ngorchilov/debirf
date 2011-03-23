@@ -658,7 +658,9 @@ EOF
 
 	    # generate the iso
             rm -f "${DEBIRF_BUILDD}/${ISO}" # make sure it's not already present
-	    xorriso -outdev "${DEBIRF_BUILDD}/${ISO}" \
+	    xorriso \
+                -report_about WARNING \
+                -outdev "${DEBIRF_BUILDD}/${ISO}" \
                 -map "$ISODIR" / \
                 -boot_image isolinux dir=/boot/isolinux
 	    ;;
