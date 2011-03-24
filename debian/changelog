@@ -1,3 +1,11 @@
+debirf (0.30) unstable; urgency=low
+
+  * Fix silly error in install-runit module (should fix xkiosk)
+  * root-passwd module is now lock-root-passwd (avoids operator
+    interaction)
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Thu, 24 Mar 2011 00:08:11 -0400
+
 debirf (0.29) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]

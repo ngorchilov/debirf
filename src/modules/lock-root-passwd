@@ -1,15 +1,15 @@
 #!/bin/bash -e
 
 # debirf module: root-passwd
-# set password for root
+# lock password for root
 #
 # The debirf scripts were written by
 # Jameson Rollins <jrollins@fifthhorseman.net>
 # and
 # Daniel Kahn Gillmor <dkg@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL,
+# They are Copyright 2007-2011, and are all released under the GPL,
 # version 3 or later.
 
-echo "Set password for $DEBIRF_LABEL superuser:"
-debirf_exec passwd
+echo "Locking out $DEBIRF_LABEL superuser from password-based access:"
+debirf_exec passwd -l root
