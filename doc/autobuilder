@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# automatically build each of the shipped example profiles, and log
-# the build process.
+# automatically build each of the shipped example profiles, log the
+# build process, and create indexes and sha256sums of the whole deal.
 
 # NOTE: this will take long time, and consume a lot of disk space.  i
 # advise pointing the http_proxy environment variable at a nearby
@@ -12,14 +12,43 @@
 # Copyright 2011, released under the GPL version 3 or later.
 
 PROFILE_LOC=/usr/share/doc/debirf/example-profiles
+DATE_NOW=$(date +%F)
+SUITES="stable unstable"
 
 mkdir -p profiles logs
 
 errors=0
 
-for DEBIRF_SUITE in stable unstable; do
+cat > profiles/index.html <<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>debirf autobuilt images ($DATE_NOW)</title>
+<meta name="robots" content="nofollow" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+</head>
+<body>
+<h1>autobuilt images for <a href="http://cmrg.fifthhorseman.net/wiki/debirf"><tt>debirf</tt></a></h1>
+<p>These images were auto-generated on $DATE_NOW on $(hostname --fqdn) ($(uname -mo)).</p>
+<p>To download these images for your own use, you probably want <em>either</em>:</p>
+<ul><li>a kernel (<tt>vmlinu*</tt>) and</li><li>an initramfs (<tt>*.cgz</tt>)</li></ul>
+<p><em>or</em></p>
+<ul><li>a CD image (<tt>*.iso</tt>)</li></ul>
+<p>You almost certainly do not need all three files.</p>
+<p>Please make sure to review the <a href="sha256sums.txt">checksums</a> after downloading.</p>
+EOF
+
+printf "# debirf autobuilt images (generated %s on %s)\n" "$DATE_NOW" "$(hostname --fqdn)" > profiles/sha256sums.txt
+
+
+for DEBIRF_SUITE in $SUITES; do
     export DEBIRF_SUITE
     mkdir -p "profiles/$DEBIRF_SUITE"
+    cat >>profiles/index.html <<EOF
+<h2 id="suite-$DEBIRF_SUITE">$DEBIRF_SUITE images</h2>
+<dl>
+EOF
+
     for profile in $(cd "$PROFILE_LOC" && printf "%s " *.tgz); do
 	profile=$(basename "$profile" .tgz)
 
@@ -29,18 +58,33 @@ for DEBIRF_SUITE in stable unstable; do
 	    printf "Failed to make %s (%s)\n" "$profile" "$DEBIRF_SUITE"
 	    errors=$(( $errors + 1 ))
 	else
-            for bootloader in grub isolinux; do
+            for bootloader in isolinux grub; do
                 if ! DEBIRF_ISO_BOOTLOADER="$bootloader" debirf makeiso "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso-${bootloader}.log" 2>&1 ; then
 	            printf "Failed to makeiso[%s] %s (%s)\n" "$bootloader" "$profile" "$DEBIRF_SUITE"
 	            errors=$(( $errors + 1 ))
                 fi
-                # these files are quick to regenerate and they take a
-                # lot of space:
-                rm -rf "profiles/$DEBIRF_SUITE/$profile/"*iso
             done
 	fi
+        kernel=
+        (cd profiles
+            printf "<dt id=\"profile-%s-%s\">%s</dt><dd><ul>\n" "$DEBIRF_SUITE" "$profile" "$profile" >> index.html
+            for file in \
+                "$DEBIRF_SUITE/$profile/vmlinu"* \
+                "$DEBIRF_SUITE/$profile/"*.cgz \
+                "$DEBIRF_SUITE/$profile/"*.iso 
+            do
+                if [ -e "$file" ]; then
+                    printf "<li><a href=\"%s\">%s</a> (%siB)</li>\n" "$file" "$(basename "$file")" "$(du -h "$file" | cut -f1)" >> index.html
+                    sha256sum "$file" >> sha256sums.txt
+                fi
+            done
+            printf "</ul></dd>\n" >>index.html
+        )
     done
+    printf "</dl>\n" >>profiles/index.html
 done
+
+printf "</body>\n</html>\n" >>profiles/index.html
 
 if [ "$errors" -gt 0 ]; then
     exit 1

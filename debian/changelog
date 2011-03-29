@@ -1,3 +1,9 @@
+debirf (0.31~pre) UNRELEASED; urgency=low
+
+  * update autobuilder to generate index and checksums
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 29 Mar 2011 00:41:46 -0400
+
 debirf (0.30) unstable; urgency=low
 
   * Fix silly error in install-runit module (should fix xkiosk)
