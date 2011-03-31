@@ -29,13 +29,13 @@ cat > "profiles/$ARCH/index.html" <<EOF
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>debirf autobuilt images ($DATE_NOW)</title>
+<title>debirf $ARCH autobuilt images ($DATE_NOW)</title>
 <meta name="robots" content="nofollow" />
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 </head>
 <body>
-<h1>autobuilt images for <a href="http://cmrg.fifthhorseman.net/wiki/debirf"><tt>debirf</tt></a></h1>
-<p>These images were auto-generated on $DATE_NOW on $(hostname --fqdn) ($(uname -mo)).</p>
+<h1>autobuilt $ARCH images for <a href="http://cmrg.fifthhorseman.net/wiki/debirf"><tt>debirf</tt></a></h1>
+<p>These $ARCH images were auto-generated on $DATE_NOW on $(hostname --fqdn) ($(uname -o)).</p>
 <p>To download these images for your own use, you probably want <em>either</em>:</p>
 <ul><li>a kernel (<tt>vmlinu*</tt>) and</li><li>an initramfs (<tt>*.cgz</tt>)</li></ul>
 <p><em>or</em></p>
@@ -44,7 +44,7 @@ cat > "profiles/$ARCH/index.html" <<EOF
 <p>Please make sure to review the <a href="sha256sums.txt">checksums</a> after downloading.</p>
 EOF
 
-printf "# debirf autobuilt images (generated %s on %s)\n" "$DATE_NOW" "$(hostname --fqdn)" > "profiles/$ARCH/sha256sums.txt"
+printf "# debirf %s autobuilt images (generated %s on %s)\n" "$ARCH" "$DATE_NOW" "$(hostname --fqdn)" > "profiles/$ARCH/sha256sums.txt"
 
 
 for DEBIRF_SUITE in $SUITES; do
