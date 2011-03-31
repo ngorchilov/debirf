@@ -14,12 +14,13 @@
 PROFILE_LOC=/usr/share/doc/debirf/example-profiles
 DATE_NOW=$(date +%F)
 SUITES="stable unstable"
+ARCH="$(dpkg --print-architecture)"
 
-mkdir -p profiles logs
+mkdir -p "profiles/$ARCH" "logs/$ARCH"
 
 errors=0
 
-cat > profiles/index.html <<EOF
+cat > "profiles/$ARCH/index.html" <<EOF
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
@@ -38,13 +39,13 @@ cat > profiles/index.html <<EOF
 <p>Please make sure to review the <a href="sha256sums.txt">checksums</a> after downloading.</p>
 EOF
 
-printf "# debirf autobuilt images (generated %s on %s)\n" "$DATE_NOW" "$(hostname --fqdn)" > profiles/sha256sums.txt
+printf "# debirf autobuilt images (generated %s on %s)\n" "$DATE_NOW" "$(hostname --fqdn)" > "profiles/$ARCH/sha256sums.txt"
 
 
 for DEBIRF_SUITE in $SUITES; do
     export DEBIRF_SUITE
-    mkdir -p "profiles/$DEBIRF_SUITE"
-    cat >>profiles/index.html <<EOF
+    mkdir -p "profiles/$ARCH/$DEBIRF_SUITE"
+    cat >> "profiles/$ARCH/index.html" <<EOF
 <h2 id="suite-$DEBIRF_SUITE">$DEBIRF_SUITE images</h2>
 <dl>
 EOF
@@ -52,21 +53,21 @@ EOF
     for profile in $(cd "$PROFILE_LOC" && printf "%s " *.tgz); do
 	profile=$(basename "$profile" .tgz)
 
-	rm -rf "profiles/$DEBIRF_SUITE/$profile"
-	tar xzf "$PROFILE_LOC"/${profile}.tgz -C "profiles/$DEBIRF_SUITE"
-	if ! debirf make "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
+	rm -rf "profiles/$ARCH/$DEBIRF_SUITE/$profile"
+	tar xzf "$PROFILE_LOC"/${profile}.tgz -C "profiles/$ARCH/$DEBIRF_SUITE"
+	if ! debirf make "profiles/$ARCH/$DEBIRF_SUITE/$profile" > "logs/${ARCH}/${DEBIRF_SUITE}-${profile}.log" 2>&1 ; then
 	    printf "Failed to make %s (%s)\n" "$profile" "$DEBIRF_SUITE"
 	    errors=$(( $errors + 1 ))
 	else
             for bootloader in isolinux grub; do
-                if ! DEBIRF_ISO_BOOTLOADER="$bootloader" debirf makeiso "profiles/$DEBIRF_SUITE/$profile" > "logs/${DEBIRF_SUITE}-${profile}.iso-${bootloader}.log" 2>&1 ; then
+                if ! DEBIRF_ISO_BOOTLOADER="$bootloader" debirf makeiso "profiles/$ARCH/$DEBIRF_SUITE/$profile" > "logs/${ARCH}/${DEBIRF_SUITE}-${profile}.iso-${bootloader}.log" 2>&1 ; then
 	            printf "Failed to makeiso[%s] %s (%s)\n" "$bootloader" "$profile" "$DEBIRF_SUITE"
 	            errors=$(( $errors + 1 ))
                 fi
             done
 	fi
         kernel=
-        (cd profiles
+        (cd "profiles/$ARCH"
             printf "<dt id=\"profile-%s-%s\">%s</dt><dd><ul>\n" "$DEBIRF_SUITE" "$profile" "$profile" >> index.html
             for file in \
                 "$DEBIRF_SUITE/$profile/vmlinu"* \
@@ -81,10 +82,10 @@ EOF
             printf "</ul></dd>\n" >>index.html
         )
     done
-    printf "</dl>\n" >>profiles/index.html
+    printf "</dl>\n" >> "profiles/$ARCH/index.html"
 done
 
-printf "</body>\n</html>\n" >>profiles/index.html
+printf "</body>\n</html>\n" >> "profiles/$ARCH/index.html"
 
 if [ "$errors" -gt 0 ]; then
     exit 1
