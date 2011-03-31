@@ -16,6 +16,11 @@ DATE_NOW=$(date +%F)
 SUITES="stable unstable"
 ARCH="$(dpkg --print-architecture)"
 
+if ! dpkg -l grub-common syslinux-common xorriso >/dev/null ; then
+    printf "Please install the missing packages to do a full debirf autobuild\n" >&2
+    exit 1
+fi
+
 mkdir -p "profiles/$ARCH" "logs/$ARCH"
 
 errors=0
