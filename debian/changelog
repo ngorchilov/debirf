@@ -1,6 +1,9 @@
 debirf (0.31~pre) UNRELEASED; urgency=low
 
-  * update autobuilder to generate index and checksums
+  * update autobuilder to generate index and checksums and be explicit
+    about what architecture it is building.
+  * modules/rescue: select u-boot-tools preferentially if available in the
+    requested distro.
 
  -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 29 Mar 2011 00:41:46 -0400
 

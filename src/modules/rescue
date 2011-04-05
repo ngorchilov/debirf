@@ -54,8 +54,6 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  dosfstools \
  tofrodos \
  mtd-utils \
- uboot-envtools \
- uboot-mkimage \
  grub2 \
  scrub \
  wipe \
@@ -66,3 +64,10 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
 # to that.
 
 debirf_exec apt-get --no-install-recommends --assume-yes install partimage || true
+
+# let's try some different configurations of uboot-related tools, since the
+# package names seem to be in flux right now:
+
+debirf_exec apt-get --no-install-recommends --assume-yes install u-boot-tools || \
+    debirf_exec apt-get --no-install-recommends --assume-yes install uboot-envtools uboot-mkimage || \
+    true
