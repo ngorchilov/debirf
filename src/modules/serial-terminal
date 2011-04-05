@@ -8,22 +8,40 @@
 # and
 # Daniel Kahn Gillmor <dkg@fifthhorseman.net>.
 #
-# They are Copyright 2007, and are all released under the GPL,
+# They are Copyright 2007,2011, and are all released under the GPL,
 # version 3 or later.
 
 INITTAB="$DEBIRF_ROOT/etc/inittab"
-TTY="ttyS0"
+SCRIPTED_GETTY="/usr/local/sbin/debirf-console-getty"
 
-# make the device node, just to be sure it's there.
+cat >>"${DEBIRF_ROOT}${SCRIPTED_GETTY}" <<'EOF'
+#!/bin/sh
+# find the first serial console kernel parameter and place a getty there:
+for param in $(cat /proc/cmdline); do
+  if printf "%s" "$param" | egrep -q '^console=ttyS[0-9]+,[0-9]+n8$'; then
+    port="$(printf "%s" "$param" | cut -f2 -d= | cut -f1 -d,)"
+    speed="$(printf "%s" "$param" | cut -f2 -d, | cut -f1 -dn)"
+    exec /sbin/getty -L "$port" "$speed"
+  fi
+done
+# did not find a kernel serial console; default to /dev/ttyS0 115200
+exec /sbin/getty -L ttyS0 115200
+EOF
+chmod a+x "${DEBIRF_ROOT}${SCRIPTED_GETTY}"
+
+debirf_exec chown root:root "${SCRIPTED_GETTY}"
+
+# make sure the basic serial devices are present
 debirf_exec mknod dev/ttyS0 c 4 64
-#debirf_exec mknod dev/ttyS1 c 4 65
-#debirf_exec mknod dev/ttyS2 c 4 66
+debirf_exec mknod dev/ttyS1 c 4 65
+debirf_exec mknod dev/ttyS2 c 4 66
+debirf_exec mknod dev/ttyS3 c 4 67
 
-if grep "$TTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
-    echo "inittab already has terminal on $TTY."
+if grep "$SCRIPTED_GETTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
+    echo "inittab already has a getty on the console."
 else
     cat <<EOF >> "$INITTAB"
-# debirf: added serial console output:
-T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100
+# debirf: added serial console login prompt:
+T0:23:respawn:$SCRIPTED_GETTY
 EOF
 fi

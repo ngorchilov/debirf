@@ -5,8 +5,10 @@ debirf (0.31~pre) UNRELEASED; urgency=low
   * modules/rescue: select u-boot-tools preferentially if available in the
     requested distro.
   * modules/rescue: adding screen and bonnie++
+  * modules/serial-terminal: automate selection of serial port and bit
+    rate for getty based on kernel params.
 
- -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 29 Mar 2011 00:41:46 -0400
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 05 Apr 2011 14:56:58 -0400
 
 debirf (0.30) unstable; urgency=low
 
