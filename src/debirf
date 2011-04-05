@@ -129,7 +129,10 @@ run_modules() {
 pack_rootfs() {
     # need to pack archive in fakechroot/chroot so that symlinks correctly
     # point within debirf root, instead of to host path
-    fakeroot_if_needed debirf_exec sh -c "find * | cpio --create -H newc" | gzip > "$1"
+
+    # abort with a failure if our attempts to build the rootfs fail:
+    set -o pipefail
+    fakeroot_if_needed bash -c ". $DEBIRF_COMMON && debirf_exec sh -c 'find * | cpio --create -H newc'" | gzip > "$1"
 }
 export -f pack_rootfs
 
