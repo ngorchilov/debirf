@@ -57,6 +57,8 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  grub2 \
  scrub \
  wipe \
+ screen \
+ bonnie++ \
 
 
 # partimage is not available in amd64 on ubuntu at the moment -- we
