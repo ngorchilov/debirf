@@ -132,7 +132,7 @@ pack_rootfs() {
 
     # abort with a failure if our attempts to build the rootfs fail:
     set -o pipefail
-    fakeroot_if_needed bash -c ". $DEBIRF_COMMON && debirf_exec sh -c 'find * | cpio --create -H newc'" | gzip > "$1"
+    fakeroot_if_needed bash -c ". $DEBIRF_COMMON && debirf_exec sh -c 'find * | cpio --create -H newc'" | gzip -9 > "$1"
 }
 export -f pack_rootfs
 
@@ -210,7 +210,7 @@ EOF
     pack_rootfs "$NEST_ROOT"/rootfs.cgz
 
     msg "creating wrapper cgz..."
-    fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip > "$INITRD"
+    fakeroot_if_needed sh -c "cd $NEST_ROOT && find * | cpio --create -H newc" | gzip -9 > "$INITRD"
 }
 
 # determine what the host system distro is, and set debirf build defaults
