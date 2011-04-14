@@ -187,7 +187,7 @@ if (grep -q break=top /proc/cmdline); then
 fi
 mkdir /newroot
 MEMSIZE=\$(free | grep 'Mem:' | awk '{ print \$2 }')
-mount -t tmpfs -o size=\${MEMSIZE}k tmpfs /newroot
+mount -t tmpfs -o size=\${MEMSIZE}k,mode=0755 tmpfs /newroot
 if (grep -q break=preunpack /proc/cmdline); then
   echo "honoring break=preunpack kernel arg"
   /bin/sh
