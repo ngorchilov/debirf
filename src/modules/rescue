@@ -30,35 +30,35 @@ EOF
 
 # install packages
 debirf_exec apt-get --no-install-recommends --assume-yes install \
- lvm2 \
- lsof \
- hdparm \
- parted \
- pciutils \
- testdisk \
- foremost \
- mdadm \
- smartmontools \
- eject \
- wodim \
- ddrescue \
+ bonnie++ \
  cryptsetup \
- sdparm \
+ ddrescue \
+ dosfstools \
+ e2tools \
+ e2undel \
+ eject \
+ fatresize \
+ foremost \
+ grub2 \
+ hdparm \
+ hfsplus \
  hfsprogs \
  hfsutils \
- hfsplus \
- e2undel \
- recover \
- e2tools \
- fatresize \
- dosfstools \
- tofrodos \
+ lsof \
+ lvm2 \
+ mdadm \
  mtd-utils \
- grub2 \
- scrub \
- wipe \
+ parted \
+ pciutils \
+ recover \
  screen \
- bonnie++ \
+ scrub \
+ sdparm \
+ smartmontools \
+ testdisk \
+ tofrodos \
+ wipe \
+ wodim \
 
 
 # partimage is not available in amd64 on ubuntu at the moment -- we
