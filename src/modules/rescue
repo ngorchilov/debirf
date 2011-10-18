@@ -30,6 +30,7 @@ EOF
 
 # install packages
 debirf_exec apt-get --no-install-recommends --assume-yes install \
+ blktool \
  bonnie++ \
  cryptsetup \
  ddrescue \
@@ -45,6 +46,7 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  hfsprogs \
  hfsutils \
  lsof \
+ lsscsi \
  lvm2 \
  mdadm \
  mtd-utils \
@@ -53,8 +55,12 @@ debirf_exec apt-get --no-install-recommends --assume-yes install \
  recover \
  screen \
  scrub \
+ scsitools \
  sdparm \
+ sg3-utils \
  smartmontools \
+ smp-utils \
+ testdisk \
  testdisk \
  tofrodos \
  wipe \
