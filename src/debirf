@@ -38,9 +38,27 @@ ROOT_WARNING=true
 # location of devices.tar.gz file
 export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 
-# list of packages to include/exclude from debootstrap
-export INCLUDE=busybox-static,cpio,gpgv,less
-export EXCLUDE=apt-utils,bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
+# list of packages to include in debootstrap
+export INCLUDE=\
+busybox-static,\
+cpio,\
+gpgv,\
+less
+
+# list of packages to exclude from debootstrap
+export EXCLUDE=\
+apt-utils,\
+bsdmainutils,\
+cron,\
+ed,\
+info,\
+logrotate,\
+man-db,\
+manpages,\
+tasksel,\
+tasksel-data,\
+tcpd,\
+traceroute
 
 ###############################################################
 ### FUNCTIONS
