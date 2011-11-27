@@ -37,7 +37,7 @@ debirf_exec mknod dev/ttyS1 c 4 65
 debirf_exec mknod dev/ttyS2 c 4 66
 debirf_exec mknod dev/ttyS3 c 4 67
 
-if grep "$SCRIPTED_GETTY" "$INITTAB" | grep -q -v "^[:space:]*#" ; then
+if grep "$SCRIPTED_GETTY" "$INITTAB" | grep -q -v "^[[:space:]]*#" ; then
     echo "inittab already has a getty on the console."
 else
     cat <<EOF >> "$INITTAB"
