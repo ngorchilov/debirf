@@ -39,7 +39,7 @@ ROOT_WARNING=true
 export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 
 # list of packages to include/exclude from debootstrap
-export INCLUDE=cpio,gpgv,less
+export INCLUDE=busybox-static,cpio,gpgv,less
 export EXCLUDE=apt-utils,bsdmainutils,cron,ed,info,logrotate,man-db,manpages,tasksel,tasksel-data,tcpd,traceroute
 
 ###############################################################
@@ -161,20 +161,14 @@ create_initrd_nested() {
     rm -rf "$NEST_ROOT"
     mkdir -p "$NEST_ROOT"/{bin,lib}
 
-    # copy needed executables into nest
-    cp -f /bin/busybox "$NEST_ROOT"/bin/
+    # copy in busybox-static from root, and link executables
+    cp -f "$DEBIRF_ROOT"/bin/busybox "$NEST_ROOT"/bin/
     for util in awk cpio free grep gunzip ls mkdir mount rm sh umount ; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
     cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
 
     # copy in needed libraries
-    for lib in $(ldd "$NEST_ROOT"/bin/* | \
-	egrep '*.so.[[:digit:]]+ \(0x[[:xdigit:]]{8,16}\)$' | \
-	sed -r 's|.*[[:space:]](/[^[:space:]]*)[[:space:]]\(0x[[:xdigit:]]{8,16}\)$|\1|' | \
-	sort -u) ; do
-	echo -e "$lib\n$(readlink -f $lib)" | cpio --pass-through --make-directories "$NEST_ROOT"/
-    done
     cp -f /lib/klibc-* "$NEST_ROOT"/lib/
     if [ -L /lib64 ] && [ $(readlink /lib64) = /lib ] ; then
 	ln -s /lib "$NEST_ROOT"/lib64
