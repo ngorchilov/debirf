@@ -183,10 +183,13 @@ create_initrd_nested() {
     for util in awk cpio free grep gunzip ls mkdir mount rm sh umount ; do
 	ln "$NEST_ROOT"/bin/busybox "$NEST_ROOT"/bin/"$util"
     done
-    cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
 
-    # copy in needed libraries
+    # copy in run-init and needed libraries
+    cp -f /usr/lib/klibc/bin/run-init "$NEST_ROOT"/bin/
     cp -f /lib/klibc-* "$NEST_ROOT"/lib/
+
+    # symlink /lib64 if that is done on host
+    # FIXME: is this necessary?
     if [ -L /lib64 ] && [ $(readlink /lib64) = /lib ] ; then
 	ln -s /lib "$NEST_ROOT"/lib64
     fi
