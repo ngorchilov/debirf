@@ -35,9 +35,13 @@ if [ -z "$DEBIRF_KERNEL_PACKAGE" ] ; then
     # may be different than what is installed on the build host)
     KNAME=$(debirf_exec apt-cache show linux-image-"$KARCH" | grep '^Depends: ' | sed 's/^Depends: //' | tr ',' '\n' | tr -d ' ' | grep ^linux-image | sort -r | head -n1)
 
-    # download only the desired kernel package directly into the apt
-    # cache for dpkg extraction
-    debirf_exec sh -c "cd /var/cache/apt/archives/ && aptitude download \"$KNAME\""
+    # download only the desired kernel package for later dpkg
+    # extraction.  this also downloads the kernel dependencies, but
+    # they will not be installed, and the downloaded packages will all
+    # be purged in the end by the clean-root module.  it would be nice
+    # to just use "apt-get download", but that's only supported since
+    # wheezy.
+    debirf_exec apt-get install -d -y "$KNAME"
 
 else
     # install kernel deb if given at command line
