@@ -17,7 +17,7 @@
 # remove all cached apt information
 debirf_exec apt-get --assume-yes --purge autoremove
 debirf_exec apt-get clean
-rm "$DEBIRF_ROOT/var/cache/apt/"*.bin
+rm -f "$DEBIRF_ROOT/var/cache/apt/"*.bin
 rm -rf "$DEBIRF_ROOT/var/lib/apt/lists/"*
 mkdir "$DEBIRF_ROOT/var/lib/apt/lists/partial"
 
