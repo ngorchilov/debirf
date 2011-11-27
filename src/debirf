@@ -41,7 +41,6 @@ export DEVICE_ARCHIVE=${DEVICE_ARCHIVE:-/usr/share/debirf/devices.tar.gz}
 # list of packages to include in debootstrap
 export INCLUDE=\
 busybox-static,\
-cpio,\
 gpgv,\
 less
 
