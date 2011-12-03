@@ -151,10 +151,10 @@ architecture to build (default is the architecture of the build
 machine)
 .TP
 .B DEBIRF_SUITE
-suite to build from (default "karmic" on Ubuntu, "squeeze" otherwise)
+suite to build from (default determined from lsb_release, otherwise "sid")
 .TP
 .B DEBIRF_DISTRO
-distro for suite (default determined by DEBIRF_SUITE)
+distro for suite (default determined from lsb_release, otherwise "debian")
 .TP
 .B DEBIRF_MIRROR
 mirror to pull suite (default determined by DEBIRF_DISTRO)
