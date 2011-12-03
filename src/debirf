@@ -108,13 +108,6 @@ create_debootstrap() {
 
     mkdir -p "$DEBIRF_ROOT"
 
-    ##############################################
-    # FIXME: this is a HACK to get around a bug in the initscripts
-    # postinst script (see debug #650141)
-    mkdir -p "$DEBIRF_ROOT"/run
-    ln -s "$DEBIRF_ROOT"/dev/shm "$DEBIRF_ROOT"/run/shm
-    ##############################################
-
     if [ "$ROOT_BUILD" = 'true' ] ; then
 	eval "/usr/sbin/debootstrap $OPTS"
     else
