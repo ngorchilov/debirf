@@ -1,10 +1,11 @@
-debirf (0.32~pre) UNRELEASED; urgency=low
+debirf (0.32) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]
   * make rootfs mode 0755 (Closes: #622808)
   * add several good packages for rescue module (Closes: #644576)
     Thanks, Matt Taggart!
   * updated debian/copyright to latest DEP5 spec
+  * Standards-Version: 3.9.2 (no changes needed)
 
   [ Jameson Rollins ]
   * remove dependency on busybox
