@@ -16,6 +16,19 @@ The debirf system is outlined at:
 .PP
    http://cmrg.fifthhorseman.net/wiki/debirf
 .PD
+.SH EXAMPLES
+.PP
+Make a stock debirf rescue image using the default settings:
+.nf
+ $ tar xzf /usr/share/doc/debirf/example-profiles/rescue.tgz
+ $ debirf make rescue
+.fi
+.PP
+Make a debirf rescue image, specifying the mirror and a local HTTP proxy:
+.nf
+ $ tar xzf /usr/share/doc/debirf/example-profiles/rescue.tgz
+ $ DEBIRF_MIRROR=http://ftp.debian.org/debian http_proxy=http://127.0.0.1:3128/ debirf make rescue
+.fi
 .SH SUBCOMMANDS
 \fBdebirf\fP takes various subcommands:
 .PD
@@ -183,5 +196,6 @@ This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
 .SH "SEE ALSO"
+.BR /usr/share/doc/debirf/README,
 .BR debootstrap (8),
 .BR fakechroot (1)
