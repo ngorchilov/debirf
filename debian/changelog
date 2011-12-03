@@ -7,14 +7,14 @@ debirf (0.32) unstable; urgency=low
   * updated debian/copyright to latest DEP5 spec
   * Standards-Version: 3.9.2 (no changes needed)
 
-  [ Jameson Rollins ]
+  [ Jameson Graef Rollins ]
   * remove dependency on busybox
   * fix builds for sid/sid and stable/stable (cross builds are still not
     working, unfortunately)
   * remove aptitude from image
   * other minor bug fixes
 
- -- Jameson Rollins <jrollins@finestructure.net>  Sun, 27 Nov 2011 12:32:59 -0800
+ -- Jameson Graef Rollins <jrollins@finestructure.net>  Sun, 27 Nov 2011 12:32:59 -0800
 
 debirf (0.31) unstable; urgency=low
 
