@@ -187,8 +187,15 @@ a bash-sourceable file.
 .PD
 .SH AUTHOR
 Written by Jameson Rollins and Daniel Kahn Gillmor.
-.SH "REPORTING BUGS"
-Report bugs to <debirf@fifthhorseman.net>.
+.SH "BUGS"
+Debirf does not work as a non-privileged user across different
+versions of libc.
+.
+In particular, this means that you probably won't be able to build an
+image from a different version of the operating system than you're
+using without building as root.
+.PP
+Please report bugs in debirf via the debian BTS: http://bugs.debian.org/
 .SH COPYRIGHT
 Copyright \(co 2007-2011 Jameson Rollins and Daniel Kahn Gillmor
 .br
