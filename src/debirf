@@ -227,25 +227,22 @@ EOF
 # determine what the host system distro is, and set debirf build defaults
 # accordingly
 set_distro() {
-    RUN_DISTRO=$(head -1 /etc/issue | awk '{ print $1 }' | tr "[:upper:]" "[:lower:]")
-    case "$RUN_DISTRO" in
-	ubuntu)
-	    DEBIRF_SUITE=${DEBIRF_SUITE:-"karmic"}
-	    ;;
-	*)
-	    DEBIRF_SUITE=${DEBIRF_SUITE:-"squeeze"}
-	    ;;
-    esac
+    local distro
+    local suite
 
-    case "$DEBIRF_SUITE" in
-	hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
-	    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"ubuntu"}
-	    ;;
-	*)
-	    DEBIRF_DISTRO=${DEBIRF_DISTRO:-"debian"}
-	    ;;
-    esac
+    if type lsb_release &>/dev/null ; then
+	distro=$(lsb_release --id --short)
+	suite=$(lsb_release --codename --short)
+    else
+	distro="debian"
+	suite="sid"
+    fi
 
+    distro=${distro,,}
+    suite=${suite,,}
+
+    DEBIRF_DISTRO=${DEBIRF_DISTRO:-$distro}
+    DEBIRF_SUITE=${DEBIRF_SUITE:-$suite}
     DEBIRF_MIRROR=${DEBIRF_MIRROR:-"http://mirrors.kernel.org/${DEBIRF_DISTRO}"}
     DEBIRF_KEYRING=${DEBIRF_KEYRING:-"/usr/share/keyrings/${DEBIRF_DISTRO}-archive-keyring.gpg"}
 
