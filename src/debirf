@@ -81,6 +81,7 @@ subcommands:
     -k|--kernel=KERNEL        install KERNEL .deb, instead of default kernel
   enter PROFILE [CMDS]      enter shell in debirf root (or execute CMDS)
   makeiso PROFILE           create a bootable ISO using the given profile
+  makedeb PROFILE           create an installable debian package
   help                      this help
 
 EOF
@@ -696,6 +697,90 @@ EOF
     msg "iso: ${DEBIRF_BUILDD}/${ISO}"
 }
 
+# create a .deb package from the given kernel and initramfs
+makedeb() {
+    setup_environment "$1"
+    shift
+
+    [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
+
+    local KERNEL=$(check_kernel)
+
+    local INITRAMFS=$(check_initramfs)
+
+    msg "building debian package..."
+
+    # determine the name fields from the initramfs
+    # FIXME: is this the right way to make the package name/version/arch?
+    local INFO=($(basename "$INITRAMFS" .cgz | tr _ ' '))
+    # make the package name from the label and suite
+    local PKGNAME="${INFO[0]}-${INFO[1]}"
+    # take the version and arch from the kernel
+    local KERNEL_INFO=($(echo ${INFO[2]} | tr '-' ' '))
+    local VERSION="${KERNEL_INFO[0]}-${KERNEL_INFO[1]}"
+    local ARCH="${KERNEL_INFO[2]}"
+    local PKG="${PKGNAME}_${VERSION}_${ARCH}"
+
+    local DEBDIR="${DEBIRF_BUILDD}/debian"
+    rm -rf "$DEBDIR"
+
+    # FIXME: can we make this script somehow common for all debirf
+    # image packages, so that it just makes images for whatever's in
+    # /boot/debirf?
+    mkdir -p "$DEBDIR"/etc/grub.d
+    local GRUBSCRIPT="etc/grub.d/50_${PKGNAME}"
+    # FIXME: what should the update-grub log output say?
+    cat <<EOFF >"$DEBDIR"/"$GRUBSCRIPT"
+#!/bin/bash
+echo Found Debirf ${INFO[*]} >&2
+cat <<EOF
+menuentry 'Debirf ${INFO[*]}' --class debian --class gnu-linux --class gnu --class os {
+    echo \'Loading linux $KERNEL...\'
+    linux /debirf/$KERNEL
+    echo \'Loading imitramfs $INITRAMFS...\'
+    initrd /debirf/$INITRAMFS
+}
+EOF
+EOFF
+    chmod 755 "$DEBDIR"/"$GRUBSCRIPT"
+
+    mkdir -p "$DEBDIR"/boot/debirf
+    ln "$DEBIRF_BUILDD"/"$KERNEL" "$DEBDIR"/boot/debirf
+    ln "$DEBIRF_BUILDD"/"$INITRAMFS" "$DEBDIR"/boot/debirf
+
+    # FIXME: is this the right way to calculate installed package
+    # size?
+    local SIZE=$(du -sk "$DEBDIR" | awk '{ print $1 }')
+
+    mkdir -p "$DEBDIR"/DEBIAN
+    # FIXME: do we need a depends on grub2-common or something?
+    cat <<EOF >"$DEBDIR"/DEBIAN/control
+Package: $PKGNAME
+Version: $VERSION
+Architecture: $ARCH
+Maintainer: Debirf Builder <debirf@localhost>
+Installed-Size: $SIZE
+Section: admin
+Priority: extra
+Homepage: http://cmrg.fifthhorseman.net/wiki/debirf
+Description: install debirf kernel/initramfs in /boot/debirf
+EOF
+    cat <<EOF >"$DEBDIR"/DEBIAN/postinst
+#/bin/sh
+set -e
+update-grub
+EOF
+    chmod 755 "$DEBDIR"/DEBIAN/postinst
+    echo /"$GRUBSCRIPT" >"$DEBDIR"/DEBIAN/conffiles
+    (cd "$DEBDIR"; find boot ! -type d -exec md5sum '{}' \;) >"$DEBDIR"/DEBIAN/md5sums
+
+    # actually build the package
+    fakeroot dpkg --build "$DEBDIR" "$DEBIRF_BUILDD"
+
+    msg "debirf deb created."
+    msg "package can be installed with the following command:"
+    msg "sudo dpkg -i ${DEBIRF_BUILDD}/${PKG}.deb"
+}
 
 ###############################################################
 ### MAIN
@@ -710,6 +795,9 @@ case $COMMAND in
         ;;
     'makeiso'|'i')
         makeiso "$@"
+        ;;
+    'makedeb'|'d')
+        makedeb "$@"
         ;;
     'enter'|'e')
         enter "$@"

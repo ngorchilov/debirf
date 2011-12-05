@@ -51,6 +51,12 @@ is used if it is available.  You may use the
 \fBDEBIRF_ISO_BOOTLOADER\fP environment variable to specify a
 preference manually (see below).
 .TP
+.B makedeb PROFILE
+Create an installable Debian package from the kernel and initramfs in
+PROFILE.  The created package will install the kernel and initramfs in
+/boot/debirf, and will install an /etc/grub.d hook script which will
+add a debirf grub boot target.
+.TP
 .B help
 Output a brief usage summary.
 .PD
