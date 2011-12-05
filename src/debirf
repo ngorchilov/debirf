@@ -529,6 +529,38 @@ enter() {
     fi
 }
 
+# find kernel in profile
+check_kernel() {
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c '^vmlinu.*$') in
+	0)
+	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    ;;
+	1)
+	    msg "kernel found."
+	    echo ${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
+	    ;;
+	*)
+	    failure "Multiple kernels found.  Please clear out all but the desired kernel."
+	    ;;
+    esac
+}
+
+# find initramfs in profile
+check_initramfs() {
+    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c "^${DEBIRF_LABEL}"'_.*\.cgz$') in
+	0)
+	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
+	    ;;
+	1)
+	    msg "initramfs found."
+	    echo ${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 "${DEBIRF_LABEL}"_*.cgz)}
+	    ;;
+	*)
+	    failure "Multiple initramfs found.  Please clear out all but the desired initramfs."
+	    ;;
+    esac
+}
+
 # create an ISO from the given kernel and initramfs (requires GRUB,
 # see:
 # http://www.gnu.org/software/grub/manual/html_node/Making-a-GRUB-bootable-CD-ROM.html)
@@ -538,33 +570,9 @@ makeiso() {
 
     [ -d "$DEBIRF_PROFILE" ] || failure "'$DEBIRF_PROFILE' does not seem to be a directory"
 
-    # find kernel
-    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c '^vmlinu.*$') in
-	0)
-	    failure "Failed to find a kernel.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
-	    ;;
-	1)
-	    msg "kernel found."
-	    local KERNEL=${KERNEL:-$(cd "${DEBIRF_BUILDD}" && ls -1 vmlinu*)}
-	    ;;
-	*)
-	    failure "Multiple kernels found.  Please clear out all but the desired kernel."
-	    ;;
-    esac
+    local KERNEL=$(check_kernel)
 
-    # find initramfs
-    case $(cd "${DEBIRF_BUILDD}" && ls -1 | grep -c "^${DEBIRF_LABEL}"'_.*\.cgz$') in
-	0)
-	    failure "Failed to find a single initramfs.  Maybe you need to run 'debirf make $DEBIRF_PROFILE' first?"
-	    ;;
-	1)
-	    msg "initramfs found."
-	    local INITRAMFS=${INITRAMFS:-$(cd "${DEBIRF_BUILDD}" && ls -1 "${DEBIRF_LABEL}"_*.cgz)}
-	    ;;
-	*)
-	    failure "Multiple initramfs found.  Please clear out all but the desired initramfs."
-	    ;;
-    esac
+    local INITRAMFS=$(check_initramfs)
 
     # determine which eltorito boot loader we're using
     if [ -z "$DEBIRF_ISO_BOOTLOADER" ] ; then
