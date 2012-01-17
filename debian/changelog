@@ -1,3 +1,11 @@
+debirf (0.33~pre1) UNRELEASED; urgency=low
+
+  [ Jameson Rollins ]
+  * fix comments about default suite in example config files.  Thanks,
+    Simon Elsbrock!  (Closes: #656138)
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Mon, 16 Jan 2012 20:36:46 -0500
+
 debirf (0.32) unstable; urgency=low
 
   [ Daniel Kahn Gillmor ]
